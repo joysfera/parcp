@@ -108,16 +108,12 @@ remove bugs.
    Internet e-mail addresses:
    ~~~~~~~~~~~~~~~~~~~~~~~~~~
    pstehlik@sophics.cz    (my work address)
-   joy@atari.org          (my home address)
+   joy@sophics.cz         (my home address)
 
 
 The latest PARCP version is maintained for download at:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   URL: http://joy.atari.org/
    URL: http://joy.sophics.cz/
-
-The official PARCP BBS is
-  RST BBS in Pilsen, Czech Republic, tel. +420-19-227944
 
 --------------------------------------------------------------------------
 
@@ -275,4 +271,45 @@ ideas and hints I got from them. Thank you all again!
   26.06.2000         Yakov Feldman (USA)            BMT Micro
   26.06.2000         Didier Mequignon (FR)
   30.06.2000         Stuart Updike (USA)            BMT Micro
+  11.07.2000         Markus Recktenwald
+  12.07.2000         Mojmir Vajgel
+  19.07.2000         Thomas Walker
+  24.07.2000         Javier Zubieta
+  04.08.2000         Philipp Schweighardt
+  23.08.2000         Christian Krusch
+  04.09.2000         George Kollar
+  25.09.2000         Paulo Braga
+  25.10.2000         Juan Lerma
+  20.11.2000         Lonny Hawkins
+  04.12.2000         Raphael Slepon
+  04.12.2000         Sysnac Technologies Pte Ltd
+  10.01.2001         Christopher Kirby
+  19.01.2001         Eyvindur Tryggvason
+  29.01.2001         Harry Gish
+  31.01.2001         Andreas Manser
+  31.01.2001         Gregory Schmitt
+  15.02.2001         Anders Sjoholm
+  19.02.2001         Ron Cuthbertson
+  02.03.2001         Dr. Rudi Borth
+  21.03.2001         Volker Laue
+  12.06.2001         Marjorlize Jansen Van Vurren
+  15.06.2001         MICHAEL G KELIHER
+  20.07.2001         Achim Mueller
+  07.08.2001         Philip Alade Ajofoyinbo
+  20.08.2001         Urs Zesiger
+  11.09.2001         Peter Wahlfridsson
+  20.09.2001         Jiri Malus
+  24.09.2001         Friedemann Wachsmuth
+  01.10.2001         Charles Winegar
+  08.10.2001         Steve Zweig
+  17.10.2001         Mike Marion
+  13.11.2001         David Wade
+  02.02.2002         Brad Melnyk
+  18.02.2002         paul kerfoot
+  28.04.2002         Jukka Raulamo
+  30.04.2002         Garfield D. Salmond
+  03.05.2002         Robert Taylor Associates
+  06.05.2002         Mika Poikonen
+  16.05.2002         John Jersey
+  27.05.2002         Andrew Manuel
 =========================================================================
