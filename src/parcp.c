@@ -987,7 +987,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
 		DPRINT2("d %ld free clusters of %ld bytes each.\n", stfs.f_bfree, stfs.f_bsize);
-		sprintf(p, "%6ld kB in %4d files, %7ld kB free\n", (total+KILO-1)/KILO, pocet, (stfs.f_bfree*stfs.f_bsize+KILO-1)/KILO);
+		sprintf(p, "%s in %4d files, %s free\n", show_size64(total), pocet, show_size64((ULONG64)(stfs.f_bfree*stfs.f_bsize)));
 	}
 }
 
