@@ -61,7 +61,6 @@ parcpkey : parcpkey.c parcpkey.h
 	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
 	strip $@
 
-#all : parcp parcp030 par_in par_out
 all : parshell parserve par_in
 
 tgz:	parshell par_in parserve
