@@ -65,11 +65,7 @@ char *show_size64(ULONG64 size)
 		format = "%llu GB";
 		x = size / (KILO * KILO * KILO);
 	}
-#ifdef snprintf
-	snprintf(buf, sizeof(buf)-1, format, x);
-#else
-	snprintf(buf, format, x);
-#endif
+	sprintf(buf, format, x);
 	return buf;
 }
 
