@@ -1,0 +1,135 @@
+DEBUG =
+#DEBUG = -DDEBUG
+#DEBUG = -DDEBUG -DLOWDEBUG
+#DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
+
+STATIC = -static
+
+FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
+
+PARCLIENT =  parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+
+ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o
+
+OBJS = parcp.o $(ZAKL_OBJS)
+SEROBJS = server_parcp.o $(ZAKL_OBJS)
+
+SHELL_FLAGS = -DSHELL $(FLAGS)
+SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
+
+parshell : $(SHELL_OBJS)
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses
+	strip parcp
+
+pardeb : $(SHELL_OBJS)
+	gcc -g $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses
+
+parcp : $(OBJS)
+	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS)
+	strip $@
+
+parserve : $(SEROBJS)
+	gcc $(STATIC) $(FLAGS) -o parserve $(SEROBJS)
+	strip $@
+
+par_io : par_io.c global.c cfgopts.c
+	gcc $(FLAGS) par_io.c global.c cfgopts.c -o par_io
+	strip $@
+
+par_in.o : parinout.c
+	gcc $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
+
+par_out.o : parinout.c
+	gcc $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
+
+par_in : par_in.o global.o cfgopts.o
+	gcc $(STATIC) $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
+	strip $@
+
+par_out : par_out.o global.o cfgopts.o
+	gcc $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
+	strip $@
+
+parcpcfg.o : parcpcfg.c
+	gcc $(FLAGS) -c parcpcfg.c
+
+parcpcfg : parcpcfg.o cfgopts.o global.o
+	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
+	strip $@
+
+parcpkey : parcpkey.c parcpkey.h
+	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
+	strip $@
+
+#all : parcp parcp030 par_in par_out
+all : parshell parserve par_in
+
+tgz:	parshell par_in parserve
+	rm -f parcp.tgz
+	tar czvf parcp.tgz parcp par_in parserve
+
+clean :
+	rm -f *.o
+
+realclean :
+	rm -f parcp parserve par_in parcpkey
+
+###############################
+
+parcp.o : $(PARCLIENT)
+	gcc $(FLAGS) -c parcp.c
+
+shell_parcp.o : $(PARCLIENT)
+	gcc $(SHELL_FLAGS) -c parcp.c -o shell_parcp.o
+
+server_parcp.o : $(PARCLIENT)
+	gcc -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
+
+shell.o : shell.c shell.h
+	gcc $(SHELL_FLAGS) -c shell.c
+
+box.o : box.c box.h
+	gcc $(SHELL_FLAGS) -c box.c
+
+menu.o : menu.c menu.h
+	gcc $(SHELL_FLAGS) -c menu.c
+
+viewer.o : viewer.c viewer.h
+	gcc $(SHELL_FLAGS) -c viewer.c
+
+global.o : global.c global.h
+	gcc $(SHELL_FLAGS) -c global.c
+
+parcp68k.o : parcp68k.asm
+	xgen -L1 parcp68k.o parcp68k.asm
+	gst2gcc gcc parcp68k.o
+
+match.o : match.c match.h
+	gcc $(FLAGS) -c match.c
+
+cfgopts.o : cfgopts.c cfgopts.h
+	gcc $(FLAGS) -c cfgopts.c
+
+parcpkey.o : parcpkey.c parcpkey.h
+	gcc $(FLAGS) -c parcpkey.c
+
+parcp030.o : $(PARCLIENT)
+	gcc $(FLAGS030) -c parcp.c -o parcp030.o
+	
+shell_parcp030.o : $(PARCLIENT)
+	gcc $(SHELL_FLAGS030) -c parcp.c -o shell_parcp030.o
+
+shell030.o : shell.c parcp.h cfgopts.h parcpkey.h menu.c viewer.c box.c
+	gcc $(SHELL_FLAGS030) -c shell.c -o shell030.o
+
+server_parcp030.o : $(PARCLIENT)
+	gcc -DPARCP_SERVER $(FLAGS030) -c parcp.c -o server_parcp030.o
+
+match030.o : match.c match.h
+	gcc $(FLAGS030) -c match.c -o match030.o
+
+cfgopts030.o : cfgopts.c cfgopts.h
+	gcc $(FLAGS030) -c cfgopts.c -o cfgopts030.o
+
+parcpkey030.o : parcpkey.c
+	gcc $(FLAGS030) -c parcpkey.c -o parcpkey030.o

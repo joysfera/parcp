@@ -1,0 +1,59 @@
+# possible options:
+#   DEBUG
+#     Include debug support
+#   LOWDEBUG:
+#     Include lowlevel debug support
+OPTIONS  = -DIBM -I../ncurses-4.1/include -DSTANDALONE
+
+CC = gcc
+FLAGS = -O2 -fomit-frame-pointer -Wall $(OPTIONS) -static
+
+CSRC := parcp.c parcplow.c parcommo.c match.c cfgopts.c parcpkey.c \
+		global.c par_io.c parcpcfg.c crc32.c parinout.c
+OBJS := parcp.o match.o cfgopts.o parcpkey.o global.o
+
+# SHELL support in PARCP?
+USE_SHELL = yes
+
+ifdef USE_SHELL
+CSRC += shell.c menu.c viewer.c box.c
+OBJS += shell.o
+FLAGS += -DSHELL
+endif
+
+#######################################################
+
+parcp: $(OBJS)
+	$(CC) $(FLAGS) -o $@ $(OBJS) -lpanel -lncurses -L../ncurses-4.1/lib -s
+	strip $@
+
+par_in: par_in.o
+	$(CC) $(FLAGS) -o $@ par_in.o cfgopts.o global.o -s
+	strip $@
+
+par_out: par_out.o
+	$(CC) $(FLAGS) -o $@ par_out.o cfgopts.o global.o -s
+	strip $@
+
+$(OBJS): %.o: %.c
+	$(CC) $(FLAGS) -c $< -o $@
+
+par_in.o: parinout.c
+	$(CC) $(FLAGS) -DIN -c parinout.c -o $@
+
+par_out.o: parinout.c
+	$(CC) $(FLAGS) -DOUT -c parinout.c -o $@
+
+all:	parcp par_in par_out 
+
+clean:
+	rm -f *.o parcp par_in par_out
+
+tgz:	parcp par_in par_out
+	rm -f parcp.tgz
+	tar czvf parcp.tgz parcp par_in par_out
+
+dep:
+	$(CC) $(FLAGS) -MM $(CSRC) >.depend
+
+-include .depend
