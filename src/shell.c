@@ -1207,7 +1207,7 @@ void do_shell(void)
 
 	/* header */
 #ifdef STANDALONE
-		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2000");
+		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2002");
 #else
 #ifdef BETA
 #define PAVERZE "beta"
@@ -1215,9 +1215,9 @@ void do_shell(void)
 #define PAVERZE ""
 #endif
 	if (registered)
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2000. Registered to %s", username);
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2002. Registered to %s", username);
 	else
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2000. Shareware - unregistered copy");
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2002. Shareware - unregistered copy");
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 
@@ -1271,14 +1271,14 @@ void do_shell(void)
 	okno = aktivizuj(FALSE);
 
 	if (! registered) {
-		InfoBox("PARCP is shareware.\n\nThis copy of PARCP is not registered.\n\nPlease feel free to test PARCP for up to four weeks. If you like it, please register (details in REGISTER.TXT file or at http://joy.atari.org/).\nIf you don't want to register, you must delete PARCP (you are not software pirate, are you?)", 5, TRUE);
+		InfoBox("PARCP is shareware.\n\nThis copy of PARCP is not registered.\n\nPlease feel free to test PARCP for up to four weeks. If you like it, please register (details in REGISTER.TXT file or at http://joy.sophics.cz/).\nIf you don't want to register, you must delete PARCP (you are not software pirate, are you?)", 5, TRUE);
 
 		InfoBox("Unregistered PARCP has the following limits:\n\n"\
 				"o Number of items in file list is limited to 10\n"\
 				"o Scripting (batch mode) is not allowed\n"\
 				"o Archive mode (for easy back-ups) is not available\n"\
 				"\nOnce you register your copy of PARCP the limits will go away."\
-				, 5, TRUE);
+				, 4, TRUE);
 	}
 
 	init_menu();
@@ -1502,7 +1502,7 @@ void do_shell(void)
 #else
 #define TRANSFER_BREAK_KEY	"Shift+Ctrl"
 #endif
-				MessageBox("PARCP's home at http://joy.atari.org/\n\n"\
+				MessageBox("PARCP's home at http://joy.sophics.cz/\n\n"\
 		"Help for ParShell user interface:\n\n"\
 		"Arrow keys (up,down,left,right) move cursor\n"\
 		"Tab key switches between Client and Server window\n"\
