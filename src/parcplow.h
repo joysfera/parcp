@@ -55,7 +55,7 @@ BOOLEAN PCunidirect = FALSE;
 int print_port = 0x378;
 int port_type = 1;	/* 0 = SPP, 1 = bidir/EPP, 2 = ECP2EPP */
 int cable_type = 1;	/* 0 = LapLink, 1 = bidirectional */
-int old_ecp_val;	/* hodnota ECP registru uschovana po dobu behu PARCP */
+int old_ecp_val;	/* the value of the ECP register saved during the PARCP run */
 
 #define ECP2EPP									\
 {												\
@@ -81,7 +81,7 @@ int old_ecp_val;	/* hodnota ECP registru uschovana po dobu behu PARCP */
      
 extern __Go32_Info_Block _go32_info_block;
 
-int __opendir_flags = __OPENDIR_PRESERVE_CASE;	/* dodrzet velikost pismen v nazvech */
+int __opendir_flags = __OPENDIR_PRESERVE_CASE;	/* preserve upper/lower filenames */
 
 void clrscr(void);
 int getch(void);
@@ -104,7 +104,7 @@ BYTE inportb(a)		{return inb(a);}
 
 #define STOP_KEYSTROKE	"Ctrl-C"
 
-#define ARCHIVE_BIT		0x0020	/* zbytecnost, nefunguje, musi se udelat jinak (pres mtime/atime) */
+#define ARCHIVE_BIT		0x0020	/* needs to be implemented with mtime/atime */
 
 #endif	/* !__MSDOS__ alias Linux */
 
@@ -129,11 +129,11 @@ int gcontrol = (1 << 2);	/* Ucc */
 #endif
 #define STATUS	inportb(print_port+1)
 
-/* Po resetu PC: STROBE, AUTOLF, INIT jsou +5V, zatimco SLCTIN je 0V) */
-/* STROBE je 0. bit a je negovany - log.1 = 0V, log.0 = +5V */
-/* AUTOLF je 1. bit a je negovany - log.1 = 0V, log.0 = +5V */
-/* SLCTIN je 3. bit a je negovany - log.1 = 0V, log.0 = +5V */
-/* INIT je 2. bit, log.1 = +5V, coz napaji inteligentni interface */
+/* POST PC: STROBE, AUTOLF, INIT are +5V, while SLCTIN is 0V) */
+/* STROBE is 0. bit and is negated - log.1 = 0V, log.0 = +5V */
+/* AUTOLF is 1. bit and is negated - log.1 = 0V, log.0 = +5V */
+/* SLCTIN is 3. bit and is negated - log.1 = 0V, log.0 = +5V */
+/* INIT is 2. bit, log.1 = +5V, which gives current to the intelligent UNI-BI interface */
 
 #define STROBE_HIGH					\
 {									\
@@ -167,7 +167,7 @@ int gcontrol = (1 << 2);	/* Ucc */
 
 #define CLOCK_LOW	SET_CTRL(3)
 #define CLOCK_HIGH	CLR_CTRL(3)
-#define CLOCK_RAISE	{CLOCK_LOW; CLOCK_HIGH;}	/* impuls pro latch k presypani dat na vystup */
+#define CLOCK_RAISE	{CLOCK_LOW; CLOCK_HIGH;}	/* impuls for the latch to copy the data on the output */
 #define GET_LOW_NIBBLE	((STATUS >> 3) & 0x0f)
 #define GET_HIGH_NIBBLE	((STATUS << 1) & 0xf0)
 

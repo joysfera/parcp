@@ -26,10 +26,10 @@ void zpracovani_parametru(int argc, char *argv[])
 	extern char *optarg;
 	BOOLEAN konfigOK = FALSE;
 
-/* nejdrive podle priorit najdu konfiguracni soubor */
+/* find the config file */
 	konfigOK = hledej_config(argv, cesta);
 
-/* zkusim jeste jestli neni cesta ke konfigu na prikazove radce */
+/* check if there isn't config file path on the command line */
 	if (argc == 2 && argv[1] != NULL) {
 		strcpy(cesta, argv[1]);
 		konfigOK = file_exists(cesta);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
 	zpracovani_parametru(argc, argv);
 
-/* v Linuxu si vyhradim pravo pristupu na hardware paralelniho portu */
+/* in Linux get the permission to access the hardware of parallel port directly */
 #ifndef __MSDOS__
 	ioperm(print_port,4,1);
 #endif

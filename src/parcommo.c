@@ -1,4 +1,4 @@
-/* common functions between PARCP, PARINOUT and PARTEST */
+/* common functions for PARCP, PARINOUT and PARTEST */
 
 BOOLEAN file_exists(char *fname)
 {
@@ -17,7 +17,7 @@ BOOLEAN hledej_config(char *argv[], char *cesta)
 	BOOLEAN konfigOK = FALSE;
 
 	if ((p = getenv(PARCPDIR)) != NULL) {
-		strcpy(cesta, p);						/* podle environment promenne */
+		strcpy(cesta, p);						/* by environment variable */
 
 		p = cesta + strlen(cesta)-1;
 		if (*p != SLASH && *p != BACKSLASH)
@@ -31,12 +31,12 @@ BOOLEAN hledej_config(char *argv[], char *cesta)
 	}
 
 	if (! konfigOK && argv[0] != NULL) {
-		strcpy(cesta, argv[0]);					/* v HOME adresari PARCP */
-		/* odstranit jmeno programu, ale nechat lomitko */
+		strcpy(cesta, argv[0]);					/* in PARCP home folder */
+		/* strip program name but retain folder delimiter */
 		p = strrchr(cesta, SLASH);
 		if (p == NULL)
 			p = strrchr(cesta, BACKSLASH);
-		/* pokud neni lomitko, nebyla cesta a tedy nelze pouzit */
+		/* if there isn't folder delimiter it was not a file path thus it's unusable */
 		if (p != NULL) {
 			*(p+1) = 0;
 			strcat(cesta, CFGFILE);
@@ -45,7 +45,7 @@ BOOLEAN hledej_config(char *argv[], char *cesta)
 	}
 
 	if (! konfigOK) {
-		getcwd(cesta, MAXPATH);							/* v aktualnim adresari */
+		getcwd(cesta, MAXPATH);							/* in current folder */
 		p = cesta + strlen(cesta)-1;
 		if (*p != SLASH && *p != BACKSLASH)
 			strcat(cesta, SLASH_STR);

@@ -4,11 +4,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define  WINWIDTH		(TITWIDTH+2)	/* sirka vnitrniho okna */
-#define  BORWIDTH		(WINWIDTH+2)	/* sirka okna okraje */
+#define  WINWIDTH		(TITWIDTH+2)	/* width of inner window */
+#define  BORWIDTH		(WINWIDTH+2)	/* window border width */
 
-#define  MENU_MAXCOLUMNS	sirka	/* definovano v shell.h */
-#define  MENU_MAXROWS		24 /*vyska*/	/* definovano v shell.h */
+#define  MENU_MAXCOLUMNS	sirka	/* defined in shell.h */
+#define  MENU_MAXROWS		24 /*vyska*/	/* defined in shell.h */
 
 WINDOW *st_text;
 PANEL *pst_text;
@@ -54,14 +54,14 @@ TMENU *new_menu(TMENU ** itemlist)
 	}
 	next = NULL;
 	rodic = -2;
-	while (i--) {				/* jedu od konce */
+	while (i--) {				/* backward */
 		item = itemlist[i];
-		j = item->parent;		/* cislo rodice */
-		if (j != rodic) {		/* lisi se od minuleho? */
-			item->next = NULL;	/* konec noveho submenu */
-			rodic = j;			/* pamatovat si rodice tohoto submenu */
+		j = item->parent;		/* parent number */
+		if (j != rodic) {		/* differs from the last one? */
+			item->next = NULL;	/* end of the new submenu */
+			rodic = j;			/* remember the parent of this submenu */
 		} else
-			item->next = next;	/* nejaky prvek ze submenu */
+			item->next = next;
 		next = item;
 	}
 
@@ -255,7 +255,7 @@ BOOLEAN is_checked(TMENU * first, int cm)
 	act = first;
 	while (act != NULL && vysledek == -1) {
 		if (act->command == cm) {
-			vysledek = (act->flag & MENU_CHECKED) ? TRUE : FALSE;	/* nalezeno! */
+			vysledek = (act->flag & MENU_CHECKED) ? TRUE : FALSE;	/* found! */
 			break;
 		} else if (act->flag & MENU_SUBTREE)
 			vysledek = is_checked(act->wnew, cm);
@@ -329,14 +329,14 @@ int show_menu(TMENU * imenu, int cx, int cy)
 			else if (act->flag & MENU_RADIO) {
 				if (!(act->flag & MENU_CHECKED)) {
 					TMENU *item = act;
-					// odznac vsechny predchozi itemy
+					/* unselect all previous items */
 					while((item = find_prev_item(imenu, item))) {
 						if (item->flag & MENU_RADIO)
 							item->flag &= ~MENU_CHECKED;
 						else
 							break;
 					}
-					// odznac vsechny nasledujici itemy
+					/* unselect all following items */
 					item = act;
 					while((item = item->next)) {
 						if (item->flag & MENU_RADIO)
@@ -344,7 +344,7 @@ int show_menu(TMENU * imenu, int cx, int cy)
 						else
 							break;
 					}
-					// oznac nas aktualni
+					/* select the current one */
 					act->flag |= MENU_CHECKED;
 				}
 			}
@@ -360,14 +360,14 @@ int show_menu(TMENU * imenu, int cx, int cy)
 			if (act->flag & MENU_RADIO) {
 				if (!(act->flag & MENU_CHECKED)) {
 					TMENU *item = act;
-					// odznac vsechny predchozi itemy
+					/* unselect all previous items */
 					while((item = find_prev_item(imenu, item))) {
 						if (item->flag & MENU_RADIO)
 							item->flag &= ~MENU_CHECKED;
 						else
 							break;
 					}
-					// odznac vsechny nasledujici itemy
+					/* unselect all following items */
 					item = act;
 					while((item = item->next)) {
 						if (item->flag & MENU_RADIO)
@@ -375,7 +375,7 @@ int show_menu(TMENU * imenu, int cx, int cy)
 						else
 							break;
 					}
-					// oznac nas aktualni
+					/* select the current one */
 					act->flag |= MENU_CHECKED;
 				}
 			}

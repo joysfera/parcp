@@ -1,32 +1,32 @@
 /* Global variables for PARCP */
 #include "parcp.h"
 
-BOOLEAN registered = FALSE;			/* program se chova jako registrovany / shareware */
-char cfg_fname[MAXPATH];			/* cesta k aktualnimu konfiguracnimu souboru */
+BOOLEAN registered = FALSE;			/* program behaves like registered / shareware */
+char cfg_fname[MAXPATH];			/* file path to actual config file */
 
 char local_machine[MAXSTRING];
 char remote_machine[MAXSTRING];
 
 BOOLEAN hash_mark = TRUE;
-BOOLEAN _case_sensitive = TRUE;			/* pri match() jmen brat v potaz i velikost pismen v nazvech souboru */
-BOOLEAN _preserve_case = TRUE;			/* v opendir() nekonvertovat DOSove nazvy na mala pismena */
-BOOLEAN _show_hidden = FALSE;			/* DOS: zobrazovat skryte soubory */
-char _over_older = 'R';					/* prepisovat starsi soubory bez ptani */
-char _over_newer = 'A';					/* prepisovat novejsi soubory pouze po dotazu */
-BOOLEAN _send_subdir = TRUE;			/* posilat i adresare se vsemi jejich soubory */
-BOOLEAN _keep_timestamp = TRUE;			/* pri kopirovani zachovavat puvodni datum a cas souboru */
-BOOLEAN _keep_attribs = FALSE;			/* pri kopirovani zachovavat puvodni pristupova prava a atributy */
-BOOLEAN _archive_mode = FALSE;			/* kopirovat pouze soubory bez atributu ARCHIVE a ten jim pak nastavovat */
-BOOLEAN _check_info = TRUE;				/* predem spocitat pocet souboru a adresaru pri copy/delete */
-BOOLEAN _assembler = TRUE;				/* pouzivat rychle prenosove rutiny */
-BOOLEAN afterdrop = TRUE;				/* Server se ukonci po drag&dropu */
-BOOLEAN _checksum = FALSE;				/* kontrolni soucet pri prenosu bloku */
-char _sort_jak = 'U';					/* tridit podle niceho */
-BOOLEAN _sort_case = FALSE;				/* tridit velka/mala pismena jako odlisna */
-UWORD dirbuf_lines = UNREG_DIRBUF_LIN;	/* vyhrazeny pocet radku o delce DIRLINELEN */
-long buffer_lenkb = BUFFER_LENKB;		/* velikost prenaseneho bloku v kilobajtech */
-BYTE filebuffers = 1;					/* pocet bloku vyhrazenych pro bufrovani cteni a zapisu souboru */
-int time_out = TIME_OUT;				/* timeout v sekundach */
+BOOLEAN _case_sensitive = TRUE;			/* in the match() consider upper/lower case */
+BOOLEAN _preserve_case = TRUE;			/* in the opendir() do not convert DOS filenames to lower case */
+BOOLEAN _show_hidden = FALSE;			/* show hidden files */
+char _over_older = 'R';					/* overwrite older files without prompt [Replace]*/
+char _over_newer = 'A';					/* overwrite newer files with prompt [Ask]*/
+BOOLEAN _send_subdir = TRUE;			/* send files in folders recursively */
+BOOLEAN _keep_timestamp = TRUE;			/* restore original timestamp on copied files */
+BOOLEAN _keep_attribs = FALSE;			/* restore original attributes on copied files */
+BOOLEAN _archive_mode = FALSE;			/* DOS-like fs: copy just files with ARCHIVE attribute unset and update the attribute on the original file after succesful copying */
+BOOLEAN _check_info = TRUE;				/* count files/folders before copy/delete */
+BOOLEAN _assembler = TRUE;				/* use fast transfer routines */
+BOOLEAN afterdrop = TRUE;				/* server quits after drag&drop */
+BOOLEAN _checksum = FALSE;				/* use CRC for better safety of transferred data blocks */
+char _sort_jak = 'U';					/* how to sort files [Unsorted] */
+BOOLEAN _sort_case = FALSE;				/* sort upper/lower case differently */
+UWORD dirbuf_lines = UNREG_DIRBUF_LIN;	/* reserved number of lines of 'DIRLINELEN' length */
+long buffer_lenkb = BUFFER_LENKB;		/* the size of transferred block in kilobytes */
+BYTE filebuffers = 1;					/* the number of blocks reserved for buffered file I/O */
+int time_out = TIME_OUT;				/* timeout in seconds */
 char username[MAXSTRING]="Unregistered User";
 char keycode[MAXSTRING]="ABCDEFGHIJKLMNOP";
 char autoexec[MAXPATH]="";

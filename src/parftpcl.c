@@ -1,6 +1,6 @@
-/* Rutiny pro PARCP FTP CommandLine klienta */
+/* Routines for PARCP FTP-like command line client */
 
-#ifdef __MSDOS__	/* Unix getch() nezna, DJGPP vsak ano */
+#ifdef __MSDOS__	/* Unix doesn't know getch() while DJGPP does */
 
 #define get_key()	getch()
 
@@ -11,26 +11,26 @@
 int get_key()
 {
 	BYTE key=0;
-#ifdef TCGETA	/* Linux pouziva POSIX volani */
+#ifdef TCGETA	/* Linux uses POSIX */
 	struct termios oldt, newt;
 
 	tcgetattr(0, &oldt);
 	newt = oldt;
-	newt.c_lflag &= ~(ICANON|ECHO);	/* neechovat, okamzite vratit */
-	tcsetattr(0,TCSANOW, &newt);	/* preprogramuju klavesnici */
-	read(0,&key,1);					/* nactu znak */
-	tcsetattr(0,TCSANOW, &oldt);	/* vratim klavesnici zpatky */
+	newt.c_lflag &= ~(ICANON|ECHO);	/* don't echo, return immediately */
+	tcsetattr(0,TCSANOW, &newt);	/* setup the keyboard */
+	read(0,&key,1);					/* read key */
+	tcsetattr(0,TCSANOW, &oldt);	/* restore the keyboard */
 
-#else			/* MiNT je precejen postaven na BSD a pouziva sgtty */
+#else			/* MiNT builds on BSD and uses sgtty */
 
 	struct sgttyb oldt, newt;
 
 	ioctl(0,TIOCGETP,&oldt);
 	newt = oldt;
-	newt.sg_flags &= ~(ICANON|ECHO|CBREAK);/* neechovat, okamzite vratit, bacha na ^C */
-	ioctl(0,TIOCSETP,&newt);		/* preprogramuju klavesnici */
-	read(0,&key,1);					/* nactu znak */
-	ioctl(0,TIOCSETP,&oldt);		/* vratim klavesnici zpatky */
+	newt.sg_flags &= ~(ICANON|ECHO|CBREAK);/* don't echo, return immediately, watch out for the ^C */
+	ioctl(0,TIOCSETP,&newt);		/* setup the keyboard */
+	read(0,&key,1);					/* read key */
+	ioctl(0,TIOCSETP,&oldt);		/* restore the keyboard */
 #endif
 
 	return key;
@@ -57,7 +57,7 @@ int q_overwrite(const char *name)
 			switch(toupper(get_key())) {
 				case 'S':
 					ans=1;
-					printf(" SKIP\n");		/* na obrazovce zustane informace o skipnuti */
+					printf(" SKIP\n");		/* on the screen the "SKIP" info remains */
 					break;
 	
 				case 'O':
@@ -172,9 +172,9 @@ char *orez_jmeno(const char *jmeno, int delka_jmena)
 	strncpy(radek, jmeno, delka_jmena);
 
 	if ( (real_delka = real_delka_jmena(jmeno, delka_jmena)) ) {
-		/* musim vypsat zkracene jmeno */
+		/* we must display the shortened file name */
 		radek[delka_jmena-4] = '~';
-		strncpy(radek+delka_jmena-3, jmeno+real_delka-3, 3);	/* pripona */
+		strncpy(radek+delka_jmena-3, jmeno+real_delka-3, 3);	/* extension */
 	}
 	radek[MAXSTRING-1] = 0;
 
@@ -195,7 +195,7 @@ void view(const char *s, BOOLEAN is_dir)      /* view a multi-line string, pausi
 		const char *t = s;
 		int x, maximalne = page_width-1-10-1-16;
 
-		/* zjistit nejvetsi delku jmena v tomto vypisu */
+		/* find the longest file name in this list */
 		while(strlen(t) >= DIRLINELEN) {
 			if ( (x = real_delka_jmena(t, 0)) > maxdel)
 				maxdel = x;
@@ -241,9 +241,9 @@ void view(const char *s, BOOLEAN is_dir)      /* view a multi-line string, pausi
 			switch(key) {
 				case 'q' : odchod = 1; break;
 				case '\r':
-				case '\n': radek = page_length-2; break; /* vypise jen jeden radek */
+				case '\n': radek = page_length-2; break; /* display one line */
 				case ' ' :
-				default  : radek = 0; break;	/* vypise celou stranku */
+				default  : radek = 0; break;	/* display whole page */
 			}
 		}
 	}
@@ -328,14 +328,14 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 	}
 	else {
 		puts("\n                            File transfer client\n");
-		print_status(0);		/* vypis pocatecni nastaveni prepinacu */
+		print_status(0);		/* display switches setting */
 		printf("Client machine: %s\n", local_machine);
 		printf("Server machine: %s\n\n", remote_machine);
 	}
 
 #ifdef SHELL
 	if (coming_from_shell) {
-		shell = FALSE;	/* musim vypnout shell! */
+		shell = FALSE;	/*  disable shell! */
 		puts("Type EXIT to return back to ParShell\n");
 	}
 #endif
@@ -372,7 +372,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 		else if (!strcasecmp(p1, "EXIT")) {
 			if (coming_from_shell) {
 				g_last_status = 0;
-				shell = TRUE;	/* musim zapnout shell! */
+				shell = TRUE;	/*  enable shell! */
 				bInBatchMode = FALSE;
 				return TRUE;
 			}

@@ -11,16 +11,16 @@
 #define  MENU_CHECKABLE	(1<<4)
 #define	 MENU_RADIO	(1<<5)
 
-#define  TITWIDTH		20	/* max. delka titulku */
+#define  TITWIDTH		20	/* max. title length */
 
 struct _tmenu {
-	BYTE	title[TITWIDTH+1]; /* nazev polozky */
-	BYTE	stat_text[70];  /* popis */
-	BYTE	flag;           /* maska */
-	int		command;        /* akce */
+	BYTE	title[TITWIDTH+1]; /* item label */
+	BYTE	stat_text[70];  /* item description */
+	BYTE	flag;           /* mask */
+	int		command;        /* action */
 	int		parent;/* rodic */
-	struct _tmenu   *next;   /* dalsi */
-	struct _tmenu   *wnew;    /* novy */
+	struct _tmenu   *next;   /* next */
+	struct _tmenu   *wnew;    /* new */
 };
 
 typedef struct _tmenu TMENU;

@@ -12,20 +12,20 @@
 #define LASTLINE	(POCETRADKU-1)
 #define DELKASTRANY	POCETRADKU
 
-long	aktradek,	/* cislo akt. radku textu */
-	ActPos,		/* aktualni poloha 1. radku v textu */
-	LastPagePos,	/* pozice prvni nezobrazitelne vety na 1. radce */
+long	aktradek,	/* number of the actual line */
+	ActPos,		/* number of the first displayed line */
+	LastPagePos,	/* position of the first undisplayable line on the first row */
 	EndPos,
 	poslstrana,
-	pocetradku,	/* pocet radku celeho dokumentu */
-	pocetstran,	/* pro rychlost tedy i pocet stran */
-	pgbuf;		/* offset textu v bufru */
+	pocetradku,	/* number of lines of the whole document */
+	pocetstran,	/* number of pages of the whole document */
+	pgbuf;		/* offset of the text in the buffer */
 
-BYTE	Sestava[512],	/* pole s 1 radkem sestavy */
-	String[256],	/* pole pro zapamatovani posl. hledaneho stringu */
+BYTE	Sestava[512],	/* buffer for one line */
+	String[256],	/* space for last searched string */
 	view_fname[260];
 
-int	StartCh,	/* cislo znaku na radku, ktery je na 1.pozici obry */
+int	StartCh,	/* horizontal offset */
 	HWscroll,	/* insert&delete features capability */
 	cursor_visibility,
 	tab_size=8;
@@ -57,7 +57,7 @@ long pos;
 long findprevnl(pos)
 long pos;
 {
-	if (pos) pos--;		/* timto se posunu na konec predchozi vety */
+	if (pos) pos--;		/* move to the end of the previous line */
 	while(pos > 0 && soubor(pos - 1) != '\n')
 		--pos;
 	return pos;
@@ -69,10 +69,10 @@ long pos;
 	long i = pos;
 	while(i < EndPos && soubor(i) != '\n')
 		i++;
-	if (i < EndPos)		/* pokud je to nekde uprostred textu */
-		return i + 1;	/* tak vrat nasledujici pozici za '\n' */
+	if (i < EndPos)		/* if we are somewhere in the middle of the text */
+		return i + 1;	/* then return the next position after '\n' */
 	else
-		return pos;	/* jinac vrat pozici, ze ktere jsme vysli */
+		return pos;	/* otherwise return the same position we started from */
 }
 
 void spocitej()
@@ -99,8 +99,10 @@ void spocitej()
 
 void ctiradek(pos)
 long pos;
-/* aby tohle fungovalo, tak posledni radek MUSI OBSAHOVAT znak NewLine */
-/* a kazdy radek MUSI byt KRATSI nez 512 znaku */
+/* Limitations:
+   1) last line must contain '\n'
+   2) each line must be shorter than 512 characters
+*/
 {
 	int i, j;
 	BYTE a;

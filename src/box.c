@@ -31,66 +31,53 @@ int max(int a, int b)
 #endif
 
 /*
-   Rozdeli jeden retezec na sadu retezcu oddelenych '\0' a vrati pocet radku
-   potrebnych pro zobrazeni daneho textu.
+   Breaks long string to several strings of max_width, divided by '\0'
+   and returns the number of lines you need to display the strings.
 */
 int FormatTextToBox(char *text, int max_width)
 {
 	int lines=1;
 	int delka = strlen(text);
-	char *p;		/* ukazuje na zacatek aktualniho radku */
-	char *q;		/* ukazuje na aktualni misto odkud se hleda */
-	char *rozdel;	/* ukazuje na posledni vhodne misto k rozdeleni */
-	char *konec;	/* ukazuje na konec textu */
+	char *p;		/* pointer to begin of actual line */
+	char *q;		/* pointer to start of next search */
+	char *rozdel;	/* pointer to last place suitable for breaking the line */
+	char *konec;	/* pointer to end of the text */
 	q = p = text;
-	rozdel = text-1;/* ukazuje na minuly rozdelovac */
+	rozdel = text-1;/* pointer to last line break */
 	konec = text + delka;
 
 	if (delka > max_width) {
-		while(q < konec) {		/* q bylo posledni vhodne misto pro rozdeleni */
-			char *r = strpbrk(q, " \t/\\\n");	/* najdi dalsi vhodne misto pro rozdeleni */
+		while(q < konec) {		/* q was last place suitable for breaking */
+			char *r = strpbrk(q, " \t/\\\n");	/* find next suitable place for the break */
 			if (r == NULL)
-				r = konec;		/* kdyz uz neni kde rozdelit, ukazu na konec */
+				r = konec;		/* if there's no place then point to the end */
 
-#if 1
-			if ((r-p) < max_width && *r != '\n') {		/* '\n' je vzdy rozdelen! */
-				rozdel = r;		/* pamatovat si nove vhodne misto pro rozdeleni */
+			if ((r-p) < max_width && *r != '\n') {		/* '\n' is always used for breaking */
+				rozdel = r;		/* remember new place suitable for breaking */
 				q++;
-				continue;		/* hledat dal */
+				continue;		/* search again */
 			}
 
-			if ((r-p) > max_width) {	/* uz moc dlouhy radek? */
-				if (p > rozdel)				/* je to spatne, neni kde rozdelit. Udelame to natvrdo */ 
-					rozdel = p + max_width;		/* ztratime jeden znak */
+			if ((r-p) > max_width) {	/* too long line already? */
+				if (p > rozdel)				/* bad luck - no place for the delimiter. Let's do it the strong way */
+					rozdel = p + max_width;		/* we loose one character */
 			}
 			else
-				rozdel = r;			/* rozdel v prave navrzenem miste */
-#else	/* jiny algoritmus - mozna prehlednejsi, ale nefunguje pro max_width=40 */
-			if (*r == '\n')
-				rozdel = r;			/* '\n' ma nejvyssi prioritu pro rozdeleni */
-			else {
-				if ((r-p) < max_width) {
-					rozdel = r;
-					q++;
-					continue;
-				}
-				if (p > rozdel)
-					rozdel = p + max_width;
-			}
-#endif
+				rozdel = r;			/* break in this place */
 
-			*rozdel = '\0';			/* rozdelit */
-			p = q = rozdel+1;		/* dalsi radek zacina zde */
-			lines++;				/* pripocitat radky */
+			*rozdel = '\0';			/* BREAK */
+			p = q = rozdel+1;		/* next line begins here */
+			lines++;				/* increment line counter */
 		}
 	}
-	return lines;
+	return lines;					/* return line counter */
 }
 
 /*
-   Zobrazi dialog a dovoli vybrat z jednoho az tri buttonu. Da se volit stiskem
-   sipek, TABem a taky pocatecnim pismenem daneho buttonu. Pokud je Cancel button,
-   da se zvolit stiskem klavesy Escape.
+   Displays a dialog box and allows user to select from one to three buttons.
+   Selection can be done by arrows or TAB key or even by the first char of 
+   the button label. If there's the "Cancel" button it can be selected by
+   pressing the ESC key.
 */
 int MessageBox(const char *text, int type)
 {
@@ -143,8 +130,8 @@ int MessageBox(const char *text, int type)
 		sumlen += butlen[i];
 	}
 
-	ww = max(strlen(text)+4, sumlen+2*(numbut+1));	/* pokud je text kratky, bude mit Box na miru */
-	ww = min(ww, BOX_MAX_WIDTH);					/* pokud je text dlouhy, Box bude max. 60 znaku */
+	ww = max(strlen(text)+4, sumlen+2*(numbut+1));	/* if the description text is short the dialog box will be smaller */
+	ww = min(ww, BOX_MAX_WIDTH);					/* if the desc. text is too long the box will be BOX_MAX_WIDTH wide */
 	radku = FormatTextToBox(kopie_text, ww-4);
 	wh = radku + 4;
 	butposy = wh - 2;
@@ -209,7 +196,7 @@ int MessageBox(const char *text, int type)
 }
 
 /*
-	Zobrazi dialog a ceka urcity pocet sekund
+	Shows a message box and waits defined number of seconds ('timeout')
 */
 void InfoBox(const char *text, int timeout, BOOLEAN button)
 {
@@ -218,8 +205,8 @@ void InfoBox(const char *text, int timeout, BOOLEAN button)
 	int ww, wh, radku, butposx, butposy, key, i;
 	char *kopie_text = strdup(text), *txtptr;
 
-	ww = strlen(text)+4;	/* pokud je text kratky, bude mit Box na miru */
-	ww = min(ww, BOX_MAX_WIDTH);					/* pokud je text dlouhy, Box bude max. 60 znaku */
+	ww = strlen(text)+4;	/* if the desc. text is short the box will be smaller */
+	ww = min(ww, BOX_MAX_WIDTH);	/* if the text is long the box will be max BOX_MAX_WIDTH wide */
 	radku = FormatTextToBox(kopie_text, ww-4);
 	wh = radku + 4;
 
@@ -230,7 +217,7 @@ void InfoBox(const char *text, int timeout, BOOLEAN button)
 	ppanalert = new_panel(pwinalert);
 	box(pwinalert, ACS_VLINE, ACS_HLINE);
 
-	/* vypis text */
+	/* displays the desc. text */
 	txtptr = kopie_text;
 	for(i=0;i<radku;i++) {
 		mvwaddstr(pwinalert,1+i,2,txtptr);
@@ -243,7 +230,7 @@ void InfoBox(const char *text, int timeout, BOOLEAN button)
 	sleep(timeout);
 
 	if (button) {
-		/* button OK a cekani na klavesu */
+		/* shows the "OK" button and waits for the timeout */
 		keypad(pwinalert,TRUE);
 		wattron(pwinalert, A_REVERSE);
 		mvwaddstr(pwinalert,butposy,butposx,"[ OK ]");
@@ -266,11 +253,11 @@ void display_N_spaces(WINDOW *w, int row, int col, int N)
 }
 
 /*
-  Zobrazi dialog s jednim vstupnim editacnim polem. Pokud 'return_str' jiz
-  obsahuje text, tento bude zobrazen pro dalsi editaci.
-  Pri stisku Esc, Undo, F9 nebo F10 je vracena hodnota FALSE a return_str je
-  nezmenen. Pokud je stisknut Enter nebo Return, vraceno je TRUE a return_str
-  obsahuje novy retezec.
+  Shows a dialog with one editable field. If 'return_str' contains a text
+  the text is displayed and can be further edited.
+  By pressing the ESC, Undo, F9 or F10 keys the function returns FALSE and
+  the 'return_str' is not changed. By pressing Return or Enter keys
+  the function returns TRUE and 'return_str' contains the new string.
 */
 #define display_row(x)															\
 {																				\
@@ -279,7 +266,7 @@ void display_N_spaces(WINDOW *w, int row, int col, int N)
 	int maxlen = sirka_pole - x;												\
 	int curlen = min(strlen(curptr), maxlen);									\
 	strncpy(tmp, curptr, curlen);												\
-	memset(tmp + curlen, ' ', maxlen - curlen);	/* doplnit mezerami zprava */	\
+	memset(tmp + curlen, ' ', maxlen - curlen);	/* right pad with spaces */		\
 	tmp[maxlen] = 0;															\
 	mvwaddstr(w, xrow, xcol + x, tmp);											\
 }
@@ -339,7 +326,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
     }
 	REDRAWROW;
 
-	/* narichtuj kurzor prave za konec textu */
+	/* point cursor right after the end of text */
 	cursor_pos = strlen(kopie_string);
 
 	update_panels();
@@ -359,7 +346,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
 			REDRAWROW;
 		}
 
-		/* zobraz kurzor na spravne pozici */
+		/* show cursor at the right location */
 		wmove(w, xrow, xcol + RELCURPOS);
 		update_panels();
 		doupdate();
@@ -372,7 +359,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
 			case KEY_F(10):
 			case KEY_UNDO:
 			case 27:	/* Escape */
-				cursor_pos = -1;		/* neuspesny konec editace */
+				cursor_pos = -1;		/* editing canceled */
 				break;
 
 			case '\r':
@@ -380,7 +367,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
 #ifdef __PDCURSES__
 			case PADENTER:
 #endif
-				cursor_pos = maxlen;	/* uspesny konec editace */
+				cursor_pos = maxlen;	/* editing confirmed */
 				break;
 
 			case KEY_BACKSPACE:
@@ -430,7 +417,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
 #endif
 					break;			/* it's a special key */
 				if (key < ' ')
-					break;			/* Control characters are not permitted as well */
+					break;			/* Control characters are neither permitted */
 
 				memmove(kopie_string+cursor_pos+1, kopie_string+cursor_pos, maxlen-cursor_pos-1);
 				kopie_string[cursor_pos] = key;
@@ -446,7 +433,7 @@ BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxle
     update_panels();
 
 	if (cursor_pos >= 0)
-		strcpy(return_str, kopie_string);	/* editace platna, zkopiruj retezec do vysledku */
+		strcpy(return_str, kopie_string);	/* copy the resulting string to the 'return_str' */
 	free(kopie_string);
     return (cursor_pos >= 0);
 }
