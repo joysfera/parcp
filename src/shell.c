@@ -55,12 +55,13 @@ WINDOW *pwinl, *pwinr, *pwincent;
 PANEL *ppanl, *ppanr, *ppancent;
 BOOLEAN aktivni;
 
-long celkova_delka;		/* for transfer indication */
 int original_cursor;	/* remember cursor state */
 int progress_width = 60;
-extern unsigned long g_files, g_bytes, g_folders, g_start_time;
+extern ULONG64 g_bytes;
+ULONG64 shell_total_bytes;
+extern unsigned long g_files, g_folders, g_start_time;
 extern long buffer_len;		/* for Block Size setting */
-unsigned long shell_total_files, shell_total_bytes, shell_total_folders;
+unsigned long shell_total_files, shell_total_folders;
 BOOLEAN shell_arch_mode;	/* needed for passing info into zjistit_info() */
 
 BOOLEAN curses_initialized = FALSE;
@@ -1608,7 +1609,7 @@ void do_shell(void)
 			case KEY_F(5):
 				if (_check_info) {
 					zjistit_kompletni_info(okno, TRUE);
-					sprintf(tmpstr, "Copy %lu files? (total length %lu bytes)", shell_total_files, shell_total_bytes);
+					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, show_size64(shell_total_bytes));
 				}
 				else
 					sprintf(tmpstr, "Copy file(s)?");
@@ -1624,7 +1625,7 @@ void do_shell(void)
 			case KEY_F(6):
 				if (_check_info) {
 					zjistit_kompletni_info(okno, TRUE);
-					sprintf(tmpstr, "Move %lu files? (total length %lu bytes)", shell_total_files, shell_total_bytes);
+					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, show_size64(shell_total_bytes));
 				}
 				else
 					sprintf(tmpstr, "Move file(s)?");
