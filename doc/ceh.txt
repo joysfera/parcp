@@ -1,0 +1,99 @@
+> I'd need help with writting a function that would list all logical disk
+> drives. That function should be able to detect if a removable drive
+> (floppy, SyQuest, ZIP, CD-ROM, ...) does not contain a media and should
+> not include such drive in the list. The function should not take several
+> long seconds, should not invoke the famous "Insert A: into B: or vice
+> versa" dialog, should not fill the screen with warnings or errors (like
+> "XHDI: tried to access something outside a range") and naturally should
+> not crash the computer. Finally, it should work under both TOS and MiNT.
+>
+> I know I can do things like 'LONG drvbitmap = DSetdrv(DGetdrv());'.
+> I also know I can check a variable at 0x4c2 (typing from memory) that
+> contains the number of attached floppy drives and so I can clear the
+> second bit in drvbitmap. What I don't know is how to quickly and properly
+> detect the status or removable drives/medias (without timeouts, error
+> messages and even crashes).
+>
+> Such function could become a worth part of MiNTlibs eventually.
+>
+> Thanks in advance.
+
+The only portable way to do this is to either use 'LONG drvbitmap =
+DSetdrv(DGetdrv());', or to access drive U: when available.
+
+Detecting whether a medium is there will always require drive accesses which
+might be slow when nothing is in.
+
+The drive change dialog can be avoided by suppressing the CEH.
+
+Diagnostic XHDI messages shouldn't appear in a production binary...
+
+=====
+
+> I´ve got three types of removable medias: floppies (A:), EZ-cartridges
+> (F:) and CD´s (R:). Now I need to write a function that would list all
+> available logical drives in system - i.e. it should exclude removable
+> drives without a media (i.e. something like getmntent() in DJGPP).
+>
+> For testing if there´s a media inserted in a drive I simply opendir()
+> that drive letter. Interesting is the different reaction of operating
+> system for the three types of removable medias:
+>
+> empty CD-ROM  --> opendir() is OK
+>
+> empty EZ-drive -> opendir() fails
+>
+> empty floppy ---> system Alert asking me for inserting a floppy disk.
+>
+> So the function can detect empty EZ-drive easily. It can´t see a
+> difference between an empty CD-ROM and a CD with 0 files but I can live
+> with that. What´s annoying is the system Alert. Is it possible to turn
+> it off somehow? Or is it possible to detect the floppy so the system
+> doesn´t notice that? I would prefer something as much system clean as
+> possible, no WD-1772 tricks, please.
+
+First of all, this is exactly why SPIN is treating an empty drive identical
+to a "blank" CD. This is usually more convenient than seeing the critical
+error handler.
+
+If you want to get rid of the critical error handle, you can just install a
+dummy one. I can send some sample code tomorrow, in case you need that.
+
+====
+
+> > > empty floppy ---> system Alert asking me for inserting a floppy disk.
+> >
+> > First of all, this is exactly why SPIN is treating an empty
+> drive identical
+> > to a "blank" CD. This is usually more convenient than seeing
+> the critical
+> > error handler.
+>
+> well, anything is better than a modal AES alert "insert something into
+> that drive". Actually simulating blank CD is a quite good idea since it's
+> read-only so nobody would write to it. However with a floppy I would
+> welcome if opendir() simply failed as it does with empty harddrive.
+
+The behaviour is dependant on the BIOS driver, and which errors it judges
+need to be reported using the critical error handler. For instance, the CEH
+in MetaXBS usually does not report "write protected" through the CEH,
+because there's nothing the user can do about that (for a CD).
+
+> BTW I think our MiNTlib chdir() is broken - it shouldn't allow me to
+> change dir into empty harddrive I think. It should return an error code
+> instead.
+
+If is empty (like in "partioned, but not written to yet") this is perfectly
+ok.
+
+> > If you want to get rid of the critical error handle, you can
+> just install a
+> > dummy one. I can send some sample code tomorrow, in case you need that.
+>
+> Yes, please. I would need to solve that very much. Though I wonder what
+> kind of error handler it will be? Will it require hooking on trap vectors
+> or something like that? I would need it for a kind of system clean
+> application, no "TSR corner clock hack" this time ;-)
+
+It uses the logical GEMDOS vectors, which is supported and "clean" both
+under MiNT and TOS (and MagiC for that matter).

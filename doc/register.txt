@@ -1,0 +1,278 @@
+
+        Contents
+
+        1. Distribution conditions
+        2. How to register
+        3. Why to register?
+        4. PARCP updates
+        5. Contacts
+        6. Difference between shareware and registered PARCP
+        7. List of already registered PARCP users
+
+****************************************************************************
+    T H E   S H A R E W A R E   P R I N C I P L E  ( TRY BEFORE BUY )
+****************************************************************************
+
+1. Distribution conditions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+PARCP is Shareware NOT public domain. Please feel free to evaluate
+PARCP for up to four weeks. If at the end of this period you can't
+bring yourself to delete PARCP you must register.
+
+PARCP may be freely distributed by PD/Shareware libraries and BBS's
+so long as PARCP and its documentation always remain together and
+complete with all its files.
+
+Changes to the program and/or documentation is forbidden. The software
+and documentation listed in README.1ST constitute PARCP and is protected
+under international Copyright law.
+
+
+2. How to register
+~~~~~~~~~~~~~~~~~~
+You can register PARCP either at BMT Micro (read and fill the ORDER.FRM) or
+directly with me. You can even register online by clicking on the following
+secure link: https://secure.falcon-net.net/BMT/order1083.html
+
+The shareware fee is 20 USD or 20 EUR only. I accept money sent as cash,
+by Postal Money Order (you simply send money from your local post office)
+or by cheque. If you want to send me cash please register the mail,
+return receipt requested. I cannot be liable for lost cash sent through the
+mail.
+
+!Warning!
+---------
+Please do not use CyberSTrider shareware service. He (Denesh Bhabuta)
+refuses to send me all money he collected for PARCP. Also, if you live in
+Sweden, don't try to use service of J.Kock - he also didn't send me any
+money yet. The only reliable (and fast!) registration place is BMT Micro in
+USA.
+
+
+Jak se zaregistrovat v Ceske ci Slovenske republice
+---------------------------------------------------
+Poslete mi alespon 200 Kc postovni slozenkou typu C na adresu
+
+Petr Stehlik
+Lamanisko 5340
+76001 Zlin
+
+a razem se stanete registrovanymi uzivateli PARCP. Prosim vsimnete si, ze
+vy jakozto Cesi nebo Slovaci mate tretinovy registracni poplatek nez zbytek
+sveta. To je fajn, ne? Pokud radeji posilate penize prevodem na bankovni
+ucet, dejte mi vedet treba na mobil 0603-909191 a ja vam reknu svoje
+bankovni tajemstvi.
+
+
+3. Why to register?
+~~~~~~~~~~~~~~~~~~~
+After sending the Shareware fee you will receive a personal keycode.
+This keycode together with your name is entered into the PARCP.CFG
+configuration file of the Client PARCP. After registering PARCP unlocks all
+its new and powerful features to you (see at end of this text).
+
+The reward for paying the Shareware fee is PARCP's continued development.
+The extent to which PARCP is upgraded is largely dependent upon the
+Shareware response from users. On receiving your Shareware fee and address
+you automatically become a registered user.
+
+
+4. PARCP updates
+~~~~~~~~~~~~~~~~
+As soon as you are registered, (until further notice) all updates are free,
+provided that you get the latest version yourself. Just install the new
+(Shareware) version over the old one. You can find the latest Shareware
+version of PARCP at ftp and http addresses written below. If you can't
+get the PARCP from an internet site, you can send me a blank floppy + $3
+for postage costs. I would put the latest PARCP onto the floppy and send it
+back to you.
+
+PARCP undergoes continual development and as a registered user your wish
+list will be given careful consideration. If you find a bug or have any
+suggestions or comments to make please get in touch. I will do my best to
+remove bugs.
+
+
+5. Contacts:
+~~~~~~~~~~~~
+
+   Postal Address:
+   ~~~~~~~~~~~~~~~
+   Petr Stehlik
+   Lamanisko 5340
+   CZ-76001 Zlin
+   Czech Republic
+   Europe (in case you're wondering where Czech Republic is on the Earth :)
+
+
+   Internet e-mail addresses:
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+   pstehlik@sophics.cz    (my work address)
+   joy@atari.org          (my home address)
+
+
+The latest PARCP version is maintained for download at:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   URL: http://joy.atari.org/
+   URL: http://joy.sophics.cz/
+
+The official PARCP BBS is
+  RST BBS in Pilsen, Czech Republic, tel. +420-19-227944
+
+--------------------------------------------------------------------------
+
+Please tell me also what types of computers you managed to connect together
+with PARCP, the highest transfer rate you achieved and what you would like
+to see in new versions of PARCP. Also don't forget to add your e-mail or
+netmail address, if you have one.
+
+
+6. Difference between shareware and registered PARCP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After entering your name and personal key into configuration file of PARCP
+the following PARCP features become available:
+
+  - unlimited configurable number of items in directory listing (in
+    shareware version it's limited to 10 items only)
+
+  - batch file transfers (scripting) - automatic transferring of files
+
+  - special Archive Mode for easy back-ups of your files
+
+  - and also e-mail support, of course
+
+Besides all those features you get nice warm feeling in your heart that you
+supported further development of PARCP...
+
+
+7. List of PARCP registered users:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The people listed below can be proud on themselves as they pay for
+shareware programs they use. They helped me with developing PARCP by
+sending the registration fee and I want to say them Thanks by listing
+their names here. New versions of PARCP are written especially for these
+people, for their needs. Many PARCP features were designed according to
+ideas and hints I got from them. Thank you all again!
+=========================================================================
+  31.03.1997         Koos Kuil (NL)
+  01.07.1997         Ivan Dimbleby (UK)
+  13.08.1997         Vlada Fiala (CZ)
+  11.11.1997         Jakub Klawiter (PL)
+  05.12.1997         Phillip Segall (AU)
+  18.12.1997         Martin Howard Naylor (UK)
+  31.12.1997         David Kershaw (USA)
+  08.01.1998         Stephen H Ridd (UK)            CyberSTrider
+  23.01.1998         Michael Bahrs (DE)
+  05.02.1998         Janne Persson (SE)             Kockens
+  13.02.1998         Ron Elkayam (USA)
+  26.02.1998         Jaroslav Kovarik (CZ)
+  28.02.1998         Zdenek Burian (CZ)
+  07.03.1998         Dirk Rackley (USA)             CyberSTrider
+  19.03.1998         Oto Szerdi (SK)
+  25.03.1998         Traugott Ziegler (DE)          BMT Micro
+  26.03.1998         Bill Andersson (SE)            Kockens
+  25.04.1998         Bretislav Batek (CZ)
+  25.04.1998         Lubo Roba (SK)
+  25.04.1998         Zdenek Valter (CZ)
+  30.04.1998         Olaf Koch (DE)                 BMT Micro
+  05.05.1998         Jaroslav Zink (CZ)
+  18.05.1998         Heinrich Emmerl (DE)
+  26.05.1998         Russell Stalnaker (USA)        BMT Micro
+  28.05.1998         Jan-Ake Lindberg (SE)          Kockens
+  29.05.1998         Stylian Cocalides (USA)        BMT Micro
+  25.06.1998         Patrik Puncochar (CZ)
+  03.07.1998         Kenny Potter (UK)
+  27.07.1998         Bernhard Held (DE)
+  30.07.1998         (AU)
+  08.08.1998         Milan Jurik (CZ)
+  13.08.1998         Walter Kronenberg (DE)         BMT Micro
+  18.08.1998         Peter Sargent (USA)            BMT Micro
+  31.08.1998         Peter Alt (DE)
+  17.09.1998         Geoffrey Johnson (USA)         BMT Micro
+  25.09.1998         Oldrich Trojan (CZ)
+  08.10.1998         Emrad Limited (UK)             BMT Micro
+  19.10.1998         Michael McInnis (USA)          BMT Micro
+  19.10.1998         David Payne (USA)              BMT Micro
+  23.10.1998         Queiroz Carlos (FR)
+  29.10.1998         Hans Galema (NL)
+  30.10.1998         Christoph Korbmacher (UK?)     CyberSTrider
+  09.11.1998         Eric Gaudet (FR)               BMT Micro
+  11.11.1998         Bertil Jagard (SE)             Kockens
+  03.12.1998         Matthew Bieniek (USA)          BMT Micro
+  08.12.1998         Darren Wexler (USA)            BMT Micro
+  01.02.1999         Andre Pires (PT)
+  08.02.1999         Oliver Skelton (UK)            BMT Micro
+  09.02.1999         Bodo Hergert (TH)              BMT Micro
+  10.02.1999         Markus Mayer (DE)
+  21.02.1999         Eduard Koller (DE)
+  03.03.1999         Terry Porritt (NZ)             BMT Micro
+  04.03.1999         Claes Olsson (SE)              Kockens
+  05.03.1999         Paul Selby (UK)
+  15.03.1999         Adam Brass (USA)               BMT Micro
+  23.03.1999         Rob Quin Stevenic (UK)         CyberSTrider
+  29.03.1999         Helmuth Hammel (AT)            BMT Micro
+  29.03.1999         Pascal Clochard (FR)           BMT Micro
+  01.04.1999         Jason Drouillard (CA)          BMT Micro
+  08.04.1999         Tomas Pelc (CZ)
+  13.04.1999         Helmut Lenk
+  24.04.1999         Karel Rous (CZ)
+  26.04.1999         Stanislav Ulver (CZ)
+  06.05.1999         M A Clark (NZ)                 BMT Micro
+  10.05.1999         Caleb Jorden (USA)             BMT Micro
+  24.05.1999         Steve Parker (UK)              BMT Micro
+  07.06.1999         Philippe Noble (Trindad)       BMT Micro
+  09.06.1999         Daniel Guldkrans (SE)          Kockens
+  11.06.1999         Axel Schaefer (DE)
+  14.06.1999         S Manzi (AU)                   BMT Micro
+  03.07.1999         CHUN-HONG LIN (TW)             BMT Micro
+  03.07.1999         Chris Rogers (UK)
+  07.07.1999         Paul Hill (UK)                 CyberSTrider
+  08.07.1999         Michael Symonds (DE)           BMT Micro
+  14.07.1999         John Martindale (USA)          BMT Micro
+  14.07.1999         STanda Opichal (CZ)
+  15.07.1999         Markus Liebig
+  16.07.1999         bourguignon (FR)               CyberSTrider
+  23.07.1999         Richard Jackman (DE)           BMT Micro
+  25.07.1999         TORBJ™RN JANSSON (SE)          BMT Micro
+  26.07.1999         HECTOR HERNANDEZ H (MX)        BMT Micro
+  26.07.1999         Erik Laurent (DE)              BMT Micro
+  04.08.1999         Lojze Govekar (SI)
+  11.08.1999         General Logic srl (IT)         BMT Micro
+  13.08.1999         Bernhard Schuler (CH)          BMT Micro
+  26.08.1999         Paul Davis (UK)
+  01.09.1999         Vaclav Cechura (CZ)
+  06.09.1999         John R. Barber (UK)            CyberSTrider
+  10.09.1999         Liselle Ferland (CA)           BMT Micro
+  20.09.1999         Denis Bonfield (UK)            CyberSTrider
+  21.09.1999         Glen Lamerton (CA)             BMT Micro
+  05.10.1999         Edward S. Baiz
+  21.10.1999         Floyd Quinn (USA)              BMT Micro
+  01.11.1999         Arvid S”derberg (SE)           Kockens
+  01.11.1999         Mats Berlin (SE)               Kockens
+  08.11.1999         Roman Pejpal
+  19.11.1999         John Morearty (USA)            BMT Micro
+  14.12.1999         Robert P. Blassic (USA)        BMT Micro
+  23.12.1999         Ministere Du Revenu Du Quebec  BMT Micro
+  03.01.2000         Junya Takeuchi (JP)            BMT Micro
+  03.01.2000         Vladimir Koci (CZ)
+  05.01.2000         Rob Summers (UK)               CyberSTrider
+  12.01.2000         Patrick McMullen (CA)          BMT Micro
+  28.01.2000         Carl Dieudonne (USA)           BMT Micro
+  08.03.2000         Cara DaBoll (USA)              BMT Micro
+  27.03.2000         Luuk Helderman (NL)            BMT Micro
+  30.03.2000         Michael Patrzalek (DK)
+  06.04.2000         Roman Linda (CZ)
+  08.04.2000         Miroslav Koubek (CZ)
+  11.04.2000         Girard Thierry (FR)            BMT Micro
+  15.04.2000         Dennis McDonald (USA)          BMT Micro
+  27.04.2000         Paul Wichers (USA)             BMT Micro
+  17.05.2000         Brian Smith (UK)               BMT Micro
+  25.05.2000         Peter Baertschi (CH)           BMT Micro
+  27.05.2000         David Pike (USA)               BMT Micro
+  12.06.2000         Manfred Jonsson (SE)           BMT Micro
+  19.06.2000         Tom DiBiase (USA)              BMT Micro
+  26.06.2000         Yakov Feldman (USA)            BMT Micro
+  26.06.2000         Didier Mequignon (FR)
+  30.06.2000         Stuart Updike (USA)            BMT Micro
+=========================================================================

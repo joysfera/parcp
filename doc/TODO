@@ -1,0 +1,477 @@
+ParCP Todo:
+
+ OK - zjisteni skutecnych rozmeru znakove konzoly
+
+ OK - zadne dest name pri posilani ci prijimani
+
+ OK - prepinani rozeznavani velkych/malych pismen v nazvech souboru
+
+ OK - vypinatelny dotaz na prepsani existujiciho souboru
+
+ OK - klient posila serveru nastaveni parametru - case sensitivity, default overwrite etc.
+
+ OK - prepisovani jiz existujicich souboru
+
+ OK - zadavani dlouhych jmen s mezerou!
+
+ OK - getopt() spolu s moznosti posilani pohozeneho souboru - pote automaticky LQUIT!!
+
+ OK - env. promenna drzici prepinace "PARCPPAR"
+
+ OK - posilani celych podadresaru
+
+ OK - #ifdef ASSEMBLER predelat na if (_assembler)
+
+ 95%- korektni vypis volneho mista na disku pri diru (problemy uz jen v Linuxu)
+
+ OK - oprava chyby pri prenaseni souboru delky 0 bajtu
+
+ OK - adresare na Linuxu vytvaret s lepsimi pravy nez drw------
+
+ OK - prerusit prenos klavesou a vratit se do shellu (Alt+Shift+Control)
+
+ OK - udelat volitelnou delku prenosoveho bloku (BLOCK=)
+
+ OK - zachovat datum a cas kopirovanych souboru (STAMP)
+
+ OK - nastavit nebufrovany vystup na stdout a dobre bufrovat soubory
+
+ OK - neprenaset plnou verzi programu, ale jen verzi prenosoveho protokolu
+
+ OK - PARCP.CFG soubor!!!
+
+ OK - #if DEBUG prekopat na print funkce s prepinacem _debug - a dokonce logovat!!
+
+ OK - parametry prikazove radky redukovat na -s (server) a -f (konfiguracni soubor)
+
+ OK - prenos vypisovat v procentech cilove velikosti
+
+ OK - moznost volby jak Server reaguje po drag&dropu Clienta nastavenim promenne AfterDrop
+
+ OK - prestat vypisovat ".." v list_diru a opravit hlubokou a starou chybu pri stat(name)
+
+ OK - Abort Key musi prerusit i prenos vice souboru
+
+ OK - Skip/Overwrite musi dostat prepinac /Quit
+
+ OK - real ftp-like prikazy (mkdir, bye, ls), LMD, prejmenovani souboru, rekurzivni DEL
+
+ OK - TIMEOUT nahradit promennou _timeout, ktera pujde nastavit v konfigu
+
+ OK - prikaz SAVE, ktery ulozi nastaveni do konfiguraku, a STAT(US), ktery zobrazi akt. nastaveni
+
+ ?? - odstranit to podivne "./" v basename() a pak vsude, kde je change_dir() - protoze to nefunguje!!!
+
+ OK - zabudovat fixstk (aspon 16 kB stack) do Makefile, nebot bez toho nic nefunguje!
+
+ OK - opravit cfgopts.c tak, aby pri update() doplnil chybejici promenne
+
+ OK - standardizovat vypis souboru (pro ParShell) - kazdy radek musi mit presne 60 znaku
+
+ OK - udelat trideni podle jmena, delky a datumu
+
+ OK - zaridit, aby fungovalo put * i v hlavnim adresari CD-ROM (tedy nepouzit ftw() na prvni uroven)
+
+ OK - PARCP keyware! Username = Petr Stehlik, KeyCode = ABCD
+
+ OK . fix: timeout v Save, lepsi vypis Sorting by
+ OK . kontrolovat pocet souboru ne pointrem konce, ale poctem radku.
+ OK . odstranit rekurzi v trideni
+ OK . priorita pri nacitani config file
+ OK . spravit prenos parametru
+
+ 98%- server nesmi nic psat na obrazovku, ale musi poslat chybovou zpravu klientovi
+
+ OK - vypsat, ktery konfiguracni soubor je pouzit
+
+ OK - pokud je nastavena env. promenna a konf. soubor podle ni neni nalezen, je vypsano varovani
+
+ OK - opravena hruba chyba v dej_adresare_jako_prvni() - ty prazdne vypisy!!
+ OK - opravena hruba systemova chyba v basename() - menil vstupni parametry
+
+ OK - kontrolni soucet pri prenosu
+
+ OK - priprava na ParShell - podminit vsechny vystupy na screen promennou !shell
+
+ OK - zkusit mit delku nazvu 100 znaku, ale vypisovat volitelne jen treba 12
+
+ OK - opravena chyba v REN (pokud nezadal nove jmeno)
+
+ OK - zlepsena prehlednost, rozcleneno do vice souboru (PARSTRUC.C, PARCOMMO.C)
+
+ OK - vylepseno PARINOUT.C, prepsano PARTEST.C 
+
+ OK - nova promenna PortType drzici typ portu (SPP = 0, bidir = 1, ECP = 2)
+
+ OK - BlockLength v bajtech -> BlockLen v kB
+ OK - FileBuffer v bajtech -> FileBuf v nasobcich BlockLen
+
+ OK - podpora LapLink kabelu - naklonovat PARCPLOW.C a doplnit promennou CableType
+
+ OK - Fast rutiny pro IBM
+
+ OK - CRC32 a znovuposilani bloku, u kterych nesouhlasilo CRC
+
+ OK - sjednotit FTP interface a PARCP config na pouzivani Yes/No (misto True/False)
+
+ OK - novy command line switch "-b filename" pro batch transfer - ma prednost pred Autoexec
+
+ OK - dodelat trideni podle extension
+
+ OK - globalni promenne prevest do zvlastniho souboru global.c a k nemu udelat global.h s extern definicemi
+
+ OK - opravit cfgopts.c pro Boolean_Tag
+
+ OK - DOS PARCP musi pri odchodu vratit puvodni systemovou cestu, jinak budou problemy s batch fajly
+
+ OK - linkovat Linuxovy PARCP staticky!! (chyba nastala pri hrani si s Makefajly)
+
+ OK - pokud neni konfiguracni soubor, nastav promenne jak v neregistrovane verzi!!! (global.c)
+
+ OK - OVER nahradit OVEROLD a OVERNEW s parametrem (skip, replace, ask)
+
+ OK - prenaset atributy souboru a nastavovat je (prikaz ATTRIBS)
+
+ OK - zobrazovat neviditelne a systemove soubory v DOSu, aby se skutecne zkopiroval cely disk
+
+ OK - rozclenit parcp.c na dva dily (jadro a klient) a vyclenit tak PARSERVER
+
+ OK - urychlit to proklate pomale trideni - treba Shellsortem nebo Quicksortem
+      Vyborne - misto 68 sekund (500 souboru podle koncovky) nyni jen 2 sekundy
+
+ OK - v "[Server] connecting" napsat, ze lze prerusit [Alt+Control+Shift]
+
+ OK - vracet navratovy kod podle chyby (kdyz pracuju v -B davce je to nutnost)
+
+ OK - zastavovat prenos souboru stiskem klavesy (ptat se pred kazdym souborem).
+      Zatim vyreseno na stisk Ctrl+Shift.
+
+ OK - nova moznost "quiet mode" pro neotravovani uzivatele vypisy (taky pak nepada MagiC)
+
+ OK - fixed long standing bug s nemoznosti nastavit filebuffer size
+
+=== 3.30 ===
+ OK - predavani a nastavovani datumu a casu - GETTIME a PUTTIME
+
+ OK - ARCHIVE mode (kopirovat jen soubory s nastavenym arch. bitem a ten jim pote vynulovat)
+      zkontrolovat archivni mod a zjistit, nemaji-li byt cilove soubory taky s ARCHIVE
+
+ OK - obecne dodelat zjisteni informaci pred kopirovanim, moveovanim a deletovanim - diky
+      tomu uz muzu predem rict FILE NOT FOUND - viz nize
+
+ OK - vypisovat FILE NOT FOUND v pripade, ze GET, PUT, DEL nebo REN nenajde zadany soubor
+
+ OK - PGLEN musi byt automaticky 0, aby BATCH mode fungoval bez zadrhelu (hlavne dir apod).
+
+ OK - BETA uz automaticky casem nevyexpiruje - na to tu mame WILL_EXPIRE
+
+ OK - PARCP Server si uz nestezuje, ze neni zaregistrovany a hlavne 5 sekund necuci. Nema
+      to smysl, protoze registrovany PARCP Client stejne prenastavi vsechny parametry
+      serveru tak, jakoby byl registrovany. Diky tomu taky nyni Server v Quiet modu
+      nevytiskne ani jedno pismenko - nebud prekvapen!
+
+ OK - hlasit chyby v CLI navratovou hodnotou
+      o FILE NOT FOUND
+
+ OK - korektne zpracovat QUIT TRANSFER i z nejvnitrnejsich cyklu receive/send_file()
+
+ OK - udelat q_bugreport() stejne jako q_overwrite() vcetne navratovych kodu
+       1 ... repeat (dneska 2)
+       0 ... ignore (dneska 1)
+      -1 ... quit   (dneska 0)
+
+ OK - odlisit INTERRUPT_TRANSFER pomoci klavesy Shift+Control od QUIT_TRANSFER od q_overwrite
+      Potom na QUIT_TRANSFER nereagovat a ukoncit vse, zatimco INTERRUPT transfer zpracovat
+      jako beznou chybu pomoci q_bugreport()
+
+ OK - vytvorit g_bBatchMode, ktera bude TRUE pokud pojedeme nejaky script. Potom se budou
+      ignorovat vsechny dotazy - ve strankovani, v q_overwrite a q_bugreport. Tim se vyhodi
+      i ty sachy s PGLEN = 0 v parftpcl.
+
+ OK - napsat smycku pro prijimani souboru, ktera bude zrcadlova k do_send_files() a bude
+      pouzita i na strane serveru. Potom vymenovat informace mezi do_send a do_receive o
+      kazdem prenesenem souboru a to tak, ze server pise klientovi jak to dopadlo a pta se
+      ho, ma-li pokracovat. Pak klient posila pokyn pro dalsi cyklus. M_PEND by mel timto
+      byt nepotrebny a zrusen. Tak pujde naimplementovat i preruseni pomoci ESC klavesy
+      v do_receive() smycce.
+
+ OK - mozna predelat mazani souboru tak, ze bude mit cyklus i protistrana a bude obdrzovat
+      M_OK ci ERROR_DELETING spolu se jmenem souboru a q_bugreport()
+
+ OK - SHOWTIME zobrazi cas
+
+ OK - _check_info = FALSE vypina pocitani souboru a adresaru pred vlastni akci (protoze to
+      nekdy trva hrozne dlouho)
+
+ OK - SKIPnuti souboru ==> g_total_bytes -= len; neboli snizeni celkoveho
+      mnozstvi prenasenych dat, aby nadale fungovaly progress bary
+
+ OK - NUTNE: odstranit padani po preruseni Receiving Ctrl-C
+      Ty Tupoune!! q_bugreport vracel -1 a read/write_word to prevadel na WORD
+      tedy unsigned!!!!! SMRT! Proc sis vlastne zacal s WORDem?
+
+ OK - NUTNE: dopsat cteni Esc klavesy v SHELLu (a mozna i klavesy v DOSu/TOSu)
+
+ OK - napsat wait_before_read() pro cekani pred read_block() (read_word, read_long), ktera
+      bude respektovat rozdily mezi Client/Server a taky Bidirect/Laplink. Tuto funkci
+      pote volat pred kazdym read_neco() kdy na druhe strane se pracuje s diskem. Nutne
+      zvlaste pro mazani souboru a take zjistovani informaci o stromech.
+
+ OK - upravit progress_info() na ukazovani souboru/vsech souboru ci bytu/vsech bytu
+
+ OK - naprosty chaos v navratovych kodech - nutno ihned utridit a standardizovat
+
+ OK - poradne zkontrolovat prenosovy protokol - pri sendu vice souboru tam jde jakysi
+      nerozpoznany prikaz
+
+ OK - nekteri nadsenci pousti PARCP bez cteni dokumentace - to je na PC nebezpecne. Nyni
+      se PC verze bez spravneho PARCP.CFG nespusti!
+
+======== po 3.50 =====
+
+ OK - Server uz pri prijmu nikdy nevypisuje globalni progress, takze tam nejsou hausnumera
+      (logicky totiz pri prijmu nedostane potrebne informace o poctu a celk. velikosti)
+
+ 90%- NUTNE!! Case insensitive filesystemy - FAT/VFAT _musim_ prestat porovnavat podle
+      velikosti!!!
+      DPathConf(name, DP_CASE) => DP_SENSITIVE(0), DP_SAVEONLY(2)
+      _get_volume_info(name, ptr, ptr, ptr) => _FILESYS_CASE_SENSITIVE, _FILESYS_CASE_PRESERVED
+
+ 90%- Drag&drop opravdu nefunguje - patrne kvuli tomu, ze na cili nelze vytvorit adresar
+      Je nutne opravit SendFiles tak, aby neposilal celou cestu!
+
+ OK - scripty co jedou pod TOSem nejedou pod MiNTem (CR/LF?) - doplnit alespon vypis,
+      ktere commandy nebyly rozeznany a kdy je ktery script file pouzivan
+
+ OK - omez volani malloc() v process_files_rec() ze tri kusu na jeden => mensi fragmentace
+      pameti a rychlejsi akce
+
+ OK - zkracuj jmena souboru pred fopen("wb") a mkdir() pokud zapisujes na 8+3 fs
+
+ 3.63
+ ====
+
+ OK - opravena hloupa chyba v list_drives() kdy jsem nekontroloval pocet dirbuf_lines a pak
+      padala neregistrovana verze u lidi s vice nez 10 logickymi drajvy
+
+ OK - STRASNE - po zaregistrovani jsem zmenil dirbuf_lines a zapomnel realokovat blok, takze
+                pri nejblizsim nacti_obsah to proste zemrelo (prepsalo pul pameti). Opraveno
+
+ OK - STRASNE - file_buffers jsem alokoval jen jednou na zacatku, ale velikost bloku pro
+                bufrovani jsem mel jako nasobek BlockSize, coz se v pripade Serveru zmenilo
+                ihned po receive_parameters(), takze se pak bufrovalo do prcic. Spraveno,
+                nyni se i file_buffer realokuje dynamicky.
+ OK - PC verze pada na hubu po preneseni 1. souboru, pokud je BlockSize viz jak 500 kB
+
+ 3.70
+ ====
+ OK - STRASNE - hrozna chyba v asm rutinach na PC - zapomnel jsem updatovat gcontrol
+                po ukonceni asm bloku takze zustaval STROBE LOW - UFF! To zpusobovalo
+                ty nevysvetlitelne chyby pri prenosu dat
+      
+ OK - trizeni musi mit vlastni prepinac - case sensitive sorting YES/NO
+
+ OK - pro DOS musim pridat dalsi prepinac, jmenujici se "Allow all uppercase names"
+      anebo "Show old 8+3 lowercase (like Explorer)" anebo "Preserve DOS Filename Case"
+
+ OK - "Error with allocating file buffer" zpusobeny memory leakem - pri kazdem dalsim
+      pripojeni Clienta se alokoval file buffer - nyni realokuji a funguje to mnohem lepe :)
+
+ OK - String_tag v konfiguraku kontroluje delku retezce, takze uz nehrozi zadny buffer overflow
+
+ -- 3.73
+
+ OK - getmntent opraveno jak pro TOS (CEH blokuje "Insert disk B: into A:"), tak pro Linux
+      (spravne vypisuje namountovane veci a nepada)
+
+ OK - opraveno casovani v PARCPLOW - CLOCKS_PER_SEC se kupodivu jaksi lisilo od CLK_TCK (glibc2.1)
+      Novy zpusob brani preteceni (driv mohly nastavat problemy uz po 36 minut behu programu!)
+
+ OK - opravit cele casovani v PARCP, aby nikdy clock() nepretekl (==> vse pocitat v sekundach)
+
+ OK - opravena konverze z LFN do 8+3 (spatne se stripovalo jmeno disku s dvojteckou a mohly byt
+      memory leaky, protoze jsem uvolnoval cizi pamet)
+    
+ OK - vylepsena konverze LFN do 8+3 ("conversion" => "CONVERSI.ON")
+
+ OK - upresneno is_absolute_filename()
+
+ OK - zaridit, aby fungovalo i poslani prazdneho adresare - dnes funguje jen jeho smazani
+
+ OK - zaridit, aby drag&dropnute adresare byly poslany jako cele adresare, ne jen obsah
+      Toto jsem docilil workaroundem, kdy uz argv[i] stripuju o last_slash
+
+    - zaridit, aby drag&dropnute disky ("C:\") byly poslany do adresare ("c/")
+
+    - vyresit [Yes to All] a [No to All] (v ramci jednoho process_files())
+
+    - mit prepinac mezi unixovym a dosovym zpusobem rekurzivniho zpracovani souboru. Puvodne
+      jsme meli dosovy zpusob (maska platila i v podadresarich), nyni mame unixovy.
+
+    - pouzit access() misto file_exists()
+
+    - REName do q_overwrite() 
+
+    - pri timeoutu neodchazet z programu, ale pockat na timeout druhe strany a vratit se do shellu
+
+    - jednim prikazem prejit z modu Client do modu Server
+
+
+===================================================================================================
+
+TODO pro Parshell:
+------------------
+
+ OK - pri navratu z ftp nebo autoexecu do shellu musim nacist PWD, LPWD, SORT
+
+ OK - najit tu smrtici chybu v menu, ktera dovoli jen 4 polozky
+
+ OK - odstranit slozite prekreslovani dialogu pri kopirovani souboru
+
+ OK - F8 na Atari nemaze adresar (stacilo oddelat koncove lomitko)
+
+ OK - napsat flexibilni Alert (MessageBox), predevsim pro q_overwrite()
+
+ OK - Overwrite existing file? Yes/no/cancel
+
+ OK - An error occured: Ignore/retry/abort
+
+ OK - vypnout nonl(), stejne netusime, k cemu to je
+
+ OK - vypisovat uname() za Client/Server
+
+ OK - vypisovat pocet a celkovou velikost oznacenych souboru
+
+ OK - EditBox i MessageBox se museji naucit formatovat vstupni text do nekolika radku
+
+ OK - vylepsit EditBox - musi editovat zalozni kopii a vracet BOOLEAN jak dopadla editace
+      dale nesmi dopustit vstup CTRL znaku a navic by mohl na Ctrl-Y mazat vstupni radek
+
+ OK - po registraci se ulozi spatne trizeni a hlavne malo dirbuf_lines!! Chce to zvetsit na 200...
+
+ OK - opravit Overwrite->Cancel ==> an error occured (tj. zmenit navratovy kod)
+
+ OK - predelat ncurses tak, aby NIKDY nevypadly s tim, ze nejde neco s terminalem - rozhodne musi
+      fallbackovat na interni st52, v KAZDEM PRIPADE! (protoze i MiNT konzola je v podstate st52,
+      a dokonce i tw100 tusim zpetne emiluje vt52). Je to kvuli MiNTu, kde lide casto nemaji
+      nainstalovane terminfo, casto ani poradny termcap. Zaroven najit moznost jak zapnout Kamenickou
+      grafiku v ncurses - zeby externi promenna ncurses?
+
+ OK - osetreni spatneho chdir() (napr. do CD ROMky bez media, ci EZ nebo floppy)
+
+50% - Special options: pro TOS moznost ANSI grafiky, pro DOS moznost 50 radku na obrazovce (_set_screen_lines)
+
+ OK - nefunguje Backspace ani Enter v EditBoxu pod PDCURSES
+
+ OK - Autolocator a Autoselector
+
+ OK - jeste stale je bug v Move pod ParShellem - smaze Skipnuty file
+
+ OK - konecne prestat nacitat adresar pri zmene neceho v nastaveni
+
+ OK - pri zmene trideni nenacitat adresar a nenicit oznaceni souboru - byla blba chyba v ischecked
+
+ OK - napsat Infobox() - stejny jak MessageBox(), ale neceka na klavesu, nybrz stanoveny pocet sekund
+
+=== 3.30 ===
+
+ OK - zjistit_info() je potreba udelat tak, aby scitala jednotlive vysledky od process_entries()
+
+ OK - Quit Transfer nefunguje - udela jen skip!!
+
+ OK - slovne vypisovat errory pri transferu
+
+ OK - vypsat pred akci kolik souboru, adresaru a bajtu bude zkopirovano ci smazano
+
+ OK - NUTNE: po stisku Delete [Yes] udelat Infobox.Open("Deleting") a po deletovani
+      Infobox.Close(), protoze Deletovani muze trvat velmi dlouho a nemame o tom zadne info
+ OK - Deletovani musi mit taky progress bar, ne?
+
+ OK - vylepsit Shell_Info okna alespon o napis "Copying" a "Moving"
+ OK - udelat mezery pred a po nadpisu Shell_Info okna pomoci alloca(strlen(title)+3);
+
+ OK - vypisovat celkove mnozstvi dat a celkovy pocet souboru a klidne i estimated remaining time
+      Pro toto bude potreba otevrit okno v process_files() a pak uz ho pro jednotlive soubory
+      jen updatovat.
+
+ OK - zapnuto 8-bit vstup znaku => ceske nazvy adresaru
+
+ OK - bylo by dobre kontrolovat Shift+Control pred poslanim kazdeho bloku (aby slo slusne
+      prerusit i prenos superdlouhych souboru - napr. 650 MB) a klavesu Esc
+      pak pred poslanim dalsiho souboru (aby slo korektne vyvolat Quit Transfer behem prenosu)
+
+ OK - krome Esc prerusuje na Atari i Shift+Shift, protoze Esc nejde cist pod SingleTOSem
+
+====== 3.50+ ======
+
+ OK - ParShell Demo neslo spustit bez CFG - to je prece hloupost
+
+ OK - Progress dialog nema osetreni pro vypis prilis dlouheho filename!!
+
+ OK - EditBox se musi naucit editovat prilis dlouhy text rolovanim (Eric Gaudet si uz
+      stezoval na registracni dialog, kam napsal UserName = Eric Gaudet)
+
+ OK - klavesy PgUp a PgDn na Atari uz funguji jen se stisklym Shiftem
+
+ OK - qed jako viewer nenajde RSC - ze by delat chdir do adresare editoru?
+
+ OK - editace i vzdaleneho souboru
+
+ OK - automaticky selector je potreba upravit tak, aby kdyz nenajde nic smerem dolu zacal
+      hledat znovu od zacatku.
+
+ OK - chyba v automatickem najeti kurzoru na cerstve vytvoreny adresar
+
+ -- 3.73
+
+ OK - hodilo by se vypnout keybuffer, aby se rolovani nerolovalo pul hodiny po pusteni sipky
+      while (CConis()) Cnecin(); navrhuje Hans Galema
+
+ OK - opravit chybu pri kopirovani - neprekresluje se prave okno a premaze to status window
+      V ncurses4.1 musim holt na chvilku hide_panel(status) a pak to funguje - POZOR NEWS!
+      mozna je to tim, ze mam v parcp.c jedno wgetch() bez predchoziho doupdate()! Vyzkousej!
+
+ OK - prepinac potvrzeni [yes|no] pred Copy, Move a Delete, aby clovek necekal
+      pul hodiny jen na oznameni, ze muze stisknout Return pro zacatek kopirovani.
+      Confirm Copy/Move/Delete
+
+ OK - vypnout kurzor po navratu z CLI - kdyz to umi vypnout MKDIR dialog box, tak proc bysme
+      to nemohli vypnout nejak sami?!?
+
+    - [Yes to All] a [No to All] dodelat do Alertu!! Bude to jednoduche a velmi podobne
+      sbirani g_files/g_folders/g_bytes pro jednotlive oznacene polozky - tady si misto
+      toho budu pamatovat stav posledniho Neco to All pro urcity dotaz (kazdy dotaz musi
+      mit vlastni priznak Neco to All !!)
+
+    - zvazit moznost pouziti tmpnam() pri prohlizeni a editaci, at nepomazu omylem
+      dulezite soubory v TMP. Aby bylo zachovano filename, tak doporucuji vytvaret
+      v $TMP podadresar dany nahodnym jmenem (anebo treba $parcp po vzoru WC)
+      a teprve do nej kopirovat soubor.
+
+
+Podivne ci neopakovatelne chyby: (nahore ty nejnovejsi, smerem dolu historie)
+================================
+
+OK - viewer nekdy padne na coredump pokud jdu do helpu a zpet - Zrejme vyreseno
+     spravnym poradim uvolnovani ncurses veci
+
+OK - pokud je DOS Client, tak to pada na spatne poslanych datech (write_word/long)
+     pokud je DOS Server nebo se bavime o Linuxu/TOSu, tak to jede OK. Co to je?!?
+     Vypada to, jakoby byla chyba v send_string() ve dvojici write(x); read(x) - jakoby
+     se read() spustilo jeste ve chvili, kdy to nikdo necekal. 
+     CHYBA BYLA V ASM RUTINACH!
+
+OK - pri zaregistrovani to hodi bomby behem ukladani nebo tam nekde.
+     Bylo to kvuli tomu ze jsem si klidne zmenil dirbuf_lines pro ukladani a zapomnel realokovat
+
+OK - Stephenovi Riddovi to v DOSu neukaze CD-ROM a ve Windows95 to slozi cele Windows OSR2.1
+     Vyreseno pouzitim nove libc.
+
+OK - vyresit rozpor pri testovani bidir portu - PARCP 2.70 vi, ze je bidir, ale PARCP 3.00 tvrdi, ze neni
+
+OK - zkusit poradne zjistit pocet printer portu v PC (Mike Ital a jeho 2 porty skutecne a 3 detekovane)
+     Mel jsem to dobre a Mike Ital blbec mel sitovou tiskarnu :-)
+
+- pry PARCP 2.40 nedetekovalo vymenu diskety - Rudolf Potucek (potucek@zrz.tu-berlin.de,
+  rpotucek@geocities.com) navrhuje 're-read directory', i kdyz spise je potreba Force Media Exchange.
+
