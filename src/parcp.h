@@ -14,7 +14,6 @@
 #undef WILL_EXPIRE			/* defines expiration */
 
 #define PROTOKOL	0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
-#define PARCP_64BIT	(1==0)
 
 #include <stdio.h>
 #include <string.h>
@@ -26,7 +25,7 @@
 #include <sys/vfs.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
-#include <time.h>			/* added for GCC 2.95.2 / Debian Sid */
+#include <time.h>			/* added for GCC 2.95.2 */
 #include <termios.h>
 #include <unistd.h>
 #include <signal.h>
@@ -115,6 +114,7 @@
 #define M_DELINFO	0x0f17
 #define M_PSTART	0x0f18
 #define M_EXCHANGE_FEATURES	0x0f19
+#define M_SENDFILESINFO	0x0f20
 
 #define	M_UNKNOWN	0xe000		/* unknown command */
 
@@ -127,14 +127,23 @@
 #define B_ATTRIBS 	0x0020		/* TRUE = restore file attributes on copied files */
 #define B_ARCH_MODE	0x0040		/* TRUE = use DOS ATTRIB flag for file backup */
 #define B_PRESERVE	0x0080		/* TRUE = preserve file name upper/lower case on DOS like filesystems */
+#define B_CHECKINFO	0x0100		/* TRUE = show progress info */
 
 #define	LS_DIRS_ONLY	0x0001
 #define	LS_FILES_ONLY	0x0002
 #define LS_NEGATE_MASK	0x0080
 
-/*******************************************************************************/
+/******************************************************************************/
+#define FEATURE_LONGLONG		(1L << 0)
+#define FEATURE_SENDFILESINFO	(1L << 1)
+#define ALL_FEATURES	(FEATURE_LONGLONG | FEATURE_SENDFILESINFO)
+
+/******************************************************************************/
 
 char *show_size64(char *buf, ULONG64 size);
+void send_long(ULONG64);
+ULONG64 receive_long();
+void send_collected_info(void);
 void split_filename(const char *pathname, char *path, char *name);
 void prepare_fname_for_opendir(const char *pathname, char *path, char *name);
 BOOLEAN is_absolute_path(const char *path);

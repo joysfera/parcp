@@ -35,6 +35,9 @@ unsigned long g_files = 0, g_folders = 0, g_start_time = 0;
 unsigned long g_files_pos, g_time_pos;
 ULONG64 g_bytes, g_bytes_pos;	/* 64-bit wide counters */
 
+/* features */
+unsigned long g_exch_features = 0;
+
 short page_length = 25;
 short page_width  = 80;
 
@@ -184,7 +187,7 @@ long read_long(void)
 	return x;
 }
 
-long long read_long_long(void)
+long long read_longlong(void)
 {
 	BYTE a[8+1];
 	long long x;
@@ -229,7 +232,7 @@ void write_long(long x)
 	write_block(a,4);
 }
 
-void write_long_long(long long x)
+void write_longlong(long long x)
 {
 	BYTE a[8+1];
 
@@ -442,17 +445,11 @@ void open_copyinfo(BOOLEAN sending, const char *name, long size)
 
 void open_sendinfo(const char *name, long size)
 {
-	if (!client && _check_info)
-		g_bytes = 0;	/* server cannot know anything about data being sent because the ParShell asks for each marked file/folder separately and there's no method for summing it up - so stop printing bullshit */
-
 	open_copyinfo(TRUE, name, size);
 }
 
 void open_recvinfo(const char *name, long size)
 {
-	if (!client && _check_info)
-		g_bytes = 0;	/* server cannot know anything about data being received so stop printing bullshit */
-
 	open_copyinfo(FALSE, name, size);
 }
 
@@ -782,6 +779,7 @@ void setup_opendir(void)
 #endif
 }
 
+#ifndef PARCP_SERVER
 UWORD PackParameters(void)
 {
 	return													\
@@ -793,8 +791,10 @@ UWORD PackParameters(void)
 |	(_keep_attribs ? B_ATTRIBS : 0)							\
 |	(_archive_mode ? B_ARCH_MODE : 0)						\
 |	(_preserve_case ? B_PRESERVE : 0)						\
+|	(_check_info ? B_CHECKINFO : 0)						\
 	;
 }
+#endif /* PARCP_SERVER */
 
 void UnpackParameters(UWORD x)
 {
@@ -806,8 +806,10 @@ void UnpackParameters(UWORD x)
 	_keep_attribs = (x & B_ATTRIBS) ? TRUE : FALSE;
 	_archive_mode = (x & B_ARCH_MODE) ? TRUE : FALSE;
 	_preserve_case = (x & B_PRESERVE) ? TRUE : FALSE;
+	_check_info = (x & B_CHECKINFO) ? TRUE : FALSE;
 }
 
+#ifndef PARCP_SERVER
 void send_parameters(void)
 {
 	UWORD par = PackParameters();
@@ -824,6 +826,7 @@ void send_parameters(void)
 	setup_opendir();
 	allocate_buffers();
 }
+#endif /* PARCP_SERVER */
 
 void receive_parameters(void)
 {
@@ -1284,6 +1287,83 @@ void check_and_convert_filename(char *fname)
 	DPRINT1("c conversion result: %s\n", fname);
 }
 
+/******************************************************************************/
+
+#define HAS_LONGLONG		(g_exch_features & FEATURE_LONGLONG)
+#define HAS_SENDFILESINFO	(g_exch_features & FEATURE_SENDFILESINFO)
+
+void send_features()
+{
+	long client_features = ALL_FEATURES;
+	write_word(M_EXCHANGE_FEATURES);
+	if (read_word() != M_OK) {
+		if (! _quiet_mode)
+			printf("M_EXCHANGE_FEATURES not confirmed\n");
+	}
+	write_long(client_features);
+	g_exch_features = read_long();
+}
+
+void receive_features()
+{
+	long server_features = ALL_FEATURES;
+	long client_features;
+	write_word(M_OK);
+	client_features = read_long();
+	g_exch_features = client_features & server_features;
+	write_long(g_exch_features);
+}
+
+void send_long(ULONG64 number)
+{
+	if (HAS_LONGLONG)
+		write_longlong(number);
+	else
+		write_long(number);
+}
+
+ULONG64 receive_long()
+{
+	return (HAS_LONGLONG) ? read_longlong() : read_long();
+}
+
+#ifndef PARCP_SERVER
+void send_collected_info(void)
+{
+	if (HAS_SENDFILESINFO) {
+		write_word(M_SENDFILESINFO);
+		if (read_word() != M_OK) {
+			if (! _quiet_mode)
+				printf("M_SENDFILESINFO not confirmed\n");
+			return;
+		}
+		write_long(g_files);
+		send_long(g_bytes);
+		write_long(g_folders);
+	}
+}
+#endif /* PARCP_SERVER */
+
+void receive_collected_info(void)
+{
+	if (HAS_SENDFILESINFO) {
+		int cmd = read_word();
+		if (cmd != M_SENDFILESINFO) {
+			if (! _quiet_mode)
+				printf("Unexpected command: %04x (expected M_SENDFILESINFO)\n", cmd);
+			return;
+		}
+		write_word(M_OK);
+		g_files = read_long();
+		g_bytes = receive_long();
+		g_folders = read_long();
+	}
+
+	/* reset the counters */
+	g_files_pos = g_bytes_pos = 0;
+	g_time_pos = TIMER;
+}
+
 /*******************************************************************************/
 
 int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
@@ -1310,10 +1390,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 
 	write_word(M_PUT);				/* sending file */
 	send_string(name);				/* its name */
-	if (PARCP_64BIT)
-		write_long_long(size);		/* its length64 */
-	else
-		write_long(size);			/* its length */
+	send_long(size);			/* its length */
 	write_long(stb->st_mtime);		/* its timestamp */
 	write_long(file_mode);			/* its mode */
 
@@ -1400,7 +1477,7 @@ int receive_1_file(void)
 
 	DPRINT("r receive_1_file\n");
 	receive_string(name);
-	size = PARCP_64BIT ? read_long_long() : read_long();
+	size = receive_long();
 	timestamp = read_long();
 	file_mode = read_long();
 	file_attr = file_mode >> 16;
@@ -1821,7 +1898,7 @@ int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
 
 		status = read_word();
 		g_files = read_long();
-		g_bytes = PARCP_64BIT ? read_long_long() : read_long();
+		g_bytes = receive_long();
 		g_folders = read_long();
 	}
 
@@ -1902,10 +1979,7 @@ int return_server_files_info(void)
 
 	write_word(status);
 	write_long(g_files);
-	if (PARCP_64BIT)
-		write_long_long(g_bytes);
-	else
-		write_long(g_bytes);
+	send_long(g_bytes);
 	write_long(g_folders);
 
 	return status;
@@ -2107,12 +2181,7 @@ void do_server(void)
 				break;
 
 			case M_EXCHANGE_FEATURES:
-				{
-					long client_features, server_features=0;	/* should be made global */
-					client_features = read_long();
-					/* decide whether to use PARCP_64BIT and if not then mask it out from the reply */
-					write_long(server_features);
-				}
+				receive_features();
 				break;
 
 			default:
@@ -2463,6 +2532,9 @@ int main(int argc, char *argv[])
 
 	if (client) {
 #ifndef PARCP_SERVER
+		/* exchange features */
+		send_features();
+
 		/* send client parameters to the server */
 		send_parameters();	/* allocate block and dir buffers here */
 
