@@ -1,0 +1,226 @@
+/*
+ * PARallel CoPy - written for transferring large files between any two machines
+ * with parallel ports.
+ *
+ * Petr Stehlik (c) 1996-2000
+ *
+ */
+
+#ifndef _PARCP_H
+#define _PARCP_H
+
+#define VERZE	"3.80"		/* vypisuje se pri startu programu na obrazovku */
+#undef BETA				/* beta verze pro otestovani */
+#undef WILL_EXPIRE			/* definuje verzi s omezenou dobou zivotnosti */
+
+#define PROTOKOL	0x0380	/* UWORD, zarucuje kompatibilitu protokolu u rozdilnych verzi PARCP */
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/vfs.h>
+#include <sys/utsname.h>
+#include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <utime.h>
+
+#include "element.h"
+
+#include "cfgopts.h"
+#include "parcpkey.h"
+#include "parcperr.h"
+
+#define CFGFILE		"parcp.cfg"
+#define CFGHEAD		"[PARCP]"
+#define PARCPDIR	"PARCPDIR"
+
+#define TIMER		(clock() / CLOCKS_PER_SEC)
+#define TIME_OUT	10			/* hlavni TIMEOUT je nastaven na 10 sekund */
+#define WAIT4CLIENT	100000UL			/* 100 ms odevzdani casu systemu */
+#define mkdir(a)	mkdir(a,0777)		/* directory with proper access rights */
+
+#define MAXSTRING	260
+#define MAXPATH		260
+#define MAXFNAME	100
+#define PRINTF_TEMPLATE	"%-100s"
+#define DIRLINELEN	(MAXFNAME+10+1+16+1)
+#define DIRBUF_LIN	256
+#define UNREG_DIRBUF_LIN	10
+#define BUFFER_LENKB	50
+#define	KILO	1024UL
+#define	MAX_DEPTH	8
+#define REPEAT_TRANSFER	3
+#define REMAINING_TIME_UPDATE_RATE		3		/* how often the remaining time should be updated */
+
+#define SLASH		'/'
+#define SLASH_STR	"/"
+#define BACKSLASH	'\\'
+#define DVOJTEKA	':'
+#define TOS_DEV		"/dev/"
+#define Ltos_dev	strlen(TOS_DEV)
+
+#define HASH_CHAR	'.'
+
+#define USAGE	"Usage:\n"\
+				"PARCP [-s] [-f configfile] [-b batchfile] [-q]\n"\
+				"'-s' invokes PARCP Server\n"\
+				"'-f configfile' points to PARCP alternate configuration file\n"\
+				"'-b batchfile' points to PARCP batch file\n"\
+				"'-q' means 'quiet mode' i.e. no messages are written on screen\n"
+
+/******************************************************************************/
+/* DO NOT change following values - they are important for handshaking */
+#define HI_CLIENT	0x4843		/* 'HC' */
+#define HI_SERVER	0x4853		/* 'HS' */
+#define M_OK		0x0105
+#define M_ERR       0xFFFF
+
+/* following values can be changed without a risk providing you increase PROTOKOL version */
+#define M_QUIT		0x0a00
+#define M_LQUIT		0x0a01
+#define M_PARS		0x0b00
+#define M_PWD		0x0f01
+#define M_CD		0x0f02
+#define M_MD		0x0f03
+#define M_PUT		0x0f04
+#define M_PEND		0x0f05
+#define M_GET		0x0f06
+#define M_DIR		0x0f07
+#define M_DEL		0x0f08
+#define M_DRV		0x0f09
+#define M_OWRITE	0x0f0a
+#define M_OSKIP		0x0f0b
+#define M_OQUIT		0x0f0c
+#define M_REN       0x0f0d
+#define M_INT		0x0f0e		/* preruseni prenosu souboru */
+#define M_FULL		0x0f0f		/* disk full while writting */
+#define M_REPEAT	0x0f10		/* repeat block transfer */
+#define M_UTS		0x0f11		/* send machine info */
+#define M_GETDEL	0x0f12
+#define M_OASK		0x0f13
+#define M_GETINFO	0x0f14
+#define M_GETTIME	0x0f15
+#define M_PUTTIME	0x0f16
+#define M_DELINFO	0x0f17
+#define M_PSTART	0x0f18
+#define M_EXCHANGE_FEATURES	0x0f19
+
+#define	M_UNKNOWN	0xe000		/* unknown command */
+
+/* bitove prepinace parametru */
+#define B_CASE		0x0001		/* TRUE = case sensitive matching */
+#define B_HIDDEN	0x0002		/* TRUE = show hidden files on MS-DOS fs */
+#define B_SUBDIR	0x0004		/* TRUE = proleze rekurzivne podadresare a vse posle */
+#define B_TIMESTAMP	0x0008		/* TRUE = po zkopirovani souboru mu nastavi puvodni datum a cas */
+#define B_CHECKSUM	0x0010		/* TRUE = provadet kontrolni soucet bloku */
+#define B_ATTRIBS 	0x0020		/* TRUE = opravovat atributy prenesenych souboru */
+#define B_ARCH_MODE	0x0040		/* TRUE = kopirovat jen soubory bez archivniho bitu a ten jim pak nastavovat */
+#define B_PRESERVE	0x0080		/* TRUE = zachovat velikost pismen DOSovych filesystemu */
+
+#define	LS_DIRS_ONLY	0x0001
+#define	LS_FILES_ONLY	0x0002
+#define LS_NEGATE_MASK	0x0080
+
+/*******************************************************************************/
+
+void split_filename(const char *pathname, char *path, char *name);
+void prepare_fname_for_opendir(const char *pathname, char *path, char *name);
+BOOLEAN is_absolute_path(const char *path);
+BOOLEAN has_last_slash(const char *path);
+char *add_last_slash(char *path);
+char *remove_last_slash(char *path);
+
+void errexit(const char *, int error_code);
+
+char *orez_jmeno(const char *jmeno, int delka_jmena);
+void view(const char *s, BOOLEAN is_dir);
+BOOLEAN do_client(int, FILE *);
+void do_server(void);
+void inicializace(void);
+void client_server_handshaking(BOOLEAN client);
+
+BOOLEAN change_dir(const char *p, char *q);
+void list_dir(const char *p2, int maska, char *zacatek);
+void setridit_list_dir(char *buffer);
+int list_drives(char *p);
+int delete_files(BOOLEAN local, const char *del_mask);
+
+UWORD read_word(void);
+long read_long(void);
+void read_block(BYTE *, long);
+void receive_string(char *a);
+long client_read_block(BYTE *, long);
+long server_read_block(BYTE *, long);
+long fast_client_read_block(BYTE *, long);
+long fast_server_read_block(BYTE *, long);
+
+void write_word(UWORD x);
+void write_long(long x);
+void write_block(const BYTE *, long);
+void send_string(const char *a);
+long client_write_block(const BYTE *, long);
+long server_write_block(const BYTE *, long);
+long fast_client_write_block(const BYTE *, long);
+long fast_server_write_block(const BYTE *, long);
+int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode);
+int GetLocalTimeAndSendItOver(void);
+int ReceiveDataAndSetLocalTime(void);
+//int get_server_files_info(const char *filemask, BOOLEAN arch_mode);
+
+UWORD PackParameters(void);
+void send_parameters(void);
+
+int copy_files(BOOLEAN source, const char *p_srcmask, BOOLEAN pote_smazat);
+BOOLEAN stop_waiting(void);
+int config_file(const char *soubor, BOOLEAN vytvorit);
+char *get_cwd(char *path, int maxlen);
+BOOLEAN file_exists(char *fname);
+char *str_err(int status);
+
+void parcp_sort(void *base, size_t nel, size_t width,
+		   int (*comp) (const void *, const void *),
+		   void (*swap) (void *, void *));
+
+/* SHELL */
+#ifdef SHELL
+void do_shell(void);
+/*
+void shell_open_progress_info(const char *, const char *, long);
+void shell_update_progress_info(long);
+void shell_close_progress_info(void);
+*/
+int  shell_q_overwrite(const char *);
+int shell_q_bugreport(const char *text);
+#endif
+
+#ifdef DEBUG
+#define DPRINT(a)		debug_print(a)
+#define	DPRINT1(a,b)	debug_print(a,b)
+#define	DPRINT2(a,b,c)	debug_print(a,b,c)
+void debug_print(const char *, ... );
+#else
+#define DPRINT(a)
+#define DPRINT1(a,b)
+#define DPRINT2(a,b,c)
+#endif
+
+#ifdef LOWDEBUG
+#define LDPRINT(a)		debug_print(a)
+#define	LDPRINT1(a,b)	debug_print(a,b)
+#define	LDPRINT2(a,b,c)	debug_print(a,b,c)
+void debug_print(const char *, ... );
+#else
+#define LDPRINT(a)
+#define LDPRINT1(a,b)
+#define LDPRINT2(a,b,c)
+#endif
+
+/*******************************************************************************/
+#endif	/* _PARCP_H */
