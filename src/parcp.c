@@ -44,25 +44,24 @@ BOOLEAN bInBatchMode = FALSE;
 
 /******************************************************************************/
 
-char *show_size64(ULONG64 size)
+char *show_size64(char *buf, ULONG64 size)
 {
-	static char buf[64];
 	char *format;
-	ULONG64 x = 0;
+	unsigned long x = 0;
 	if (size < (10*KILO)) {
-		format = "%llu bytes";
+		format = "%lu bytes";
 		x = size;
 	}
-	else if (x < (10*KILO*KILO)) {
-		format = "%llu kB";
+	else if (size < (10*KILO*KILO)) {
+		format = "%lu kB";
 		x = size / KILO;
 	}
-	else if (x < (10*KILO*KILO*KILO)) {
-		format = "%llu MB";
+	else if (size < (10*KILO*KILO*KILO)) {
+		format = "%lu MB";
 		x = size / (KILO * KILO);
 	}
 	else {
-		format = "%llu GB";
+		format = "%lu GB";
 		x = size / (KILO * KILO * KILO);
 	}
 	sprintf(buf, format, x);
@@ -542,10 +541,10 @@ void close_copyinfo(int ret_flag)
 #endif
 
 	if (hash_mark) {
-		char title_txt[10];
-		strcpy(title_txt, copyinfo_sending?"Sent":"Received");
-
-		printf("\n%s %s", title_txt, show_size64(copyinfo_pos));
+		char title_txt[MAXSTRING], buf_bytes[MAXSTRING];
+		show_size64(buf_bytes, copyinfo_pos);
+		sprintf(title_txt, "\n%s %s", copyinfo_sending?"Sent":"Received", buf_bytes);
+		printf(title_txt);
 	}
 	else
 		printf("\b\b\b\b");
@@ -987,7 +986,12 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
 		DPRINT2("d %ld free clusters of %ld bytes each.\n", stfs.f_bfree, stfs.f_bsize);
-		sprintf(p, "%s in %4d files, %s free\n", show_size64(total), pocet, show_size64((ULONG64)(stfs.f_bfree*stfs.f_bsize)));
+		{
+			char buf_total[MAXSTRING], buf_free[MAXSTRING];
+			show_size64(buf_total, total);
+			show_size64(buf_free, (ULONG64)(stfs.f_bfree*stfs.f_bsize));
+			sprintf(p, "%s in %4d files, %s free\n", buf_total, pocet, buf_free);
+		}
 	}
 }
 
