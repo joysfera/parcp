@@ -1296,10 +1296,6 @@ void send_features()
 {
 	long client_features = ALL_FEATURES;
 	write_word(M_EXCHANGE_FEATURES);
-	if (read_word() != M_OK) {
-		if (! _quiet_mode)
-			printf("M_EXCHANGE_FEATURES not confirmed\n");
-	}
 	write_long(client_features);
 	g_exch_features = read_long();
 }
@@ -1307,14 +1303,12 @@ void send_features()
 void receive_features()
 {
 	long server_features = ALL_FEATURES;
-	long client_features;
-	write_word(M_OK);
-	client_features = read_long();
+	long client_features = read_long();
 	g_exch_features = client_features & server_features;
 	write_long(g_exch_features);
 }
 
-void send_long(ULONG64 number)
+void write_long64(ULONG64 number)
 {
 	if (HAS_LONGLONG)
 		write_longlong(number);
@@ -1322,7 +1316,7 @@ void send_long(ULONG64 number)
 		write_long(number);
 }
 
-ULONG64 receive_long()
+ULONG64 read_long64()
 {
 	return (HAS_LONGLONG) ? read_longlong() : read_long();
 }
@@ -1332,13 +1326,8 @@ void send_collected_info(void)
 {
 	if (HAS_SENDFILESINFO) {
 		write_word(M_SENDFILESINFO);
-		if (read_word() != M_OK) {
-			if (! _quiet_mode)
-				printf("M_SENDFILESINFO not confirmed\n");
-			return;
-		}
 		write_long(g_files);
-		send_long(g_bytes);
+		write_long64(g_bytes);
 		write_long(g_folders);
 	}
 }
@@ -1347,15 +1336,8 @@ void send_collected_info(void)
 void receive_collected_info(void)
 {
 	if (HAS_SENDFILESINFO) {
-		int cmd = read_word();
-		if (cmd != M_SENDFILESINFO) {
-			if (! _quiet_mode)
-				printf("Unexpected command: %04x (expected M_SENDFILESINFO)\n", cmd);
-			return;
-		}
-		write_word(M_OK);
 		g_files = read_long();
-		g_bytes = receive_long();
+		g_bytes = read_long64();
 		g_folders = read_long();
 	}
 
@@ -1390,7 +1372,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 
 	write_word(M_PUT);				/* sending file */
 	send_string(name);				/* its name */
-	send_long(size);			/* its length */
+	write_long64(size);				/* its length */
 	write_long(stb->st_mtime);		/* its timestamp */
 	write_long(file_mode);			/* its mode */
 
@@ -1477,7 +1459,7 @@ int receive_1_file(void)
 
 	DPRINT("r receive_1_file\n");
 	receive_string(name);
-	size = receive_long();
+	size = read_long64();
 	timestamp = read_long();
 	file_mode = read_long();
 	file_attr = file_mode >> 16;
@@ -1898,7 +1880,7 @@ int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
 
 		status = read_word();
 		g_files = read_long();
-		g_bytes = receive_long();
+		g_bytes = read_long64();
 		g_folders = read_long();
 	}
 
@@ -1979,7 +1961,7 @@ int return_server_files_info(void)
 
 	write_word(status);
 	write_long(g_files);
-	send_long(g_bytes);
+	write_long64(g_bytes);
 	write_long(g_folders);
 
 	return status;
