@@ -442,6 +442,9 @@ void open_copyinfo(BOOLEAN sending, const char *name, long size)
 
 void open_sendinfo(const char *name, long size)
 {
+	if (!client && _check_info)
+		g_bytes = 0;	/* server cannot know anything about data being sent because the ParShell asks for each marked file/folder separately and there's no method for summing it up - so stop printing bullshit */
+
 	open_copyinfo(TRUE, name, size);
 }
 
@@ -552,7 +555,9 @@ void close_copyinfo(int ret_flag)
 	speed = (copyinfo_pos / copyinfo_time);
 	if (_check_info && g_bytes) {
 		unsigned int position = (g_bytes_pos * 100ULL) / g_bytes;
-		printf(" OK (%lu cps) (%02u%% of total size)\n", speed, position);
+		char bytes_buf[MAXSTRING];
+		show_size64(bytes_buf, g_bytes);
+		printf(" OK (%lu cps) (%02u%% of total size %s)\n", speed, position, bytes_buf);
 	}
 	else
 		printf(" OK (%lu cps)\n", speed);
@@ -1521,6 +1526,9 @@ int PF_Process;
 /* forward reference */
 int process_files_rec(const char *src_mask);
 
+/*
+ * will increase g_files, g_folders, g_bytes
+ */
 int process_files(int Process, const char *src_mask)
 {
 	char root[MAXPATH], fname[MAXFNAME], pwd_backup[MAXPATH], new_srcmask[MAXPATH];
@@ -1800,8 +1808,8 @@ int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
 
 	if (local) {
 		int mode = PROCESS_INFO | (arch_mode ? PROCESS_ARCHIVE : 0);
-		g_files = g_bytes = g_folders = 0;
-		status = process_files(mode, src_mask);
+		g_files = g_bytes = g_folders = 0;		/* this should not happen if this get_files_info() is called several times in a row from ParShell */
+		status = process_files(mode, src_mask);	/* g_bytes/g_files/g_folders changed */
 	}
 	else {
 		write_word(M_GETINFO);
