@@ -1613,6 +1613,7 @@ void do_shell(void)
 					zjistit_kompletni_info(okno, TRUE);
 					show_size64(buf_total, shell_total_bytes);
 					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, buf_total);
+					send_collected_info();
 				}
 				else
 					sprintf(tmpstr, "Copy file(s)?");
@@ -1631,6 +1632,7 @@ void do_shell(void)
 					zjistit_kompletni_info(okno, TRUE);
 					show_size64(buf_total, shell_total_bytes);
 					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, buf_total);
+					send_collected_info();
 				}
 				else
 					sprintf(tmpstr, "Move file(s)?");

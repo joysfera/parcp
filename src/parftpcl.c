@@ -503,6 +503,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 					printf("%s %lu files in %lu folders (total size %s)\n",
 							sending ? "Sending" : "Receiving", g_files, g_folders,buf_size);
 				}
+				send_collected_info();
 			}
 
 			g_last_status = copy_files(sending, p2, (strncasecmp(p1+3, "DEL", 3) == 0));
