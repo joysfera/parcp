@@ -1372,7 +1372,8 @@ void do_shell(void)
 				}
 				break;
 
-			case KEY_IC:
+			case KEY_IC:	/* 'Insert' key */
+			case ' ':		/* SpaceBar key */
 				if (strcmp(pure_filename(okno), "..")) {	/* ".." can't be selected! */
 					soznaceny(okno, okno->kurzor, !oznaceny(okno, okno->kurzor));
 					prekresli_radek(okno, okno->kurzor-okno->radek);
@@ -1608,8 +1609,10 @@ void do_shell(void)
 
 			case KEY_F(5):
 				if (_check_info) {
+					char buf_total[MAXSTRING];
 					zjistit_kompletni_info(okno, TRUE);
-					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, show_size64(shell_total_bytes));
+					show_size64(buf_total, shell_total_bytes);
+					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, buf_total);
 				}
 				else
 					sprintf(tmpstr, "Copy file(s)?");
@@ -1624,8 +1627,10 @@ void do_shell(void)
 
 			case KEY_F(6):
 				if (_check_info) {
+					char buf_total[MAXSTRING];
 					zjistit_kompletni_info(okno, TRUE);
-					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, show_size64(shell_total_bytes));
+					show_size64(buf_total, shell_total_bytes);
+					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, buf_total);
 				}
 				else
 					sprintf(tmpstr, "Move file(s)?");
@@ -1686,11 +1691,11 @@ void do_shell(void)
 
 			case KEY_F(9):
 				if (interakce_menu()) {
-					if (MessageBox("Quit also the PARCP Server?", MB_YESNO) == IDYES)
-						write_word(M_QUIT);
-					else
-						write_word(M_LQUIT);
-					ukoncit_vse = TRUE;
+					int retval = MessageBox("Quit also the PARCP Server?", MB_YESNOCANCEL);
+					if (retval != IDCANCEL) {
+						write_word(retval == IDYES ? M_QUIT : M_LQUIT);
+						ukoncit_vse = TRUE;
+					}
 				}
 				break;
 
@@ -1704,7 +1709,6 @@ void do_shell(void)
 				ukoncit_vse = TRUE;
 				break;
 
-			case ' ':
 			case KEY_BACKSPACE:
 #ifdef __PDCURSES__
 			case 8:
