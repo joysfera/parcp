@@ -70,7 +70,7 @@ tgz:	parshell par_in parserve
 clean :
 	rm -f *.o
 
-realclean :
+realclean :	clean
 	rm -f parcp parserve par_in parcpkey
 
 ###############################
