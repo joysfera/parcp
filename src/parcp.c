@@ -2166,6 +2166,10 @@ void do_server(void)
 				receive_features();
 				break;
 
+			case M_SENDFILESINFO:
+				receive_collected_info();
+				break;
+
 			default:
 				write_word(M_UNKNOWN);		/* say 'unknown command' */
 				if (! _quiet_mode)
