@@ -498,8 +498,10 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 					continue;
 				}
 				if (! _quiet_mode) {
+					char buf_size[MAXSTRING];
+					show_size64(buf_size, g_bytes);
 					printf("%s %lu files in %lu folders (total size %s)\n",
-							sending ? "Sending" : "Receiving", g_files, g_folders, show_size64(g_bytes));
+							sending ? "Sending" : "Receiving", g_files, g_folders,buf_size);
 				}
 			}
 
@@ -524,8 +526,10 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 					continue;
 				}
 				if (! _quiet_mode) {
+					char buf_size[MAXSTRING];
+					show_size64(buf_size, g_bytes);
 					printf("Deleting %ld files in %ld folders (total size %s)\n",
-							g_files, g_folders, show_size64(g_bytes));
+							g_files, g_folders, buf_size);
 				}
 			}
 

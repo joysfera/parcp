@@ -134,7 +134,7 @@
 
 /*******************************************************************************/
 
-char *show_size64(ULONG64 size);
+char *show_size64(char *buf, ULONG64 size);
 void split_filename(const char *pathname, char *path, char *name);
 void prepare_fname_for_opendir(const char *pathname, char *path, char *name);
 BOOLEAN is_absolute_path(const char *path);
