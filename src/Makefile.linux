@@ -3,7 +3,8 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-STATIC = -static
+STATIC =
+#STATIC = -static
 
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
 
