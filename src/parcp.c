@@ -31,8 +31,9 @@ char original_path[MAXSTRING];
 BOOLEAN INT_flag = FALSE;				/* registers the press of CTRL-C */
 BOOLEAN _quiet_mode = FALSE;			/* if set to TRUE PARCP doesn't display anything but ERRORs */
 
-unsigned long g_files = 0, g_bytes = 0, g_folders = 0, g_start_time = 0;
-unsigned long g_files_pos, g_bytes_pos, g_time_pos;
+unsigned long g_files = 0, g_folders = 0, g_start_time = 0;
+unsigned long g_files_pos, g_time_pos;
+ULONG64 g_bytes, g_bytes_pos;	/* 64-bit wide counters */
 
 short page_length = 25;
 short page_width  = 80;
@@ -40,6 +41,37 @@ short page_width  = 80;
 int g_last_status = 0;		/* CLI will record errors into this var */
 
 BOOLEAN bInBatchMode = FALSE;
+
+/******************************************************************************/
+
+char *show_size64(ULONG64 size)
+{
+	static char buf[64];
+	char *format;
+	ULONG64 x = 0;
+	if (size < (10*KILO)) {
+		format = "%llu bytes";
+		x = size;
+	}
+	else if (x < (10*KILO*KILO)) {
+		format = "%llu kB";
+		x = size / KILO;
+	}
+	else if (x < (10*KILO*KILO*KILO)) {
+		format = "%llu MB";
+		x = size / (KILO * KILO);
+	}
+	else {
+		format = "%llu GB";
+		x = size / (KILO * KILO * KILO);
+	}
+#ifdef snprintf
+	snprintf(buf, sizeof(buf)-1, format, x);
+#else
+	snprintf(buf, format, x);
+#endif
+	return buf;
+}
 
 /******************************************************************************/
 void wait_for_client(void)	/* waits and returns spare CPU cycles to other processes */
@@ -157,6 +189,26 @@ long read_long(void)
 	return x;
 }
 
+long long read_long_long(void)
+{
+	BYTE a[8+1];
+	long long x;
+
+	read_block(a,8);
+	x = a[0];
+	x = (x<<8) | a[1];
+	x = (x<<8) | a[2];
+	x = (x<<8) | a[3];
+	x = (x<<8) | a[4];
+	x = (x<<8) | a[5];
+	x = (x<<8) | a[6];
+	x = (x<<8) | a[7];
+
+	DPRINT2("l Read_long_long() -> %lld=$%llx\n", x, x);
+
+	return x;
+}
+
 void write_word(UWORD x)
 {
 	BYTE a[2+1];
@@ -180,6 +232,24 @@ void write_long(long x)
 	DPRINT2("l Write_long(%ld=$%lx)\n", x, x);
 
 	write_block(a,4);
+}
+
+void write_long_long(long long x)
+{
+	BYTE a[8+1];
+
+	a[7] = x;
+	a[6] = (x = x>>8);
+	a[5] = (x = x>>8);
+	a[4] = (x = x>>8);
+	a[3] = (x = x>>8);
+	a[2] = (x = x>>8);
+	a[1] = (x = x>>8);
+	a[0] = x>>8;
+
+	DPRINT2("l Write_long_long(%lld=$%llx)\n", x, x);
+
+	write_block(a,8);
 }
 
 /*******************************************************************************/
@@ -383,42 +453,40 @@ void open_sendinfo(const char *name, long size)
 void open_recvinfo(const char *name, long size)
 {
 	if (!client && _check_info)
-		g_bytes = 0;	/* server cannot know anything about data being received so stop printing bushit */
+		g_bytes = 0;	/* server cannot know anything about data being received so stop printing bullshit */
 
 	open_copyinfo(FALSE, name, size);
 }
 
-void update_copyinfo(long x)
+void update_copyinfo(unsigned long x)
 {
-	long pos_block = (x + buffer_len-1) / buffer_len;
+	unsigned long pos_block = (x + buffer_len-1) / buffer_len;
 
 	copyinfo_pos = x;	/* largest copied size */
 
 #ifdef SHELL
 	if (shell && curses_initialized) {
-		int p = pos_block * progress_width;
-		p /= copyinfo_size_in_blocks;
+		unsigned int p = (pos_block * progress_width) / copyinfo_size_in_blocks;
 
+		/* update single file progress indicator */
 		wmove(pwincent, 2, 1);whline(pwincent, ACS_BLOCK, p);
 
 		if (_check_info && g_bytes) {
-			long bytes_in_kilos = (g_bytes + KILO-1) / KILO;
-			long total_pos_kilo = (g_bytes_pos + x + KILO-1) / KILO;
-			p = total_pos_kilo * progress_width;
-			p /= bytes_in_kilos;
+			p = ((g_bytes_pos + x) * progress_width) / g_bytes;
 
-			/* update progress indicator */
+			/* update total size progress indicator */
 			wmove(pwincent, 4, 1);whline(pwincent, ACS_BLOCK, p);
 
 			{
 				static long last_display_time = -1;
 				char buf[MAXSTRING];
-				long current_pos = g_bytes_pos + x;
-				long current_time = TIMER;
-				long elapsed_time = current_time - g_start_time;
-				long avg_speed = current_pos / (elapsed_time+1);	/* +1 to not divide by zero */
-				long remaining_length = g_bytes - current_pos;
-				long remaining_time = remaining_length / avg_speed;
+				ULONG64 current_pos = g_bytes_pos + x;
+				unsigned long current_time = TIMER;
+				unsigned long elapsed_time = current_time - g_start_time;
+				unsigned long avg_speed = current_pos / (elapsed_time+1);	/* +1 to not divide by zero */
+				ULONG64 remaining_length = g_bytes - current_pos;
+				unsigned long remaining_time = remaining_length / avg_speed;
+				int rem_days = remaining_time / (3600 * 24);
 				int rem_hours = remaining_time / 3600;
 				int rem_mins = (remaining_time % 3600) / 60;
 				int rem_secs = (remaining_time % 60);
@@ -427,7 +495,9 @@ void update_copyinfo(long x)
 					last_display_time = g_start_time + REMAINING_TIME_UPDATE_RATE;
 				if ((current_time - last_display_time) > REMAINING_TIME_UPDATE_RATE) {
 					last_display_time = current_time;
-					if (rem_hours)
+					if (rem_days)
+						sprintf(buf, "%3d days", rem_days);
+					else if (rem_hours)
 						sprintf(buf, "%2d:%02d:%02d", rem_hours, rem_mins, rem_secs);
 					else if (rem_mins)
 						sprintf(buf, "%2d:%02d   ", rem_mins, rem_secs);
@@ -455,6 +525,7 @@ void update_copyinfo(long x)
 
 void close_copyinfo(int ret_flag)
 {
+	unsigned long speed;
 	copyinfo_time = TIMER-copyinfo_time;		/* find out the transfer time */
 	if (copyinfo_time == 0)
 		copyinfo_time = 1;
@@ -478,18 +549,18 @@ void close_copyinfo(int ret_flag)
 		char title_txt[10];
 		strcpy(title_txt, copyinfo_sending?"Sent":"Received");
 
-		printf("\n%s %ld bytes", title_txt, copyinfo_pos);
+		printf("\n%s %s", title_txt, show_size64(copyinfo_pos));
 	}
 	else
 		printf("\b\b\b\b");
 
+	speed = (copyinfo_pos / copyinfo_time);
 	if (_check_info && g_bytes) {
-		long bytes_in_kilos = (g_bytes + KILO-1) / KILO;
-		long total_pos_kilo = (g_bytes_pos + KILO-1) / KILO;
-		printf(" OK (%ld cps) (%02d%% of total size)\n", copyinfo_pos/copyinfo_time, (int)((total_pos_kilo*100)/bytes_in_kilos));
+		unsigned int position = (g_bytes_pos * 100ULL) / g_bytes;
+		printf(" OK (%lu cps) (%02u%% of total size)\n", speed, position);
 	}
 	else
-		printf(" OK (%ld cps)\n", copyinfo_pos/copyinfo_time);
+		printf(" OK (%lu cps)\n", speed);
 }
 
 /*******************************************************************************/
@@ -1215,7 +1286,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 	FILE *stream;
 	UWORD report_val = M_OK, ret_flag = 0;
 	unsigned long file_mode;
-	long size = stb->st_size;
+	long long size = stb->st_size;	/* make it 64bit enhanced */
 
 	file_mode = file_attrib << 16;
 	file_mode = stb->st_mode & 0x0000ffff;
@@ -1234,7 +1305,10 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 
 	write_word(M_PUT);				/* sending file */
 	send_string(name);				/* its name */
-	write_long(size);				/* its length */
+	if (PARCP_64BIT)
+		write_long_long(size);		/* its length64 */
+	else
+		write_long(size);			/* its length */
 	write_long(stb->st_mtime);		/* its timestamp */
 	write_long(file_mode);			/* its mode */
 
@@ -1312,7 +1386,8 @@ int receive_1_file(void)
 	FILE *stream;
 	struct stat stb;
 	static char name[MAXPATH], *p;
-	long size,timestamp;
+	long long size;
+	long timestamp;
 	unsigned file_attr;
 	unsigned long file_mode;
 	struct utimbuf timbuf;
@@ -1320,7 +1395,7 @@ int receive_1_file(void)
 
 	DPRINT("r receive_1_file\n");
 	receive_string(name);
-	size = read_long();
+	size = PARCP_64BIT ? read_long_long() : read_long();
 	timestamp = read_long();
 	file_mode = read_long();
 	file_attr = file_mode >> 16;
@@ -1738,7 +1813,7 @@ int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
 
 		status = read_word();
 		g_files = read_long();
-		g_bytes = read_long();
+		g_bytes = PARCP_64BIT ? read_long_long() : read_long();
 		g_folders = read_long();
 	}
 
@@ -1819,7 +1894,10 @@ int return_server_files_info(void)
 
 	write_word(status);
 	write_long(g_files);
-	write_long(g_bytes);
+	if (PARCP_64BIT)
+		write_long_long(g_bytes);
+	else
+		write_long(g_bytes);
 	write_long(g_folders);
 
 	return status;
@@ -2024,6 +2102,7 @@ void do_server(void)
 				{
 					long client_features, server_features=0;	/* should be made global */
 					client_features = read_long();
+					/* decide whether to use PARCP_64BIT and if not then mask it out from the reply */
 					write_long(server_features);
 				}
 				break;
