@@ -9,11 +9,11 @@
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"3.80"		/* vypisuje se pri startu programu na obrazovku */
-#undef BETA				/* beta verze pro otestovani */
-#undef WILL_EXPIRE			/* definuje verzi s omezenou dobou zivotnosti */
+#define VERZE	"3.81"		/* displays on the screen when PARCP starts */
+#undef BETA				/* beta version for testing */
+#undef WILL_EXPIRE			/* defines expiration */
 
-#define PROTOKOL	0x0380	/* UWORD, zarucuje kompatibilitu protokolu u rozdilnych verzi PARCP */
+#define PROTOKOL	0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
 
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +25,7 @@
 #include <sys/vfs.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
+#include <time.h>			/* added for GCC 2.95.2 / Debian Sid */
 #include <termios.h>
 #include <unistd.h>
 #include <signal.h>
@@ -42,8 +43,8 @@
 #define PARCPDIR	"PARCPDIR"
 
 #define TIMER		(clock() / CLOCKS_PER_SEC)
-#define TIME_OUT	10			/* hlavni TIMEOUT je nastaven na 10 sekund */
-#define WAIT4CLIENT	100000UL			/* 100 ms odevzdani casu systemu */
+#define TIME_OUT	10			/* main TIMEOUT is set to 10 seconds */
+#define WAIT4CLIENT	100000UL			/* 100 ms for giving back the spare CPU cycles */
 #define mkdir(a)	mkdir(a,0777)		/* directory with proper access rights */
 
 #define MAXSTRING	260
@@ -99,7 +100,7 @@
 #define M_OSKIP		0x0f0b
 #define M_OQUIT		0x0f0c
 #define M_REN       0x0f0d
-#define M_INT		0x0f0e		/* preruseni prenosu souboru */
+#define M_INT		0x0f0e		/* file transfer interrupted */
 #define M_FULL		0x0f0f		/* disk full while writting */
 #define M_REPEAT	0x0f10		/* repeat block transfer */
 #define M_UTS		0x0f11		/* send machine info */
@@ -117,12 +118,12 @@
 /* bitove prepinace parametru */
 #define B_CASE		0x0001		/* TRUE = case sensitive matching */
 #define B_HIDDEN	0x0002		/* TRUE = show hidden files on MS-DOS fs */
-#define B_SUBDIR	0x0004		/* TRUE = proleze rekurzivne podadresare a vse posle */
-#define B_TIMESTAMP	0x0008		/* TRUE = po zkopirovani souboru mu nastavi puvodni datum a cas */
-#define B_CHECKSUM	0x0010		/* TRUE = provadet kontrolni soucet bloku */
-#define B_ATTRIBS 	0x0020		/* TRUE = opravovat atributy prenesenych souboru */
-#define B_ARCH_MODE	0x0040		/* TRUE = kopirovat jen soubory bez archivniho bitu a ten jim pak nastavovat */
-#define B_PRESERVE	0x0080		/* TRUE = zachovat velikost pismen DOSovych filesystemu */
+#define B_SUBDIR	0x0004		/* TRUE = traverse through folders recursively and sends all files */
+#define B_TIMESTAMP	0x0008		/* TRUE = restore time stamp on copied file */
+#define B_CHECKSUM	0x0010		/* TRUE = use CRC for data safety */
+#define B_ATTRIBS 	0x0020		/* TRUE = restore file attributes on copied files */
+#define B_ARCH_MODE	0x0040		/* TRUE = use DOS ATTRIB flag for file backup */
+#define B_PRESERVE	0x0080		/* TRUE = preserve file name upper/lower case on DOS like filesystems */
 
 #define	LS_DIRS_ONLY	0x0001
 #define	LS_FILES_ONLY	0x0002
