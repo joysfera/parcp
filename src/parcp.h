@@ -9,11 +9,12 @@
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"3.81"		/* displays on the screen when PARCP starts */
+#define VERZE	"3.90"		/* displays on the screen when PARCP starts */
 #undef BETA				/* beta version for testing */
 #undef WILL_EXPIRE			/* defines expiration */
 
 #define PROTOKOL	0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
+#define PARCP_64BIT	0
 
 #include <stdio.h>
 #include <string.h>
@@ -37,6 +38,8 @@
 #include "cfgopts.h"
 #include "parcpkey.h"
 #include "parcperr.h"
+
+#define ULONG64 unsigned long long
 
 #define CFGFILE		"parcp.cfg"
 #define CFGHEAD		"[PARCP]"
@@ -131,6 +134,7 @@
 
 /*******************************************************************************/
 
+char *show_size64(ULONG64 size);
 void split_filename(const char *pathname, char *path, char *name);
 void prepare_fname_for_opendir(const char *pathname, char *path, char *name);
 BOOLEAN is_absolute_path(const char *path);
