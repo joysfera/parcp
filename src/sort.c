@@ -1,5 +1,5 @@
 /********************************************************/
-/* Zacatek trideni vypisu */
+/* dir/file list sorting                                */
 /********************************************************/
 int sgn(int cislo)
 {
@@ -49,23 +49,23 @@ int comp_ext(const char *r1, const char *r2)
 	odkud1 = hledej_tecku(r1, MAXFNAME);
 	odkud2 = hledej_tecku(r2, MAXFNAME);
 
-	if (odkud1 >= 0 && odkud2 >= 0)		/* oba soubory maji koncovky */
+	if (odkud1 >= 0 && odkud2 >= 0)		/* both files have extensions */
 	{
 		int min1 = MAXFNAME-odkud1;
 		int min2 = MAXFNAME-odkud2;
-		kolik = min1 < min2 ? min1 : min2;	/* spolecna cast */
+		kolik = min1 < min2 ? min1 : min2;	/* common part */
 		porovnat = comp_uni(r1+odkud1, r2+odkud2, 0, kolik);
-		if (porovnat == 0) {		/* zacatek koncovek je stejny */
-			porovnat = sgn(odkud1 - odkud2);	/* ruzne delky koncovek */
-			if (porovnat == 0)	/* koncovky jsou uplne stejne, rozhodnou jmena */
+		if (porovnat == 0) {		/* beginning of extension is same */
+			porovnat = sgn(odkud1 - odkud2);	/* different extensions length */
+			if (porovnat == 0)	/* extensions are the same, the names will resolve */
 				porovnat = comp_uni(r1, r2, 0, MAXFNAME);
 		}
 	}
 
-	else if (odkud1 < 0 && odkud2 < 0)	/* bez koncovek - rozhodnou jmena */
+	else if (odkud1 < 0 && odkud2 < 0)	/* no extensions - names will resolve */
 		porovnat = comp_uni(r1, r2, 0, MAXFNAME);
 
-	else	/* jen jeden ma koncovku */
+	else	/* only one with extension */
 	{
 		if (odkud2 < 0)
 			porovnat = 1;
@@ -154,7 +154,7 @@ void setrid_obsah(char *zacatek, int a, int b, char jak)
 		case 'e':	comp_ptr = icomp_ext; break;
 		case 'S':	comp_ptr = comp_size; break;
 		case 's':	comp_ptr = icomp_size; break;
-		/* pro datum plati opacne poradi (Thing like) */
+		/*  timestamp in different order (Thing like) */
 		case 'D':	comp_ptr = icomp_date; break;
 		case 'd':	comp_ptr = comp_date; break;
 
@@ -186,9 +186,9 @@ void dej_adresare_jako_prvni(char *zacatek, int lines)
 			j--;
 	}
 
-	setrid_obsah(zacatek, 0, i-1, toupper(_sort_jak) == 'S' ? 'N' : _sort_jak);	/* setrid adresare */
+	setrid_obsah(zacatek, 0, i-1, toupper(_sort_jak) == 'S' ? 'N' : _sort_jak);	/* sort folders */
 
-	setrid_obsah(zacatek, i, lines-1, _sort_jak);	/* setrid soubory */
+	setrid_obsah(zacatek, i, lines-1, _sort_jak);	/* sort files */
 }
 
 void setridit_list_dir(char *buffer)
@@ -197,6 +197,3 @@ void setridit_list_dir(char *buffer)
 	if (lines > 1)
 		dej_adresare_jako_prvni(buffer, lines);
 }
-/********************************************************/
-/* Konec trideni vypisu */
-/********************************************************/

@@ -6,10 +6,10 @@
  *
  */
 
-#include "parcp.h"			/* konstanty, hlavicky funkci */
-#include "parcplow.h"		/* definice ruznych nizkych zalezitosti */
-#include "global.h"			/* seznam globalnich promennych */
-#include "parstruc.h"		/* konfiguracni struktura */
+#include "parcp.h"			/* contants, function headers */
+#include "parcplow.h"		/* various low level things defined there */
+#include "global.h"			/* list of global variables */
+#include "parstruc.h"		/* config struct */
 #include "match.h"
 
 #ifdef SHELL
@@ -23,13 +23,13 @@ extern WINDOW *pwincent;
 BOOLEAN client = TRUE;	/* PARCP is Client by default */
 
 BYTE *block_buffer, *dir_buffer, *file_buffer, string_buffer[MAXSTRING+1];
-long buffer_len = KILO * BUFFER_LENKB;		/* velikost prenaseneho bloku */
+long buffer_len = KILO * BUFFER_LENKB;		/* the size of the transferred block */
 #ifdef __MSDOS__
 char original_path[MAXSTRING];
 #endif
 
-BOOLEAN INT_flag = FALSE;				/* registruje stisk CTRL-C */
-BOOLEAN _quiet_mode = FALSE;			/* kdyz je TRUE tak se vubec nic nevypisuje (krome ERRORu) */
+BOOLEAN INT_flag = FALSE;				/* registers the press of CTRL-C */
+BOOLEAN _quiet_mode = FALSE;			/* if set to TRUE PARCP doesn't display anything but ERRORs */
 
 unsigned long g_files = 0, g_bytes = 0, g_folders = 0, g_start_time = 0;
 unsigned long g_files_pos, g_bytes_pos, g_time_pos;
@@ -42,7 +42,7 @@ int g_last_status = 0;		/* CLI will record errors into this var */
 BOOLEAN bInBatchMode = FALSE;
 
 /******************************************************************************/
-void wait_for_client(void)	/* ceka a nezdrzuje zbytek pocitace */
+void wait_for_client(void)	/* waits and returns spare CPU cycles to other processes */
 {
 	while(IS_READY) {
 		usleep(WAIT4CLIENT);
@@ -51,11 +51,11 @@ void wait_for_client(void)	/* ceka a nezdrzuje zbytek pocitace */
 	}
 }
 
-void wait_before_read(void)		/* ceka pred read_neco() aby nevytimeoutoval */
+void wait_before_read(void)		/* waits before read_xxx() operation to not time out on that */
 {
 	SET_INPUT;
 	if (client) {
-		/* musime shodit STROBE aby Server zacal psat */
+		/* we must put the STROBE low to allow server to send us data */
 		STROBE_LOW;
 	}
 	while(IS_READY) {
@@ -65,12 +65,12 @@ void wait_before_read(void)		/* ceka pred read_neco() aby nevytimeoutoval */
 }
 
 #ifndef PARCP_SERVER
-#include "parftpcl.c"		/* cast klienta, ktery bude uplne externi */
+#include "parftpcl.c"		/* command line (FTP-like) user interface */
 #endif
 
 #ifndef STANDALONE
 
-#include "parcplow.c"		/* C rutiny, jejichz ekvivalenty mam i v assembleru */
+#include "parcplow.c"		/* set of routines in C that are coded in assembler as well */
 
 void read_block(BYTE *block, long n)
 {
@@ -187,7 +187,7 @@ void write_long(long x)
 void catch_ctrl_c(int x)
 {
 	if (! INT_flag)
-		INT_flag = TRUE;		/* zaznamenat stisknuti klavesy */
+		INT_flag = TRUE;		/* remember the key press */
 	signal(SIGINT, catch_ctrl_c);
 }
 
@@ -202,7 +202,7 @@ BOOLEAN stop_waiting(void)
 		was_break = TRUE;
 #endif
 
-	INT_flag = FALSE;			/* v kazdem pripade vymazat flag CTRL-C */
+	INT_flag = FALSE;			/* in any case clear the CTRL-C flag */
 
 	return was_break;
 }
@@ -455,7 +455,7 @@ void update_copyinfo(long x)
 
 void close_copyinfo(int ret_flag)
 {
-	copyinfo_time = TIMER-copyinfo_time;		/* vyjistit dobu prenosu */
+	copyinfo_time = TIMER-copyinfo_time;		/* find out the transfer time */
 	if (copyinfo_time == 0)
 		copyinfo_time = 1;
 
@@ -520,7 +520,7 @@ int send_file(FILE *handle, long lfile)
 		}
 
 		write_long(lblock);		/* sending length of block. Special values 0 and -1 */
-		if (read_long() != lblock)		/* a prijata pro kontrolu */
+		if (read_long() != lblock)		/* read it back and compare it */
 			errexit("A communication error in send_file() - sorry", ERROR_BADDATA);
 
 		if (ret_flag)
@@ -528,10 +528,10 @@ int send_file(FILE *handle, long lfile)
 
 		repeat_transfer = REPEAT_TRANSFER;
 		do {
-			write_block(block_buffer, lblock);		/* poslan samotny blok */
+			write_block(block_buffer, lblock);		/* send the entire block of data */
 
 			if (_checksum)
-				write_long(compute_CRC32(block_buffer, lblock));	/* poslan CRC */
+				write_long(compute_CRC32(block_buffer, lblock));	/* send the CRC */
 
 			/* here we must wait for other side that writes the block to (possibly) slow
 			   device such as network drive or even floppy */
@@ -588,13 +588,13 @@ int receive_file(FILE *handle, long lfile)
 
 		repeat_transfer = REPEAT_TRANSFER;
 		do {
-			read_block(block_buffer, lblock);			/* prijat samotny blok */
+			read_block(block_buffer, lblock);			/* read the entire block of data */
 
 			if (!_checksum)
 				break;
 
 			if (read_long() != compute_CRC32(block_buffer, lblock))
-				write_word(M_REPEAT);			/* spise opakovat prenos bloku */
+				write_word(M_REPEAT);			/* repeat the block transfer */
 			else
 				break;	/* CRC is OK */
 		} while(repeat_transfer--);
@@ -604,21 +604,21 @@ int receive_file(FILE *handle, long lfile)
 			break;
 		}
 
-		if (fwrite(block_buffer, 1, lblock, handle) < lblock) {	/* blok zapsan do souboru */
-			write_word(M_FULL);		/* poslat kod chyby zapisu na disk */
+		if (fwrite(block_buffer, 1, lblock, handle) < lblock) {	/* write the data block to file */
+			write_word(M_FULL);		/* send the error code "disk full" */
 			ret_flag = ERROR_WRITTING_FILE;
-			break;					/* konec prenosu */
+			break;					/* file transfer ends here due to full disk */
 		}
 
 #ifndef PARCP_SERVER
 		if (break_file_transfer()) {
-			write_word(M_INT);		/* poslat kod konce prenosu */
+			write_word(M_INT);		/* send the error code "transfer interrupted" */
 			ret_flag = INTERRUPT_TRANSFER;
-			break;					/* konec prenosu */
+			break;					/* file transfer ends here due to user interruption */
 		}
 #endif
 
-		write_word(M_OK);		/* poslano potvrzeni prijeti bloku */
+		write_word(M_OK);		/* send confirmation of received block */
 
 		lfile -= lblock;
 		update_copyinfo(zal_lfile-lfile);
@@ -644,7 +644,7 @@ void send_string(const char *a)
 	if (a == NULL)
 		errexit("A programming error in send_string() - sorry", ERROR_BUGPRG);
 
-	len = strlen(a)+1;	/* +1 pro EOS */
+	len = strlen(a)+1;	/* +1 for EOS */
 	write_word(len);
 	ret_len = read_word();
 	if (ret_len == len)
@@ -659,17 +659,17 @@ void send_string(const char *a)
 void receive_string(char *a)
 {
 	UWORD len = read_word();
-	write_word(len);			/* pro kontrolu poslu zpet */
+	write_word(len);			/* send it back for elementar safety */
 	read_block(a, len);
 }
 
 void allocate_buffers(void)
 {
-	/* dirbuf_lines + 2 radky navic: ".." a "total length is ... bytes" */
-	long dirbuf_len = (dirbuf_lines+2) * DIRLINELEN;	/* velikost zasobniku na vypis direktorare */
+	/* dirbuf_lines + 2 more lines: ".." and "total length is ... bytes" */
+	long dirbuf_len = (dirbuf_lines+2) * DIRLINELEN;	/* size of buffer for directory list */
 
 	DPRINT1("> Allocating block buffer %ld bytes\n", buffer_len);
-	/* buffer_len na prenos bloku dat + 2 bajty: 1 bajt je vzdy prenesen navic a druhy aby to bylo sude cislo - protoze buffer_len bude vzdy sude (nasobek 1024) */
+	/* buffer_len for block transfer + 2 bytes as a round up */
 	if ((block_buffer = realloc(block_buffer, buffer_len+2)) == NULL)
 		errexit("Fatal problem with reallocating memory. Aborting..", ERROR_MEMORY);
 
@@ -698,12 +698,12 @@ void allocate_buffers(void)
 void setup_opendir(void)
 {
 #ifdef __MSDOS__
-	/* dodrzet velikost pismen ve vypisu */
+	/* preserve file name case in the dir list */
 	if (_preserve_case)
 		__opendir_flags |= __OPENDIR_PRESERVE_CASE;
 	else
 		__opendir_flags &=~__OPENDIR_PRESERVE_CASE;
-	/* vypisovat skryte soubory */
+	/* show hidden files */
 	if (_show_hidden)
 		__opendir_flags |= __OPENDIR_FIND_HIDDEN;
 	else
@@ -743,13 +743,13 @@ void send_parameters(void)
 	UWORD over= _over_older | (_over_newer << 8);
 
 	write_word(M_PARS);
-/* poslat blok parametru */
+/* send the parameters block */
 	write_word(par);
 	write_long(buffer_len);
 	write_word(dirbuf_lines);
 	write_word(over);
 
-/* nastavit system podle novych hodnot parametru */
+/* set up the application with the new parameters */
 	setup_opendir();
 	allocate_buffers();
 }
@@ -758,7 +758,7 @@ void receive_parameters(void)
 {
 	UWORD par, over;
 
-/* prijmout blok parametru */
+/* receive the parameters block */
 	par = read_word();
 	buffer_len = read_long();
 	dirbuf_lines = read_word();
@@ -768,7 +768,7 @@ void receive_parameters(void)
 	_over_older = over & 0xff;
 	_over_newer = (over >> 8) & 0xff;
 
-/* nastavit system podle novych hodnot parametru */
+/* set up the application with the new parameters */
 	setup_opendir();
 	allocate_buffers();
 }
@@ -792,7 +792,7 @@ BOOLEAN lfn_fs(const char *fname)
 #elif defined(__MSDOS__)
 	return (_get_volume_info(fname, NULL, NULL, NULL) & _FILESYS_LFN_SUPPORTED) ? TRUE : FALSE;
 #else
-	abort; //return TRUE;	/* currently unused */
+	abort; /* return TRUE; */	/* currently unused */
 #endif
 }
 /*******************************************************************************/
@@ -803,10 +803,10 @@ char *get_cwd(char *path, int maxlen)
 #ifdef ATARI
 	if (! strncmp(path,TOS_DEV,Ltos_dev)) {
 		DPRINT1("> Get_cwd() = '%s' but will be converted\n", path);
-		memmove(path, path+Ltos_dev-1, strlen(path)-Ltos_dev+2);	/* odstranit /dev/ */
-		if (path[2] == SLASH) {		/* je to /x/ */
+		memmove(path, path+Ltos_dev-1, strlen(path)-Ltos_dev+2);	/* remove /dev/ */
+		if (path[2] == SLASH) {		/* it is /x/ */
 			path[0] = path[1];
-			path[1] = DVOJTEKA;	/* prevedu na x:/ */
+			path[1] = DVOJTEKA;	/* convert to x:/ */
 		}
 	}
 #endif
@@ -867,10 +867,10 @@ void list_dir(const char *p2, int maska, char *zacatek)
 			fname[MAXFNAME-1] = 0;
 
 			if (!strcmp(fname,".") || !strcmp(fname,"..") )
-				continue;				/* nevypisovat "." ani ".." */
+				continue;				/* don't display neither "." nor ".." */
 
 			if (! _show_hidden)
-				if (fname[0] == '.')	/* soubor s teckou na zacatku byva hidden */
+				if (fname[0] == '.')	/* file name beginning with dot means it's hidden */
 					continue;
 
 			matched = match(pname, fname, compare_sensitive);
@@ -882,7 +882,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 			DPRINT1("d Filename '%s' matches filemask\n", fname);
 
 			strcpy(tempo, dname);
-			strcat(tempo, fname);		/* najit soubor s absolutni cestou! */
+			strcat(tempo, fname);		/* find the absolute file name */
 			if (stat(tempo, &stb)) {
 				DPRINT2("d stat(%s) returned error %d\n", tempo, errno);
 			}
@@ -892,10 +892,10 @@ void list_dir(const char *p2, int maska, char *zacatek)
 			if (!is_dir && (maska & LS_DIRS_ONLY))
 				continue;
 
-/* vypisovat: xy znaku jmeno, 10 znaku delka, mezera, 16 znaku datum ve formatu 1997/07/02 22:18 */
-/* jmeno zarovnane doleva, delka zarovnana doprava, datum YY/MM/DD HH:MM vcetne nul */
-/* to jest [0,31] = jmeno | [32,41] = delka | [43,58] = datum a cas | [59] = '\n' */
-/* v pripade adresare bude na misto delky napsano <DIR>, tedy [37,41] = <DIR> */
+/*
+  display: 32 of name chars, 10 chars for file length, space char, 16 chars for date in format 1997/07/02 22:18. Filename aligned to left, the file length aligned to right, date in format YY/MM/DD HH:MM including leading zeros.
+  That means [0,31] = file name | [32,41] = file length | [43,58] = file timestamp | [59] = '\n'  for folders display "<DIR>" instead of file length.
+*/
 
 			p += sprintf(p, PRINTF_TEMPLATE, fname);
 			if (is_dir) {
@@ -912,11 +912,11 @@ void list_dir(const char *p2, int maska, char *zacatek)
 
 			p += sprintf(p, " %4d/%02d/%02d %02d:%02d\n",1900+cas->tm_year,1+cas->tm_mon,cas->tm_mday,cas->tm_hour,cas->tm_min);
 			if (++pocet == dirbuf_lines)
-				break;		/* preplneno pole DIRBUF, jak to oznamit ? */
+				break;		/* DIRBUF array is full */
 		}
 		closedir(dir_p);
 
-		getcwd(dname, sizeof(dname));	/* musim pridat tuhle fintu, jinak TOS blbne - chyba MiNTlibs v statfs("./") */
+		getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
 		DPRINT2("d %ld free clusters of %ld bytes each.\n", stfs.f_bfree, stfs.f_bsize);
@@ -934,7 +934,7 @@ int list_drives(char *p)
 	struct tm *cas;
 	int drives = 0, max_drives = 32 < dirbuf_lines ? 32 : dirbuf_lines;
 
-#ifdef ATARI /* vycist z drvmap promenne TOSu */
+#ifdef ATARI /* read from drvmap TOS defined variable */
 	long drvmap, ssp;
 
 	ssp = Super(0L);
@@ -962,7 +962,7 @@ int list_drives(char *p)
 		}
 	}
 
-#else	/* DJGPP i Linux maji spec. funkci */
+#else	/* DJGPP and Linux got their own function for that */
 
 	struct mntent *m;
 	FILE *f;
@@ -980,8 +980,8 @@ int list_drives(char *p)
 	}
 #endif
 
-	if (p == dest) {	/* pokud nic nevraceno */
-		p += sprintf(p, PRINTF_TEMPLATE, "/");	/* dam ROOT */
+	if (p == dest) {	/* if there's nothing to return */
+		p += sprintf(p, PRINTF_TEMPLATE, "/");	/* return the ROOT */
 		p += sprintf(p, "     <DIR>");
 		cas = localtime(&dneska);
 		p += sprintf(p, " %4d/%02d/%02d %02d:%02d\n",1900+cas->tm_year,1+cas->tm_mon,cas->tm_mday,cas->tm_hour,cas->tm_min);
@@ -1078,17 +1078,17 @@ void split_filename(const char *pathname, char *path, char *name)
 {
 	char pname[MAXPATH], *x;
 
-	x = strcpy(pname, pathname);	/* nepracovat s originalem */
+	x = strcpy(pname, pathname);	/* work with a copy */
 
 	DPRINT1("> split_filename(%s)\n", pname);
 
-	/* pokud je to nahodou v TOS tvaru, tak prekopat do Unixoveho */
+	/* convert from DOS like to Unix file file paths */
 	if (isalpha(x[0]) && x[1]==DVOJTEKA && x[2]==BACKSLASH) {	/* X:\ */
 		while((x=strchr(x,BACKSLASH)) != NULL)
 			*x = SLASH;
 	}
 
-	/* rozdelit na cestu a jmeno */
+	/* split to file path and file name */
 	if ((x = strrchr(pname, SLASH)) != NULL) {
 		*x = 0;
 		if (path)
@@ -1105,8 +1105,8 @@ void split_filename(const char *pathname, char *path, char *name)
 		}
 	}
 
-	if (path && *path)				/* if path is not empty, add the last slash */
-		strcat(path, SLASH_STR);	/* pro lepsi spojovani cesty a souboru */
+	if (path && *path)				/* if path is not empty, add the last slash for easier concatenating */
+		strcat(path, SLASH_STR);
 
 	if (path)
 		DPRINT1("> directory '%s'\n", path);
@@ -1121,8 +1121,8 @@ void prepare_fname_for_opendir(const char *pathname, char *path, char *name)
 	if (path && !*path)			/* if path is empty */
 		strcpy(path, "./");		/* add there the current dir */
 
-	if (name && !*name)			/* prazdne jmeno, napr. pri drag&drop adresare */
-		strcpy(name, "*");		/* tehdy plati vsechny soubory */
+	if (name && !*name)			/* empty filename, for example during drag&drop of a folder */
+		strcpy(name, "*");		/* in such case all files apply */
 }
 
 BOOLEAN is_absolute_path(const char *path)
@@ -1218,7 +1218,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 	long size = stb->st_size;
 
 	file_mode = file_attrib << 16;
-	file_mode = stb->st_mode & 0x0000ffff;	/* unixove, univerzalne */
+	file_mode = stb->st_mode & 0x0000ffff;
 
 	DPRINT1("l Trying to Send_1_file('%s')\n", name);
 
@@ -1226,21 +1226,21 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 		return ERROR_READING_FILE;		/* cannot open file */
 	}
 
-	/* zapinam bufrovani souboru */
+	/* file buffering enabled */
 	if (file_buffer)
 		setvbuf(stream, file_buffer, _IOFBF, filebuffers*buffer_len);
 
 	DPRINT1("s Send_1_file('%s') starting\n", name);
 
-	write_word(M_PUT);				/* posilam soubor: */
-	send_string(name);				/* jeho jmeno */
-	write_long(size);				/* jeho delka */
-	write_long(stb->st_mtime);		/* jeho datum a cas */
-	write_long(file_mode);			/* jeho mod */
+	write_word(M_PUT);				/* sending file */
+	send_string(name);				/* its name */
+	write_long(size);				/* its length */
+	write_long(stb->st_mtime);		/* its timestamp */
+	write_long(file_mode);			/* its mode */
 
 	if (! client)
-		wait_for_client();	/* client se rozhoduje jestli prepsat pripadne existujici soubor */
-	report_val = read_word();	/* M_OK, M_ERR, M_OSKIP, M_OASK nebo M_OQUIT */
+		wait_for_client();	/* give client time to determine whether to overwrite existing file */
+	report_val = read_word();	/* M_OK, M_ERR, M_OSKIP, M_OASK or M_OQUIT */
 
 #ifndef PARCP_SERVER
 	if (client) {
@@ -1248,16 +1248,16 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 			switch (q_overwrite(name)) {
 				case 2:
 					write_word(M_OK);
-					report_val = read_word();	/* M_OK nebo M_ERR */
+					report_val = read_word();	/* M_OK or M_ERR */
 					break;
 
 				case 1:
-					write_word(M_OSKIP);	/* preskoc ten rozdelany soubor */
+					write_word(M_OSKIP);	/* skip the unfinished file */
 					report_val = M_OSKIP;
 					break;
 
 				case 0:
-					write_word(M_OQUIT);	/* preskoc ten rozdelany soubor */
+					write_word(M_OQUIT);	/* skip the unfinished file and quit */
 					report_val = M_OQUIT;
 			}
 		}
@@ -1267,7 +1267,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 	switch(report_val) {
 		case M_OK:
 			open_sendinfo(name, size);
-			if (size > 0) {	/* posli jen soubor nenulove delky */
+			if (size > 0) {	/* send just non-empty files */
 				ret_flag = send_file(stream, size);
 			}
 			close_copyinfo(ret_flag);
@@ -1337,10 +1337,10 @@ int receive_1_file(void)
 		int action;
 		char over;
 
-		if (timestamp == stb.st_mtime)		/* pokud nahodou maji soubory stejne datum a cas */
-			novejsi = (stb.st_size >= size);/* tak rozhodne jestli posilame delsi nez ktery uz tam je */
+		if (timestamp == stb.st_mtime)		/* if both files have same timestamp then */
+			novejsi = (stb.st_size >= size);/* check the file length */
 
-		/* vybrat prepinac v zavislosti na novejsi */
+		/* select the right switch */
 		over = novejsi ? _over_newer : _over_older;
 
 		if (over == 'S')
@@ -1353,9 +1353,9 @@ int receive_1_file(void)
 				action = q_overwrite(name);
 			else
 #endif
-			{	/* jsme server, dame zpravu o moznem prepsani */
+			{	/* we're server - let's send message about possible file overwriting */
 				write_word(M_OASK);
-				wait_for_client();		/* pockame, nez se client rozhodne */
+				wait_for_client();		/* wait for client until they decide what to do */
 				switch(read_word()) {
 					case M_OSKIP:
 						return FILE_SKIPPED;
@@ -1369,23 +1369,23 @@ int receive_1_file(void)
 
 		switch(action) {
 			case 1:
-				write_word(M_OSKIP);	/* preskoc ten soubor */
+				write_word(M_OSKIP);	/* skip this file */
 				return FILE_SKIPPED;
 			case 0:
-				write_word(M_OQUIT);	/* preskoc a zkonci */
+				write_word(M_OQUIT);	/* skip this file and quit */
 				return QUIT_TRANSFER;
 			default:
-				/* replace, takze pokracuj */
+				/* replace, so you can continue */
 		}
 	}
 
 	p = name;
-	while((p=strchr(p, SLASH))) {	/* soubor prichazi s cestou - je treba udelat adresare */
+	while((p=strchr(p, SLASH))) {	/* file comes with file path - need to create parent folders */
 		*p=0;
-		if (! (dir_p = opendir(name)))	/* jde tento adresar otevrit? */
-			mkdir(name);				/* ne, takze ho bezohledne vytvorim */
+		if (! (dir_p = opendir(name)))	/* can you open this folder? */
+			mkdir(name);				/* no, so create it */
 		else
-			closedir(dir_p);			/* jde otevrit, takze existuje - tak ho zavru :) */
+			closedir(dir_p);			/* it can be opened, so it exists - so let's close it :-) */
 		*p++ = SLASH;
 	}
 
@@ -1395,7 +1395,7 @@ int receive_1_file(void)
 		return ERROR_WRITTING_FILE;
 	}
 
-	/* opravdu_poslat ~~~> opravdu_prijmout */
+	/* real send ~~~~> real receive */
 
 	/* zapinam bufrovani souboru */
 	if (file_buffer)
@@ -1403,20 +1403,20 @@ int receive_1_file(void)
 
 	write_word(M_OK);
 	open_recvinfo(name, size);
-	if (size > 0) {	/* prijmi jen soubor nenulove delky */
+	if (size > 0) {	/*receive just non-empty files */
 		ret_flag = receive_file(stream, size);
 	}
 	fclose(stream);
 	close_copyinfo(ret_flag);
 
-	/* nastav puvodni datum a cas modifikace souboru */
+	/* update original timestamp */
 	if (_keep_timestamp)
 		utime(name, &timbuf);
 
-	/* nastav puvodni mod souboru */
+	/* update file attributes */
 	if (_keep_attribs)
 	{
-		chmod(name, file_mode & 0x0000ffff);		/* unixove, univerzalne */
+		chmod(name, file_mode & 0x0000ffff);		/* Unix-like, universal */
 		set_fileattr(name, file_attr & 0x000f);		/* READONLY, HIDDEN, SYSTEM, VOLUME */
 	}
 
@@ -1483,7 +1483,7 @@ int process_files(int Process, const char *src_mask)
 	return status;
 }
 
-/* nasledujici funkce je volana rekurzivne, proto omez promenne na stacku! */
+/* the following function is called recursivelly so please minimize stack variables! */
 int process_files_rec(const char *src_mask)
 {
 	DIR *dir_p;
@@ -1513,7 +1513,7 @@ int process_files_rec(const char *src_mask)
 	if (p_dirname[0] == '.' && p_dirname[1] == SLASH) {
 		p_dirname += 2;
 #ifdef __LINUX__
-/* specialni work-around chyby v libc Linuxu ".//" */
+/* special work-around of Linux libc bug ".//" */
 		if (p_dirname[0] == SLASH)
 			p_dirname++;
 #endif
@@ -1755,11 +1755,12 @@ int delete_files(BOOLEAN local, const char *del_mask)
 	DPRINT("d delete_files: begin\n");
 	if (local) {
 		status = process_files(PROCESS_DELETE, del_mask);
-		/* pokud jsme server a mazali jsme si tu nase soubory, musime
-		   poslat pokyn klientovi, aby uz necekal ve smycce na zpravy,
-		   protoze uz jsme vsechno smazali. Pokud jsme ovsem dostali
-		   od klienta pokyn pro konec, nemusime mu rikat, aby zkoncil,
-		   protoze uz davno zkoncil */
+		/* if we are server and were deleting our files here we must
+		   send client the command to not wait for messages because
+		   we already deleted all files.
+		   Though if we got a "QUIT_TRANSFER" command from the client
+		   we don't have to tell them to stop because they did stop
+		   already */
 		if (!client && status != QUIT_TRANSFER)
 			write_word(M_PEND);		/* end of processing files */
 	}
@@ -1784,9 +1785,9 @@ int copy_files(BOOLEAN source, const char *p_srcmask, BOOLEAN pote_smazat)
 		write_word(M_PSTART);
 		status = process_files(mode, p_srcmask);
 
-		/* pokud byl prenos predcasne ukoncen klavesou a my jsme server, tak
-		 	nebudeme posilat pokyn pro konec prenosu, protoze client to uz davno
-		   	zapichl a na zadny pokyn uz neceka */
+		/* if the file stransfer was interrupted by a key press and we are server
+		  we will not be sending a message to the client because it ended up
+		  already and doesn't wait for anything */
 		if (! (status == QUIT_TRANSFER && !client))
 			write_word(M_PEND);		/* end of processing files */
 	}
@@ -1876,16 +1877,16 @@ int config_file(const char *soubor, BOOLEAN vytvorit)
 
 #ifndef PARCP_SERVER
 		if (client)
-			normalize_over_switches();	/* delej jen klientovi, ktery to vnuti serveru */
+			normalize_over_switches();	/* normalize switches on client only because server will get from client the already normalized ones */
 #endif
 
 #ifdef SHELL
 		if (! client)
-			shell = FALSE;		/* ne ze budes otvirat okna na serveru! */
+			shell = FALSE;		/* don't try to open windows if we are server! */
 #endif
 
 #ifdef DEBUG
-		/* pokud neni logfile s cestou, musim doplnit aktualni */
+		/* if log file name doesn't contain a file path we must add the current path */
 		if (!strchr(logfile, SLASH) && !strchr(logfile, BACKSLASH)) {
 			char cesta[MAXPATH];
 
@@ -1897,7 +1898,7 @@ int config_file(const char *soubor, BOOLEAN vytvorit)
 #endif
 	}
 
- 	/* nastav omezeni neregistrovane verze */
+ 	/* set up unregistered version limitations */
 	if (!registered) {
 		if (dirbuf_lines > UNREG_DIRBUF_LIN)
 			dirbuf_lines = UNREG_DIRBUF_LIN;
@@ -1934,10 +1935,10 @@ void do_server(void)
 					clrscr();
 					puts("LQUIT command received, Server will wait for another connection...");
 				}
-				client_server_handshaking(FALSE);		/* cekat na nove pripojeni */
-				continue;								/* ihned prebrat parametry */
+				client_server_handshaking(FALSE);		/* wait for new connection */
+				continue;								/* get the parameters immediately */
 
-			case HI_SERVER:				/* preruseny Client se snazi znovu napojit */
+			case HI_SERVER:				/* interrupted client tries to connect again */
 				if (! _quiet_mode)
 					printf("Client tries to reconnect... ");
 				write_word(HI_CLIENT);
@@ -2021,7 +2022,7 @@ void do_server(void)
 
 			case M_EXCHANGE_FEATURES:
 				{
-					long client_features, server_features=0;	// should be made global
+					long client_features, server_features=0;	/* should be made global */
 					client_features = read_long();
 					write_long(server_features);
 				}
@@ -2038,7 +2039,7 @@ void do_server(void)
 void inicializace(void)
 {
 #ifdef __MSDOS__
-	getcwd(original_path, sizeof(original_path));	/* pamatuj puvodni cestu */
+	getcwd(original_path, sizeof(original_path));	/* remember the original path */
 #endif
 
 #ifdef ATARI
@@ -2075,9 +2076,7 @@ void inicializace(void)
 	}
 
 #ifdef __LINUX__
-	/* v Linuxu si vyhradim pravo pristupu na hardware paralelniho portu */
-
-	/* zkusme zkontrolovat, ma-li uzivatel prava ROOTa */
+	/* in Linux reserve the permission to access parallel port hardware directly */
 
 	DPRINT("> Trying to get permisions to in/out the port directly\n");
 	if (iopl(0)) {
@@ -2093,12 +2092,10 @@ void inicializace(void)
 
 #endif	/* STANDALONE */
 
-	/* IBM muze byt prepnuto do 50 radku na VGA */
-
 #ifndef PARCP_SERVER
-	/* pro CLI zkusim zjistit skutecny pocet radku na obrazovce */
+	/* try to find the real number of lines on the screen for client */
 	{
-#ifndef __MSDOS__	/* DJGPP nezna tyto ioctl */	/* mozna bysme meli pouzit conio cally */
+#ifndef __MSDOS__	/* DJGPP doesn't have these ioctls. Perhaps we should use conio calls instead. */
 
 		struct winsize term_size;
 
@@ -2119,10 +2116,10 @@ void inicializace(void)
 	}
 #endif	/* PARCP_SERVER */
 
-	/* vyhradit RAMet */
+	/* allocate RAM */
 	block_buffer = dir_buffer = file_buffer = NULL;	/* tyto bufry alokovat az po handshake() */
 
-	/* zjistit typ systemu (uname) */
+	/* get system type (uname) */
 	{
 		struct utsname uts;
 		if (uname(&uts) == 0) {
@@ -2134,7 +2131,7 @@ void inicializace(void)
 			*local_machine = 0;
 	}
 
-	/* inicializovat tabulky pro rychle CRC32 */
+	/* initialize tables for fast CRC32 */
 	init_CRC32();
 }
 
@@ -2154,12 +2151,12 @@ void client_server_handshaking(BOOLEAN client)
 		if (! _quiet_mode)
 			printf("\n[CLIENT %s] Connecting to Server (will timeout in %d seconds)... ", protorev, time_out);
 
-		/* protokol neni dost robustni: budu vyzadovat start Serveru pred spustenim Clienta */
+		/* make it more robust: request Server start before Client start */
 		if (! IS_READY)
 			errexit("Server has NOT been started yet - or a problem occured with parallel cable.\n"\
 					"Check your HW and PARCP configuration, then start Server *BEFORE* Client.", ERROR_HANDSHAKE);
 
-		usleep(2*WAIT4CLIENT);	/* podrzet STROBE HIGH na chvilku, aby nas Server odlisil od nestavu */
+		usleep(2*WAIT4CLIENT);	/* keep the STROBE HIGH for a little while so that server can detect us */
 
 		write_word(HI_SERVER);
 		val = read_word();
@@ -2184,13 +2181,14 @@ void client_server_handshaking(BOOLEAN client)
 			errexit("Server uses different revision of PARCP communication protocol.", ERROR_HANDSHAKE);
 		}
 	}
-	/* the following is server handshake code */
+
+	/* server handshake code follows: */
 	else {
 		if (! _quiet_mode)
 			printf("\n[SERVER %s] Awaiting connection (press %s to quit)... ", protorev, STOP_KEYSTROKE);
 
-		/* pokud je BUSY LOW, druha strana je v nestavu */
-		/* NESMIM zamenit s predcasne spustenym klientem! */
+		/* if the BUSY signal is LOW the other side is not set */
+		/* do not confuse with client started too early! */
 		while(! IS_READY) {
 			usleep(WAIT4CLIENT);
 			if (stop_waiting())
@@ -2234,10 +2232,10 @@ int zpracovani_parametru(int argc, char *argv[])
 
 	batch_file[0] = 0;
 
-/* nejdrive podle priorit najdu konfiguracni soubor */
+/* find the config file first */
 	konfigOK = hledej_config(argv, cesta);
 
-/* nyni projdu parametry prikazoveho radku, ktere tak maji vyssi prioritu */
+/* now parse the command line parameters (so they get higher priority over the config file) */
 
 #define ARG_OPTIONS		"sf:b:q"
 
@@ -2280,16 +2278,16 @@ int zpracovani_parametru(int argc, char *argv[])
 		}
 	}
 	else {
-		/* konfiguracni soubor nenalezen! */
+		/* config file not found! */
 #ifdef ATARI
-		/* na Atari ho proste vytvorim s defaultnimi hodnotami */
+		/* on Atari simply create it with the default values */
 		if (! _quiet_mode)
 			printf("Configuration file not found.\nIt's being created: %s\n\n", cesta);
 		DPRINT1("! Creating configuration file: %s\n", cesta);
 		if (config_file(cesta, TRUE) < 0)
 			printf("ERROR: PARCP.CFG creation failed.\n");
 #else
-		/* na strojich, kde zalezi na adrese a typu portu, vsak musim koncit */
+		/* on the other machines (where parallel port type/number is important) we must quit now */
 #ifndef STANDALONE
 		printf("PARCP configuration file (%s) not found.\nPlease start PARCPCFG in order to create it\n", cesta);
 		exit(ERROR_BADCFG);
@@ -2298,11 +2296,11 @@ int zpracovani_parametru(int argc, char *argv[])
 	}
 
 	if (*batch_file)
-		strcpy(autoexec, batch_file);	/* presun parametr do struktury */
+		strcpy(autoexec, batch_file);	/* move parameter to the struct */
 
-	strcpy(cfg_fname, cesta);	/* dobre si zapamatovat, ktery konfiguracni soubor pouzivame */
+	strcpy(cfg_fname, cesta);	/* remember which config file we use */
 
-	return optind;		/* vracim cislo prvniho NEparametru (tj. jmena souboru) */
+	return optind;		/* return the number of first non-parameter (i.e. the first file name) */
 }
 
 int main(int argc, char *argv[])
@@ -2317,20 +2315,13 @@ int main(int argc, char *argv[])
 	client = FALSE;
 #endif	/* PARCP_SERVER */
 
-	setvbuf(stdout,NULL,_IONBF,0);	/* vypnu bufrovani vystupu na obrazovku */
-	signal(SIGINT, catch_ctrl_c);	/* nastavim ovladac CTRL-C */
-	INT_flag = FALSE;				/* vynuluju priznak stisku CTRL-C */
+	setvbuf(stdout,NULL,_IONBF,0);	/* screen output buffering disabled */
+	signal(SIGINT, catch_ctrl_c);	/* setup CTRL-C handler */
+	INT_flag = FALSE;				/* clear CTRL-C flag */
 
-	clrscr();						/* smazu obrazovku */
+	clrscr();						/* clear screen */
 
-/*
-	{
-		int i;
-		for(i=1; i<argc; i++)
-			printf("%d: '%s'\n", i, argv[i]);
-	}
-*/
-	/* nacti prikazy na command line i kompletni PARCP.CFG soubor */
+	/* read command line parameters and also the PARCP.CFG file */
 	i = zpracovani_parametru(argc, argv);
 
 	DPRINT1("  PARCP "VERZE" started on %s", ctime(&start_time));
@@ -2349,7 +2340,7 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef WILL_EXPIRE
-/* platnost do konce rijna 1998 */
+/* vaid till the end of October 1998 */
 #define ROK		1998
 #define MESIC	10
 {
@@ -2385,14 +2376,14 @@ int main(int argc, char *argv[])
 
 	if (client) {
 #ifndef PARCP_SERVER
-		/* posli parametry klienta na server */
-		send_parameters();	/* teprve tady alokuje block a dir buffery */
+		/* send client parameters to the server */
+		send_parameters();	/* allocate block and dir buffers here */
 
-		/* zjisti typ serveru */
+		/* detect server type */
 		write_word(M_UTS);
 		receive_string(remote_machine);
 
-		/* vykonej prikazy ze souboru */
+		/* execute commands from auto exec file first */
 		if (*autoexec) {
 			if (registered) {
 				FILE *fp = fopen(autoexec, "rt");
@@ -2413,20 +2404,20 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (i < argc) {			/* na prikazove radce jsou i jmena souboru */
+		if (i < argc) {			/* process file names on command line */
 			do {
 				char *p = argv[i];
 				printf("Sending Drag&dropped file '%s'\n", p);
 
 				remove_last_slash(p);	/* so that drag&dropped folders are copied as a whole */
 
-				if (copy_files(TRUE, p, FALSE))	/* vsechny je poslat */
-					break;		/* pri problemech predcasne ukoncit */
+				if (copy_files(TRUE, p, FALSE))	/* send them all */
+					break;		/* if there were problems then quit */
 			} while(++i < argc);
 
-			write_word(afterdrop ? M_QUIT : M_LQUIT);	/* ukoncit PARCP Server */
+			write_word(afterdrop ? M_QUIT : M_LQUIT);	/* quit PARCP Server */
 
-			go_interactive = FALSE;		/* a ukoncit i PARCP Client */
+			go_interactive = FALSE;		/* quit also PARCP Client */
 		}
 
 		if (go_interactive) {

@@ -15,7 +15,7 @@
 #include <osbind.h>		/* Kbshift() */
 #include <support.h>	/* unx2dos() */
 #endif
-#include "global.h"		/* globalni promenne */
+#include "global.h"		/* global vars */
 
 #include "shell.h"		/* vyska, sirka */
 
@@ -30,7 +30,7 @@
 
 #define TITULEK		A_REVERSE
 
-#define ZLEVA	1	/* pocet mezer pred nazvem souboru */
+#define ZLEVA	1	/* width of left padding before file name */
 
 #define SHELLCFGHEAD	"[PARSHELL]"
 #define DRIVES_LIST		"List of installed logical drives"
@@ -55,11 +55,11 @@ WINDOW *pwinl, *pwinr, *pwincent;
 PANEL *ppanl, *ppanr, *ppancent;
 BOOLEAN aktivni;
 
-long celkova_delka;		/* pro indikaci prenosu */
-int original_cursor;	/* stav kurzoru pred spustenim curses */
+long celkova_delka;		/* for transfer indication */
+int original_cursor;	/* remember cursor state */
 int progress_width = 60;
 extern unsigned long g_files, g_bytes, g_folders, g_start_time;
-extern long buffer_len;		/* kvuli nastavovani Block Size a neustalemu prepocitavani */
+extern long buffer_len;		/* for Block Size setting */
 unsigned long shell_total_files, shell_total_bytes, shell_total_folders;
 BOOLEAN shell_arch_mode;	/* needed for passing info into zjistit_info() */
 
@@ -116,12 +116,12 @@ char path_to_temp[MAXPATH]="";
 
 BOOLEAN oznaceny(OKNO *okno, int i)
 {
-	return (OZNACENI(okno, i) != '\n');		/* '\n' je tam def. z list_dir() */
+	return (OZNACENI(okno, i) != '\n');		/* '\n' is there from list_dir() */
 }
 
 void soznaceny(OKNO *okno, int i, BOOLEAN val)
 {
-	OZNACENI(okno, i) = val ? '\r' : '\n';	/* '\r' je proste jina hodnota */
+	OZNACENI(okno, i) = val ? '\r' : '\n';	/* '\r' is simply a different value */
 }
 
 void prekresli_radek(OKNO *okno, int i)
@@ -133,7 +133,7 @@ void prekresli_radek(OKNO *okno, int i)
 	int delka_jmena;
 
 
-	if (index >= okno->lines) {			/* prazdne radky za daty */
+	if (index >= okno->lines) {			/* empty lines below dir list */
 		char tmprad[WW+1];
 		memset(tmprad, ' ', WW);
 		tmprad[WW] = 0;
@@ -211,14 +211,14 @@ void vypis_podpis(OKNO *okno)
 	size_t celkdelka=0;
 	char podpis[MAXSTRING];
 
-	/* spocitat pocet oznacenych souboru */
+	/* count the number of selected files */
 	for(i=0; i<okno->lines; i++)
 		if (oznaceny(okno, i)) {
 			oznacenych++;
 			celkdelka += atoi(RADEK(okno, i)+MAXFNAME);
 		}
 
-	/* vypis podpis */
+	/* display bottom info line */
 	if (oznacenych) {
 		sprintf(podpis, "%6ld kB in %4d selected files\n", (celkdelka+KILO-1)/KILO, oznacenych);
 		if (use_colors)
@@ -229,7 +229,7 @@ void vypis_podpis(OKNO *okno)
 	else {
 		strcpy(podpis, RADEK(okno, okno->lines));
 	}
-	i = strlen(podpis)-1;	/* zahodit koncovy '\n' */
+	i = strlen(podpis)-1;	/*  strip the last '\n' */
 	if (i < WW)
 		memset(podpis+i, ' ', WW-i);
 	podpis[WW]=0;
@@ -265,12 +265,12 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 	}
 	else {
 		char *p = okno->buf;
-		char *dirbufer = okno->buf + DIRLINELEN;	/* sem ocekavame prijezd vypisu */
+		char *dirbufer = okno->buf + DIRLINELEN;	/* buffer for dir list */
 		time_t dneska = time(NULL);
 		struct tm *cas;
 		BOOLEAN chdir_flag;
 
-		/* ujistit se, ze mame adresar i s koncovym lomitkem */
+		/* make sure we have folder with trailing slash */
 		if (adresar[strlen(adresar)-1] != SLASH)
 				strcat(adresar, SLASH_STR);
 
@@ -315,7 +315,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 			write_word(M_DIR);
 			send_string("");	/* filemask */
 			write_word(0);
-			receive_string(dirbufer);	/* dir list prijede tudy */
+			receive_string(dirbufer);	/* dir list comes this way */
 		}
 		else {
 			list_dir("", 0, dirbufer);	/* filemask */
@@ -328,26 +328,26 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 		okno->lines += strlen(dirbufer)/DIRLINELEN;
 	}
 
-	strcpy(okno->adresar, adresar);		/* zapamatovat si adresar */
+	strcpy(okno->adresar, adresar);		/* remember the folder */
 
-	/* vypis nadpis */
+	/* display the upper info line */
 	strcpy(nadpis, adresar);
 	i = strlen(nadpis);
-	if (i >= WW) {		/* zkratit vypis adresare pomoci 'c:/...' */
+	if (i >= WW) {		/*  shorten the file length using 'c:/...' */
 		nadpis[3] = nadpis[4] = nadpis[5] = '.';
 		strcpy(nadpis+6,adresar+6+i-WW);
 		i = strlen(nadpis);
 	}
 	else
-		memset(nadpis+i, ' ', WW-i);	/* doplnit mezerami zprava */
+		memset(nadpis+i, ' ', WW-i);	/* right pad with spaces */
 
 	nadpis[WW]=0;
 	mvaddstr(posazeni-2,1+okno->pozice*stred,nadpis);
 
-	/* vypis podpis */
+	/* display the bottom line */
 	vypis_podpis(okno);
 
-	/* kdyz ubyde souboru, tak at nestojime 'za' */
+	/* if there are less files make sure the cursor position is correct */
 	if (okno->kurzor >= okno->lines)
 		okno->kurzor = okno->lines-1;
 	if (okno->radek > okno->kurzor)
@@ -390,8 +390,8 @@ void inicializace_okna(OKNO *okno, BOOLEAN pozice, BOOLEAN remote)
 	okno->pwin = pozice?pwinr:pwinl;
 	okno->radek = 0;
 	okno->kurzor = 0;
-	okno->pozice = pozice;	/* vpravo nebo vlevo */
-	okno->remote = remote;	/* Server nebo Client */
+	okno->pozice = pozice;	/* right or left window */
+	okno->remote = remote;	/* Server or Client */
 	okno->visible = FALSE;
 
 	if (remote)
@@ -448,42 +448,42 @@ void zmenit_adresar(OKNO *okno)
 	char cesta[MAXPATH], adr[MAXPATH], najdi_dir[MAXPATH], *p;
 	BOOLEAN najdi_pozic = FALSE;
 
-	/* zajistit jen jmeno adresare */
+	/* get just the folder name */
 	strcpy(cesta, pure_filename(okno));
 
 	strcpy(adr, okno->adresar);
 	DPRINT1("S zmenit '%s'\n", adr);
 
 	if (! strcmp(cesta,"..")) {
-		/* vynoreni */
+		/* going up in the dir tree */
 
-		*(adr + strlen(adr)-1) = 0;	/* odsekni koncove lomitko */
+		*(adr + strlen(adr)-1) = 0;	/* strip out trailing slash */
 		if ((p = strrchr(adr, '/')) != NULL) {
 			strcpy(najdi_dir, p+1);
 			najdi_pozic = TRUE;
 			*(p+1) = 0;
 		}
-		else { /* vyvolat nabidku logickych disku */
+		else { /* display the logical disks list */
 			strcpy(najdi_dir, adr);
-			strcat(najdi_dir, SLASH_STR);	/* tady je to zas potreba */
+			strcat(najdi_dir, SLASH_STR);	/* now we need the trailing slash again */
 			najdi_pozic = TRUE;
 			strcpy(adr, DRIVES_LIST);
 		}
 	}
 	else {
-		/* ponoreni */
+		/* going down in the dir tree */
 
 		if (strcmp(adr, DRIVES_LIST)) {
-			strcat(adr, cesta);		/* do adresare */
+			strcat(adr, cesta);		/* down to the folder */
 			strcat(adr,"/");
 		}
 		else
-			strcpy(adr, cesta);		/* zmena log. disku */
+			strcpy(adr, cesta);		/* change the logical disk */
 	}
 	okno->radek=okno->kurzor=0;
 	nacti_obsah(okno, adr);
 
-	/* najdi pozici, pokud se vynorujes */
+	/* find out the location of the parent if you're going up */
 	if (najdi_pozic) {
 		int i;
 		for(i=1; i<okno->lines; i++) {
@@ -629,7 +629,7 @@ int shell_config_file(char *soubor, BOOLEAN vytvorit)
 	else {
 		vysledek = input_config(soubor,configs,SHELLCFGHEAD);
 
-		/* test korektnosti parametru */
+		/* parameters should be tested for correctness */
 	}
 
 	return vysledek;
@@ -688,7 +688,7 @@ int execute_command(char *cmd, char *cmdline)
 				chdir(bak_pwd);
 		}
 		else {
-			setvbuf(stdout,NULL,_IONBF,0);	/* vypnu bufrovani vystupu na obrazovku */
+			setvbuf(stdout,NULL,_IONBF,0);	/* disable screen output buffering */
 			do_client(1, stdin);
 		}
 		curs_set(0);		/* turn the cursor off again */
@@ -709,7 +709,7 @@ int execute_command(char *cmd, char *cmdline)
 	return ret_code;
 }
 
-/* sada funkci volanych z funkce pro projiti skrz oznacene polozky - process_entries */
+/* set of functions called from process_entries (the function for processing selected items) */
 int zpracovat_soubory(OKNO *okno, int i, BOOLEAN pote_smazat)
 {
 	return copy_files(! okno->remote, vyjisti_jmeno(okno, i), pote_smazat);
@@ -770,22 +770,19 @@ void process_entries(OKNO *okno, int (*funkce)(OKNO *okno, int i))
 			shell_total_folders += g_folders;
 		}
 		else {
-			soznaceny(okno, i, FALSE);	/* odznacit ihned po akci */
+			soznaceny(okno, i, FALSE);	/* unselect immediately after the action */
 			radek = i - okno->radek;
 			if (radek >= 0 && radek < WH) {
 				hide_panel(ppancent);
-				// update_panels();
-				prekresli_radek(okno, radek);	/* at se postupne odmazavaji oznaceni */
-				// update_panels();
+				prekresli_radek(okno, radek);	/* the selected items get unselected one by one on the display - quite elegant */
 				show_panel(ppancent);
-				// update_panels();
 			}
 		}
-		count++;					/* pocitat provedene */
+		count++;					/* count the number of processed entries */
 	}
-	if (count == 0) {				/* zadne nebyly oznaceny */
-		if (strcmp(pure_filename(okno), "..")) {	/* ".." nelze zpracovat! */
-			(*funkce)(okno, okno->kurzor);			/* tak zpracuj polozku pod kurzorem */
+	if (count == 0) {				/* there were none selected? */
+		if (strcmp(pure_filename(okno), "..")) {	/* ".." cannot be processed! */
+			(*funkce)(okno, okno->kurzor);			/* so process the item under cursor */
 
 			if (funkce == zjistit_info) {
 				shell_total_bytes = g_bytes;
@@ -1065,10 +1062,10 @@ BOOLEAN interakce_menu()
 				registered = check(crypta, keycode);
 				if (registered) {
 					MessageBox("Congratulations to successful registration!", MB_OK);
-					config_file(cfg_fname, TRUE);	/* pak teprve muzu ulozit konfiguraci */	
+					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
 					MessageBox("PARCP configuration with your name and keycode has been saved.", MB_OK);
 					if (dirbuf_lines < DIRBUF_LIN) {
-						/* predevsim zvys pocet radku v bufru */
+						/* first of all, increase the number of lines in the dir buffer */
 						dirbuf_lines = DIRBUF_LIN;
 						send_parameters();			/* tell server about the dirbuf_lines change */
 						REALOKUJ_BUF_OKEN;
@@ -1128,30 +1125,30 @@ BOOLEAN interakce_menu()
 	_archive_mode = is_checked(pmenu, CM_OPT_ARCH);
 	_check_info = is_checked(pmenu, CM_OPT_CHCK);
 
-	/* pokud zmena klicovych parametru, poslat je na Server */
+	/* if any of the key parameters got changed send it to the Server! */
 	if (old_over_older != _over_older || old_over_newer != _over_newer
 		|| old_pars != PackParameters() || old_dirbuflin != dirbuf_lines)
 	{
-		send_parameters();		/* pri zmene parametru vyslat na Server */
+		send_parameters();		/* send changed parameters to server */
 	}
 
-	/* pokud zmena parametru ovlivnujici vypis souboru, tak Obnovit okna */
-	if (_show_hidden != old_show_hidden ||			/* zap/vyp neviditelne */
-/*		_case_sensitive != old_case_sensitive || */	/* mala/velke pismena pri match() */
-		_preserve_case != old_preserve_case ||		/* konverze DOSovych nazvu */
-		(_sort_jak == 'U' && _sort_jak != old_sort_jak))	/* netrizene musim znovu nacist, protoze v bufru uz je to nejak preskladane a ja nevim jak */
+	/* if one of the parameters that affect directory listing then restore the windows */
+	if (_show_hidden != old_show_hidden ||			/* On/Off invisible files */
+/*		_case_sensitive != old_case_sensitive || */	/* upper/lower names in match() */
+		_preserve_case != old_preserve_case ||		/* DOS names conversion */
+		(_sort_jak == 'U' && _sort_jak != old_sort_jak))	/* if unsorted listing is required then read it from disk again */
 	{
 		obnovit_okna = TRUE;
 	}
 
-	/* pokud zmena trideni, tak pretridit nacteny obsah (nenacitat znovu) */
+	/* if sorting was changed the re-sort the buffered content (do not read it from disk again) */
 	if (!obnovit_okna && (_sort_jak != old_sort_jak || _sort_case != old_sort_case)) {
 		setridit_list_dir(left.buf+DIRLINELEN);
 		setridit_list_dir(right.buf+DIRLINELEN);
 	}
 
 	if (obnovit_okna) {
-		OBNOV_OBE_OKNA			/* nezachova oznaceni, bohuzel */
+		OBNOV_OBE_OKNA			/* we loose user selections, unfortunately */
 	}
 	else {
 		PREKRESLI_OBE_STRANKY
@@ -1174,9 +1171,9 @@ void do_shell(void)
 	int i;
 	BOOLEAN ukoncit_vse = FALSE;
 
-	/* cti z konfiguracniho souboru - sekce [PARSHELL] */
+	/* read the config file - section [PARSHELL] */
 	if (shell_config_file(cfg_fname, FALSE) <= 0) {
-		/* nenalezen -> vytvorit */
+		/* section or config file not found -> create it! */
 		for(;;) {
 			if (shell_config_file(cfg_fname, TRUE) < 0)
 				if (MessageBox("Automatic creation of PARCP.CFG failed.", MB_ABORTRETRYIGNORE) == IDRETRY)
@@ -1188,29 +1185,26 @@ void do_shell(void)
 	initscr();
 	curses_initialized = TRUE;
 	noecho();
-#if 0	/* vyhodit nonl(), jinak je v DOSu rozsypany help k vieweru */
-	nonl();
-#endif
 	original_cursor = curs_set(0);
 	cbreak();
 	keypad(stdscr,TRUE);
 	meta(stdscr, TRUE);		/* allow 8-bit */
 
-	/* rozhodni se, zda pouzivat barvy */
+	/* figure out whether to use colors or not */
 	use_colors &= has_colors();
 
-#ifdef NCURSES_VERSION	/* protoze PDCurses zas nema tigetstr */
-	/* pokud nejsou barvy ani bold, jsou znacky proste nutne! */
+#ifdef NCURSES_VERSION	/* because PDCurses doesn't know tigetstr */
+	/* if neither colors not bold is available then the marks are simply a must */
 	if (tigetstr("bold") <= 0)
 		has_bold = FALSE;
 	if (tigetstr("dim") <= 0)
 		has_dim = FALSE;
 #else
-	has_dim = FALSE;	/* PDCurses, zda-se, nepodporuji DIM */
+	has_dim = FALSE;	/* seems like PDCurses doesn't support DIM attrib */
 #endif
 	use_marks |= !use_colors && !has_bold;
 
-	/* zahlavi */
+	/* header */
 #ifdef STANDALONE
 		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2000");
 #else
@@ -1226,7 +1220,7 @@ void do_shell(void)
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 
-	/* lista s tlacitky */
+	/* button bar */
 	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F20=Quit");
 	i = strlen(tmpstr);
 	memset(tmpstr+i, ' ', sizeof(tmpstr)-i);
@@ -1235,12 +1229,12 @@ void do_shell(void)
 
 	if (use_colors) {
 		start_color();
-		init_pair(1,COLOR_WHITE,COLOR_BLUE);	/* normalni pismo */
-		init_pair(2,COLOR_YELLOW,COLOR_BLUE);	/* oznacene soubory */
+		init_pair(1,COLOR_WHITE,COLOR_BLUE);	/* define standard output - white on blue */
+		init_pair(2,COLOR_YELLOW,COLOR_BLUE);	/* define selected files - yellow on blue */
 		attron(COLOR_PAIR(1));
 	}
 
-	/* oramovani */
+	/* borders */
 	mvaddch(posazeni-3,0,ACS_ULCORNER);hline(ACS_HLINE,sirka-2);mvaddch(posazeni-3,sirka-1,ACS_URCORNER);
 	mvaddch(posazeni-3,stred,ACS_ULCORNER);mvaddch(posazeni-3,stred-1,ACS_URCORNER);
 	move(posazeni-1,1);hline(ACS_HLINE,sirka-2);
@@ -1253,7 +1247,7 @@ void do_shell(void)
 	mvaddch(vyska-1,0,ACS_LLCORNER);hline(ACS_HLINE,sirka-2);mvaddch(vyska-1,sirka-1,ACS_LRCORNER);
 	mvaddch(vyska-1,stred,ACS_LLCORNER);mvaddch(vyska-1,stred-1,ACS_LRCORNER);
 
-	/* otevreni pracovnich oken */
+	/* open working windows */
 	pwinl = newwin(WH,WW,posazeni,1);
 	keypad(pwinl,TRUE);
 	ppanl = new_panel(pwinl);
@@ -1272,7 +1266,7 @@ void do_shell(void)
 	inicializace_okna(&right, TRUE, TRUE);
 #endif
 
-	/* zaktualizovat leve okno */
+	/* make the left window the active one */
 	okno = aktivizuj(FALSE);
 
 	if (! registered) {
@@ -1310,17 +1304,17 @@ void do_shell(void)
 				if (JE_ADR(okno,okno->kurzor))
 					zmenit_adresar(okno);
 				else
-					/* akce pro obycejne soubory */ ;
+					/* define 'Enter' action for regular files */ ;
 				break;
 
-			/* nove klavesy pro rychlou navigaci ve strome */
-			/* ponorit */
+			/* new keys for quick navigation in the dir tree */
+			/* go down in the tree */
 			case KEY_RIGHT:
 				if (JE_ADR(okno,okno->kurzor))
 					zmenit_adresar(okno);
 				break;
 
-			/* vynorit */
+			/* go up in the tree */
 			case KEY_LEFT:
 				if (strcmp(vyjisti_jmeno(okno, 0), "..") == 0 && JE_ADR(okno, 0)) {
 					okno->kurzor = 0;
@@ -1328,7 +1322,7 @@ void do_shell(void)
 				}
 				break;
 
-			/* pohyb v okne */
+			/* scrolling */
 			case KEY_UP:
 				if (okno->kurzor > 0) {
 					kurzor(okno, 0);
@@ -1378,7 +1372,7 @@ void do_shell(void)
 				break;
 
 			case KEY_IC:
-				if (strcmp(pure_filename(okno), "..")) {	/* ".." nelze oznacit! */
+				if (strcmp(pure_filename(okno), "..")) {	/* ".." can't be selected! */
 					soznaceny(okno, okno->kurzor, !oznaceny(okno, okno->kurzor));
 					prekresli_radek(okno, okno->kurzor-okno->radek);
 					vypis_podpis(okno);
@@ -1479,8 +1473,8 @@ void do_shell(void)
 				vypis_podpis(okno);
 				break;
 
-			/* jednotlive funkce */
-			case '/':			/* vyvolat nabidku disku */
+			/* file functions */
+			case '/':			/* open logical disk listing */
 #ifdef __PDCURSES__
 			case PADSLASH:
 #endif
@@ -1536,7 +1530,7 @@ void do_shell(void)
 					strcpy(fname, pure_filename(okno));
 
 					if (okno->remote) {
-						/* zkopirovat do TMP prostoru a pak smazat */
+						/* copy to TMP and then delete it */
 						if (path_to_temp && *path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
 							chdir(path_to_temp);
@@ -1557,7 +1551,7 @@ void do_shell(void)
 					if (path_to_viewer && *path_to_viewer)
 						execute_command(path_to_viewer, fname);
 					else
-						viewer(fname);	/* interni viewer */
+						viewer(fname);	/* internal viewer */
 
 					if (kopie)
 						remove(fname);
@@ -1575,7 +1569,7 @@ void do_shell(void)
 					strcpy(fname, pure_filename(okno));
 
 					if (okno->remote) {
-						/* zkopirovat do TMP prostoru a po editaci movenout zpet */
+						/* copy to TMP and move it back after editing */
 						if (path_to_temp && *path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
 							chdir(path_to_temp);
@@ -1647,7 +1641,7 @@ void do_shell(void)
 				*tmpfnam = 0;
 				if (! EditBox("MkDir", "Enter name of new directory", tmpfnam, sizeof(tmpfnam)))
 					break;
-				if (*tmpfnam) {				/* pokud zadal nejaky nazev */
+				if (*tmpfnam) {				/* if something was entered */
 					if (okno->remote) {
 						write_word(M_MD);
 						send_string(tmpfnam);
@@ -1658,7 +1652,7 @@ void do_shell(void)
 
 					obnov_soucasne(okno);
 
-					/* najed na prave vytvoreny adresar */
+					/* position cursor on the just created folder */
 					for(i=1; i<okno->lines; i++) {
 						if (! strcmp(vyjisti_jmeno(okno,i), tmpfnam)) {
 							okno->kurzor = i;
@@ -1769,6 +1763,5 @@ void do_shell(void)
 	}
 	konec_menu();
 	clear();
-	// refresh();
 	endwin();
 }

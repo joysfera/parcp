@@ -274,7 +274,7 @@ long fast_client_read_block(BYTE *block, long n)
 #ifdef __MSDOS__
 	if (port_type && cable_type) {
 __asm__ __volatile__("shrl	%%ecx\n\t"
-			"addl	$1,%%ecx\n\t"		/* ecx = pocet slov */
+			"addl	$1,%%ecx\n\t"		/* ecx =  number of words */
 			A_REMEMBER
 			"jmp	ClientReadJump\n\t"
 
@@ -290,7 +290,7 @@ __asm__ __volatile__("shrl	%%ecx\n\t"
 			"jne	ClientReadLoop\n\t"
 			A_END
 			A_PARAMETERS );
-		FIX_GCONTROL_STROBE_HIGH;	/* protoze gcontrol nebyl updatovan uvnitr asm bloku! */
+		FIX_GCONTROL_STROBE_HIGH;	/* because gcontrol was not updated inside of the asm block */
 	}
 	else
 #endif	/* __MSDOS__ */
@@ -308,7 +308,7 @@ long fast_server_read_block(BYTE *block, long n)
 #ifdef __MSDOS__
 	if (port_type && cable_type) {
 __asm__ __volatile__("shrl	%%ecx\n\t"
-			"addl	$1,%%ecx\n\t"		/* ecx = pocet slov */
+			"addl	$1,%%ecx\n\t"		/* ecx = number of words */
 			A_REMEMBER
 			"jmp	ServerReadJump\n\t"
 
@@ -325,7 +325,7 @@ __asm__ __volatile__("shrl	%%ecx\n\t"
 			A_STROBE_HIGH
 			A_END
 			A_PARAMETERS );
-		FIX_GCONTROL_STROBE_HIGH;	/* protoze gcontrol nebyl updatovan uvnitr asm bloku! */
+		FIX_GCONTROL_STROBE_HIGH;	/* because gcontrol was not updated inside of the asm block */
 	}
 	else
 #endif	/* __MSDOS __ */
@@ -343,7 +343,7 @@ long fast_client_write_block(const BYTE *block, long n)
 #ifdef __MSDOS__
 	if (port_type && cable_type) {
 __asm__ __volatile__("shrl	%%ecx\n\t"
-			"addl	$1,%%ecx\n\t"		/* ecx = pocet slov */
+			"addl	$1,%%ecx\n\t"		/* ecx = number of words */
 			A_REMEMBER
 			"jmp	ClientWriteJump\n\t"
 
@@ -361,7 +361,7 @@ __asm__ __volatile__("shrl	%%ecx\n\t"
 			A_WAIT_HIGH
 			A_END
 			A_PARAMETERS );
-		FIX_GCONTROL_STROBE_HIGH;	/* protoze gcontrol nebyl updatovan uvnitr asm bloku! */
+		FIX_GCONTROL_STROBE_HIGH;	/* because gcontrol was not updated inside of the asm block */
 	}
 	else
 #endif	/* __MSDOS __ */
@@ -383,7 +383,7 @@ long fast_server_write_block(const BYTE *block, long n)
 #ifdef __MSDOS__
 	if (port_type && cable_type) {
 __asm__ __volatile__("shrl	%%ecx\n\t"
-			"addl	$1,%%ecx\n\t"		/* ecx = pocet slov */
+			"addl	$1,%%ecx\n\t"		/* ecx = number of words */
 			A_REMEMBER
 			"jmp	ServerWriteJump\n\t"
 
@@ -400,7 +400,7 @@ __asm__ __volatile__("shrl	%%ecx\n\t"
 			A_STROBE_HIGH
 			A_END
 			A_PARAMETERS );
-		FIX_GCONTROL_STROBE_HIGH;	/* protoze gcontrol nebyl updatovan uvnitr asm bloku! */
+		FIX_GCONTROL_STROBE_HIGH;	/* because gcontrol was not updated inside of the asm block */
 	}
 	else
 #endif	/* __MSDOS __ */

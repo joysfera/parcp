@@ -96,7 +96,7 @@ void main(void)
 	generate(crypta, key);
 	key[KEYSZ] = '\0';
 	printf("\nUserName = %s\nKeyCode = %s\n", name, key);
-	fprintf(stderr,"Key: %s %s\n", key, check(crypta, key) ? "souhlasi" : "je blbe!");
+	fprintf(stderr,"Key: %s %s\n", key, check(crypta, key) ? "OK" : "wrong!");
 }
 
 #endif
