@@ -14,7 +14,7 @@
 #undef WILL_EXPIRE			/* defines expiration */
 
 #define PROTOKOL	0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
-#define PARCP_64BIT	0
+#define PARCP_64BIT	(1==0)
 
 #include <stdio.h>
 #include <string.h>
