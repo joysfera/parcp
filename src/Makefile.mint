@@ -3,7 +3,6 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-EXT_FLAGS = -DTURBO
 FLAGS = $(EXT_FLAGS) -O2 -DATARI $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
 FLAGS030 = -m68020-40 $(FLAGS)
 
