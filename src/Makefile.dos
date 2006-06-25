@@ -3,6 +3,9 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
+STATIC =
+#STATIC = -static
+
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
 
 PARCLIENT =  parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
@@ -13,11 +16,10 @@ OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
 
 SHELL_FLAGS = -DSHELL $(FLAGS)
-SHELL_FLAGS += $(STANDALONE)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parshell : $(SHELL_OBJS)
-	gcc $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpano -lcurse
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lpdcur
 	strip parcp.exe
 
 parcp : $(OBJS)
@@ -65,11 +67,16 @@ partest : partest.o $(ZAKL_OBJS)
 all : parshell parserve par_in parcpcfg
 
 clean :
-	rm *.o
-	rm parcp par_in parcpcfg parserve
+	del *.o
+	del parcp
+	del par_in
+	del parcpcfg
+	del parserve
 
-realclean :
-	rm -f parcp.exe parserve.exe par_in.exe
+realclean : clean
+	del parcp.exe
+	del parserve.exe
+	del par_in.exe
 
 ###############################
 
