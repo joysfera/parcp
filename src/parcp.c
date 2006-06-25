@@ -611,7 +611,7 @@ int send_file(FILE *handle, long lfile)
 		else if (receiver_status == M_INT)
 			ret_flag = INTERRUPT_TRANSFER;
 		else if (receiver_status == M_FULL)
-			ret_flag = ERROR_WRITTING_FILE;
+			ret_flag = ERROR_WRITING_FILE;
 
 		if (ret_flag)
 			break;	/* STOP sending file */
@@ -627,7 +627,7 @@ int send_file(FILE *handle, long lfile)
 		0 = OK
 		INTERRUPT_TRANSFER
 		ERROR_READING_FILE
-		ERROR_WRITTING_FILE
+		ERROR_WRITING_FILE
 		ERROR_CRC_FAILED
 	*/
 	return ret_flag;
@@ -674,7 +674,7 @@ int receive_file(FILE *handle, long lfile)
 
 		if (fwrite(block_buffer, 1, lblock, handle) < lblock) {	/* write the data block to file */
 			write_word(M_FULL);		/* send the error code "disk full" */
-			ret_flag = ERROR_WRITTING_FILE;
+			ret_flag = ERROR_WRITING_FILE;
 			break;					/* file transfer ends here due to full disk */
 		}
 
@@ -697,7 +697,7 @@ int receive_file(FILE *handle, long lfile)
 		0 = OK
 		INTERRUPT_TRANSFER
 		ERROR_READING_FILE
-		ERROR_WRITTING_FILE
+		ERROR_WRITING_FILE
 		ERROR_CRC_FAILED
 	*/
 	return ret_flag;
@@ -1422,7 +1422,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 			ret_flag = QUIT_TRANSFER;
 			break;
 		case M_ERR:
-			ret_flag = ERROR_WRITTING_FILE;
+			ret_flag = ERROR_WRITING_FILE;
 			break;
 	}
 
@@ -1436,7 +1436,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 		INTERRUPT_TRANSFER
 		QUIT_TRANSFER
 		ERROR_READING_FILE
-		ERROR_WRITTING_FILE
+		ERROR_WRITING_FILE
 		ERROR_CRC_FAILED
 	*/
 	return ret_flag;
@@ -1514,7 +1514,7 @@ int receive_1_file(void)
 				write_word(M_OQUIT);	/* skip this file and quit */
 				return QUIT_TRANSFER;
 			default:
-				/* replace, so you can continue */
+				break;			/* replace, so you can continue */
 		}
 	}
 
@@ -1531,7 +1531,7 @@ int receive_1_file(void)
 	stream = fopen(name, "wb");
 	if (stream == NULL) {
 		write_word(M_ERR);				/* can't create file */
-		return ERROR_WRITTING_FILE;
+		return ERROR_WRITING_FILE;
 	}
 
 	/* real send ~~~~> real receive */
@@ -1565,7 +1565,7 @@ int receive_1_file(void)
 		INTERRUPT_TRANSFER
 		QUIT_TRANSFER
 		ERROR_READING_FILE
-		ERROR_WRITTING_FILE
+		ERROR_WRITING_FILE
 		ERROR_CRC_FAILED
 	*/
 	return ret_flag;
@@ -2585,3 +2585,7 @@ int main(int argc, char *argv[])
 #endif
 	return g_last_status;
 }
+
+/*
+vim:ts=4:sw=4:
+*/
