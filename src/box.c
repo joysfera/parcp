@@ -475,6 +475,7 @@ int EditNumber(const char *title, const char *text, TAG_TYPE tag, void *storage)
 			sscanf(number_buf, "%ld", (long *)storage); break;
 
 		default:
+			break;
 	}
 	return TRUE;
 }
