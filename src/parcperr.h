@@ -11,7 +11,7 @@
 #define FILE_SKIPPED			4
 #define ERROR_CRC_FAILED		5
 #define ERROR_READING_FILE		6
-#define ERROR_WRITTING_FILE		7
+#define ERROR_WRITING_FILE		7
 #define ERROR_DELETING_FILE		8
 /* fatal errors - PARCP exited */
 #define ERROR_USERSTOP			100

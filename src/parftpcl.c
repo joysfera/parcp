@@ -90,8 +90,8 @@ char *str_err(int status)
 			return "CRC failed - file not transferred correctly";
 		case ERROR_READING_FILE:
 			return "Error while reading file";
-		case ERROR_WRITTING_FILE:
-			return "Error while writting file - disk read-only or full?";
+		case ERROR_WRITING_FILE:
+			return "Error while writing file - disk read-only or full?";
 		case ERROR_DELETING_FILE:
 			return "Error deleting file - check if it's not read-only";
 		default:
