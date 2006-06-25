@@ -263,7 +263,7 @@ long server_write_block(const BYTE *block, long n)
 #define A_PARAMETERS										\
 		: "=a" (status)										\
 		: "b" (gcontrol), "c" (n), "d" (print_port), "S" (block)			\
-		: "%ax", "%bx", "%ecx", "%dx", "%esi", "%edi", "%ebp"
+		: "%edi", "%ebp"
 
 long fast_client_read_block(BYTE *block, long n)
 {
