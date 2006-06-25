@@ -22,9 +22,6 @@ parshell : $(SHELL_OBJS)
 	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses
 	strip parcp
 
-pardeb : $(SHELL_OBJS)
-	gcc -g $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses
-
 parcp : $(OBJS)
 	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS)
 	strip $@
