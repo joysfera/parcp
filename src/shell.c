@@ -32,6 +32,8 @@
 
 #define ZLEVA	1	/* width of left padding before file name */
 
+#define PROGRESS_Y_OFFSET  -4 /* progress window moved up a bit */
+
 #define SHELLCFGHEAD	"[PARSHELL]"
 #define DRIVES_LIST		"List of installed logical drives"
 #define CLI				"[command line interface]"		/* internal flag */
@@ -520,7 +522,7 @@ void shell_open_progress_window(char *title, BOOLEAN progress)
 	space_title[0] = space_title[title_len+1] = ' ';
 	space_title[title_len+2] = 0;
 
-	pwincent = newwin(wh, ww, (vyska-wh)/2, (sirka-ww)/2);
+	pwincent = newwin(wh, ww, (vyska-wh)/2 + PROGRESS_Y_OFFSET, (sirka-ww)/2);
 	nodelay(pwincent, TRUE);	/* do not wait for wgetch */
 	ppancent = new_panel(pwincent);
 	box(pwincent, ACS_VLINE, ACS_HLINE);
