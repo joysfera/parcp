@@ -44,7 +44,7 @@
 #define CFGHEAD		"[PARCP]"
 #define PARCPDIR	"PARCPDIR"
 
-#define TIMER		(clock() / CLOCKS_PER_SEC)
+#define TIMER		(time(NULL))
 #define TIME_OUT	10			/* main TIMEOUT is set to 10 seconds */
 #define WAIT4CLIENT	100000UL			/* 100 ms for giving back the spare CPU cycles */
 #define mkdir(a)	mkdir(a,0777)		/* directory with proper access rights */
