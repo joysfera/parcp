@@ -312,4 +312,16 @@ ideas and hints I got from them. Thank you all again!
   06.05.2002         Mika Poikonen
   16.05.2002         John Jersey
   27.05.2002         Andrew Manuel
+  16.07.2002         Zdenek Krelovec (CZ)
+  22.07.2002         Petr Chromec (CZ)
+  24.07.2002         Christof Loser (CH)
+  02.08.2002         Sergio Gimenez de Asis (ES)
+  08.08.2002         Geoffroy Streit (FR)
+  26.12.2002         Nicolas Wurtz (FR)
+  31.12.2002         Jos van de Gruiter (NL)
+  ..
+  19.01.2003         Jim Bufalo (US)
+  02.02.2003         Harold Melton (US)
+  02.02.2003         SPHP Gregor (CZ)
+  21.02.2003         Oliver Jaksch (DE)
 =========================================================================
