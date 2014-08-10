@@ -104,22 +104,11 @@ void wait_before_read(void)		/* waits before read_xxx() operation to not time ou
 
 void read_block(BYTE *block, long n)
 {
-	long status = 0;
+	long status;
 
 	DPRINT2("l Read_block(%p, %ld)\n", block, n);
 
-	if (client) {
-		if (_assembler)
-			status = fast_client_read_block(block, n);
-		else
-			status = client_read_block(block, n);
-	}
-	else {
-		if (_assembler)
-			status = fast_server_read_block(block, n);
-		else
-			status = server_read_block(block, n);
-	}
+	status = client ? client_read_block(block, n) : server_read_block(block, n);
 
 	if (status < 0)
 		errexit("Timeout. Please increase Timeout value in PARCP config file.", ERROR_TIMEOUT);
@@ -129,22 +118,11 @@ void read_block(BYTE *block, long n)
 
 void write_block(const BYTE *block, long n)
 {
-	long status = 0;
+	long status;
 
 	DPRINT2("l Write_block(%p, %ld)\n", block, n);
 
-	if (client) {
-		if (_assembler)
-			status = fast_client_write_block(block, n);
-		else
-			status = client_write_block(block, n);
-	}
-	else {
-		if (_assembler)
-			status = fast_server_write_block(block, n);
-		else
-			status = server_write_block(block, n);
-	}
+	status = client ? client_write_block(block, n) : server_write_block(block, n);
 
 	if (status < 0)
 		errexit("Timeout. Please increase Timeout value in PARCP config file.", ERROR_TIMEOUT);

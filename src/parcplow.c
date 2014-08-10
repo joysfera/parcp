@@ -8,6 +8,9 @@ long client_read_block(BYTE *block, long n)
 	BYTE x;
 	long i = 0;
 
+	if (_assembler)
+		return fast_client_read_block(block, n);
+
 #if IBM
 	if (!cable_type)
 		return laplink_client_read_block(block, n);
@@ -37,6 +40,8 @@ long server_read_block(BYTE *block, long n)
 	BYTE x;
 	long i = 0;
 
+	if (_assembler)
+		return fast_server_read_block(block, n);
 #if IBM
 	if (!cable_type)
 		return laplink_server_read_block(block, n);
@@ -75,6 +80,8 @@ long client_write_block(const BYTE *block, long n)
 	BYTE x;
 	long i = 0;
 
+	if (_assembler)
+		return fast_client_write_block(block, n);
 #if IBM
 	if (!cable_type)
 		return laplink_client_write_block(block, n);
@@ -116,6 +123,8 @@ long server_write_block(const BYTE *block, long n)
 	BYTE x;
 	long i = 0;
 
+	if (_assembler)
+		return fast_server_write_block(block, n);
 #if IBM
 	if (!cable_type)
 		return laplink_server_write_block(block, n);
