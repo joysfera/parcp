@@ -1,9 +1,5 @@
 extern int time_out;
 
-#if LOWDEBUG
-#undef PEKNE_POCKEJ	1
-#endif
-
 #define WAIT_LOW	{int i=TIMER+time_out; while(IS_READY) if (TIMER>i) {SET_INPUT;STROBE_HIGH;return -1;};}
 #define WAIT_HIGH	{int i=TIMER+time_out; while(! IS_READY) if (TIMER>i) {SET_INPUT;STROBE_HIGH;return -1;};}
 
@@ -21,16 +17,10 @@ long client_read_block(BYTE *block, long n)
 
 	while(TRUE) {
 		LDPRINT("l STROBE is LOW, waiting for LOW\n");
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_LOW; WAIT_LOW;
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 1st byte = $%x, STROBE is HIGH, waiting for HIGH\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_HIGH; WAIT_HIGH;
 		if (i>=n)
 			break;
@@ -61,9 +51,6 @@ long server_read_block(BYTE *block, long n)
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 1st byte = $%x, STROBE is LOW\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_LOW;
 
 		if (i>=n)
@@ -74,9 +61,6 @@ long server_read_block(BYTE *block, long n)
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 2nd byte = $%x, STROBE is HIGH\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_HIGH;
 	}
 	LDPRINT("l STROBE is LOW, waiting for HIGH\n");
@@ -109,9 +93,6 @@ long client_write_block(const BYTE *block, long n)
 	while(TRUE) {
 		PUT_BYTE(x=block[i++]);
 		LDPRINT1("l 1st byte = $%x, STROBE is LOW, waiting for LOW\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_LOW;
 		WAIT_LOW;
 
@@ -120,9 +101,6 @@ long client_write_block(const BYTE *block, long n)
 
 		PUT_BYTE(x=block[i++]);
 		LDPRINT1("l 2nd byte = $%x, STROBE is HIGH, waiting for HIGH\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_HIGH;
 		WAIT_HIGH;
 	}
@@ -159,9 +137,6 @@ long server_write_block(const BYTE *block, long n)
 	while(TRUE) {
 		PUT_BYTE(x=block[i++]);
 		LDPRINT1("l 1st byte = $%x, STROBE is LOW, waiting for HIGH\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_LOW;
 		WAIT_HIGH;
 
@@ -170,9 +145,6 @@ long server_write_block(const BYTE *block, long n)
 
 		PUT_BYTE(x=block[i++]);
 		LDPRINT1("l 2nd byte = $%x, STROBE is HIGH, waiting for LOW\n",x);
-#if PEKNE_POCKEJ
-	sleep(PEKNE_POCKEJ);
-#endif
 		STROBE_HIGH;
 		WAIT_LOW;
 	}
