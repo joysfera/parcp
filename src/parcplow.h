@@ -95,7 +95,7 @@ int getch(void);
 #define _PATH_MOUNTED	""
 
 #else	/* ! __MSDOS__ */
-#include <asm/io.h>
+#include <sys/io.h>
 #define __LINUX__
 #include <sys/perm.h>
 void outportb(a,b)	{outb(b,a);}
