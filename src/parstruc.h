@@ -1,7 +1,7 @@
 struct Config_Tag configs[] = {
 	{ "UserName", String_Tag, username, sizeof(username) },
 	{ "KeyCode", String_Tag, keycode, sizeof(keycode) },
-#ifdef IBM
+#if defined(IBM) && !defined(USB)
 	{ CFG_PORT, HexLong_Tag, &print_port },
 	{ CFG_UNIBI, Boolean_Tag, &PCunidirect },
 	{ "PortType", Long_Tag, &port_type },

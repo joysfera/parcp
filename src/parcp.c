@@ -309,8 +309,12 @@ void port_reset(void)
 	SET_INPUT;
 	STROBE_HIGH;
 #ifdef IBM
+#ifdef USB
+	usb_exit();
+#else
 	if (port_type == 2 && !PCunidirect)
 		EPP2ECP;
+#endif
 #endif
 }
 /*******************************************************************************/
@@ -2169,6 +2173,10 @@ void inicializace(void)
 #ifndef STANDALONE
 
 #ifdef IBM
+
+#ifdef USB
+	if (!usb_init()) exit(1);
+#else
 	if (! _quiet_mode) {
 		printf("Parallel port base address: %x\n", print_port);
 		printf("Parallel port type: ");
@@ -2207,6 +2215,8 @@ void inicializace(void)
 
 	if (port_type == 2 && !PCunidirect)
 		ECP2EPP;
+
+#endif  /* USB */
 
 #endif	/* IBM */
 

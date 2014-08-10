@@ -48,6 +48,40 @@ BOOLEAN _is_ready(void)
 #ifdef IBM
 #include <mntent.h>
 
+// general things
+#ifdef __MSDOS__
+extern __Go32_Info_Block _go32_info_block;
+
+int __opendir_flags = __OPENDIR_PRESERVE_CASE;	/* preserve upper/lower filenames */
+
+void clrscr(void);
+int getch(void);
+
+#define KEYPRESSED	(_farpeekb(_dos_ds, 0x417) & 0x0f)
+#define STOP_KEYSTROKE	"Shift+Ctrl+Alt"
+#define ARCHIVE_BIT		_A_ARCH
+#define _PATH_MOUNTED	""
+#else
+#define __LINUX__
+#define clrscr()
+#define STOP_KEYSTROKE	"Ctrl-C"
+#define ARCHIVE_BIT		0x0020	/* needs to be implemented with mtime/atime */
+#endif
+
+// communication
+#ifdef USB
+
+#include "parcp-usb.h"
+#define STROBE_HIGH	set_strobe(1)
+#define STROBE_LOW	set_strobe(0);
+#define IS_READY	get_busy()
+#define GET_BYTE(x)	{ x = read_byte(); }
+#define PUT_BYTE(x)	{ write_byte(x); }
+#define SET_OUTPUT	set_mode(1);
+#define SET_INPUT	set_mode(0);
+
+#else /* !USB */
+
 #define CFG_PORT	"Port"
 #define CFG_UNIBI	"UNI-BI"
 
@@ -78,42 +112,16 @@ int old_ecp_val;	/* the value of the ECP register saved during the PARCP run */
 #include <go32.h>
 #include <dos.h>
 #include <fcntl.h>
-     
-extern __Go32_Info_Block _go32_info_block;
-
-int __opendir_flags = __OPENDIR_PRESERVE_CASE;	/* preserve upper/lower filenames */
-
-void clrscr(void);
-int getch(void);
-
-#define KEYPRESSED	(_farpeekb(_dos_ds, 0x417) & 0x0f)
-#define STOP_KEYSTROKE	"Shift+Ctrl+Alt"
-
 #define iopl(a)		/* pro DOS je to nic */
-
-#define ARCHIVE_BIT		_A_ARCH
-#define _PATH_MOUNTED	""
-
 #else	/* ! __MSDOS__ */
 #include <sys/io.h>
-#define __LINUX__
 #include <sys/perm.h>
 void outportb(a,b)	{outb(b,a);}
 BYTE inportb(a)		{return inb(a);}
-#define clrscr()
-
-#define STOP_KEYSTROKE	"Ctrl-C"
-
-#define ARCHIVE_BIT		0x0020	/* needs to be implemented with mtime/atime */
-
 #endif	/* !__MSDOS__ alias Linux */
 
 int gcontrol = (1 << 2);	/* Ucc */
 
-#if 0
-#define SET_CTRL(x)	outportb(print_port+2, gcontrol = (gcontrol | (1 << x)))
-#define CLR_CTRL(x)	outportb(print_port+2, gcontrol = (gcontrol &~(1 << x)))
-#else
 #define	SET_GCONTROL(x)		{ gcontrol |= (1 << x); }
 #define	CLR_GCONTROL(x)		{ gcontrol &=~(1 << x); }
 #define SET_CTRL(x)						\
@@ -126,7 +134,6 @@ int gcontrol = (1 << 2);	/* Ucc */
 	CLR_GCONTROL(x);					\
 	outportb(print_port+2, gcontrol);	\
 }
-#endif
 #define STATUS	inportb(print_port+1)
 
 /* POST PC: STROBE, AUTOLF, INIT are +5V, while SLCTIN is 0V) */
@@ -222,6 +229,8 @@ long laplink_client_read_block(BYTE *block, long n);
 long laplink_server_read_block(BYTE *block, long n);
 long laplink_client_write_block(const BYTE *block, long n);
 long laplink_server_write_block(const BYTE *block, long n);
+
+#endif /* USB */
 
 #endif	/* IBM */
 /*******************************************************************************/
