@@ -1,2 +1,4 @@
-*.o
-parcp
+src/*.o
+src/parcp
+src/parcpkey
+src/parcp.cfg
