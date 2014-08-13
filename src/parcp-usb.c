@@ -101,20 +101,19 @@ void usb_exit()
 
 void set_strobe(unsigned char strobe)
 {
-	int bytes_sent = 0;
-	while(bytes_sent != 1) {
-		unsigned char data_out[1];
+	int bytes_sent = -1;
+	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
 			HID_SET_IDLE,			// bRequest
 			(HID_REPORT_TYPE_OUTPUT<<8)|strobe, // wValue
 			INTERFACE_NUMBER,		// wIndex
-			data_out,				// pointer to buffer
-			sizeof(data_out),				// wLength
+			NULL,				// pointer to buffer
+			0,				// wLength
 			TIMEOUT_MS);
 
-		if (bytes_sent != 1)
+		if (bytes_sent < 0)
 			fprintf(stderr, "Error sending set_strobe\n");
 	}
 }
@@ -142,19 +141,18 @@ int get_busy()
 
 void write_byte(unsigned char value)
 {
-	int bytes_sent = 0;
-	while(bytes_sent != 1) {
-		unsigned char data_out[1];
+	int bytes_sent = -1;
+	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
 			HID_SET_PROTOCOL,		// bRequest
 			(HID_REPORT_TYPE_OUTPUT<<8)|value, // wValue
 			INTERFACE_NUMBER,		// wIndex
-			data_out,				// pointer to buffer
-			sizeof(data_out),				// wLength
+			NULL,				// pointer to buffer
+			0,				// wLength
 			TIMEOUT_MS);
-		if (bytes_sent != 1)
+		if (bytes_sent < 0)
 			fprintf(stderr, "Error sending write_byte\n");
 	}
 }
@@ -182,20 +180,19 @@ int read_byte()
 
 void set_mode(unsigned char output)
 {
-	int bytes_sent = 0;
-	while(bytes_sent != 1) {
-		unsigned char data_out[1];
+	int bytes_sent = -1;
+	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
 			HID_SET_IDLE,			// bRequest
 			(0<<8)|output, // wValue
 			INTERFACE_NUMBER,		// wIndex
-			data_out,				// pointer to buffer
-			sizeof(data_out),				// wLength
+			NULL,				// pointer to buffer
+			0,				// wLength
 			TIMEOUT_MS);
 
-		if (bytes_sent != 1)
+		if (bytes_sent < 0)
 			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
 	}
 }
