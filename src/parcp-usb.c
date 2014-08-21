@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libusb-1.0/libusb.h>
-
-#define PACKET_SIZE	254
+#include "element.h"
+#include "parcp-usb.h"
 
 // Values for bmRequestType in the Setup transaction's Data packet.
 
@@ -22,11 +22,6 @@ static const int HID_SET_PROTOCOL = 0x0b;
 static const int HID_REPORT_TYPE_INPUT = 0x01;
 static const int HID_REPORT_TYPE_OUTPUT = 0x02;
 static const int HID_REPORT_TYPE_FEATURE = 0x03;
-
-// With firmware support, transfers can be > the endpoint's max packet size.
-
-static const int MAX_CONTROL_IN_TRANSFER_SIZE = PACKET_SIZE;
-static const int MAX_CONTROL_OUT_TRANSFER_SIZE = PACKET_SIZE;
 
 static const int INTERFACE_NUMBER = 0;
 static const int TIMEOUT_MS = 5000;
@@ -102,6 +97,7 @@ void usb_exit()
 void set_strobe(unsigned char strobe)
 {
 	int bytes_sent = -1;
+	int error_counter = 5;
 	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
@@ -113,14 +109,18 @@ void set_strobe(unsigned char strobe)
 			0,				// wLength
 			TIMEOUT_MS);
 
-		if (bytes_sent < 0)
+		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending set_strobe\n");
+			if (!error_counter--)
+				return -1;
+		}
 	}
 }
 
 int get_busy()
 {
 	unsigned char data_in[1];
+	int error_counter = 5;
 	int bytes_received = 0;
 	while(bytes_received != 1) {
 		bytes_received = libusb_control_transfer(
@@ -133,8 +133,11 @@ int get_busy()
 			sizeof(data_in),
 			TIMEOUT_MS);
 
-		if (bytes_received != 1)
+		if (bytes_received != 1) {
 			fprintf(stderr, "Error receiving get_busy\n");
+			if (!error_counter--)
+				return -1;
+		}
 	}
 	return data_in[0];
 }
@@ -142,6 +145,7 @@ int get_busy()
 void write_byte(unsigned char value)
 {
 	int bytes_sent = -1;
+	int error_counter = 5;
 	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
@@ -152,8 +156,11 @@ void write_byte(unsigned char value)
 			NULL,				// pointer to buffer
 			0,				// wLength
 			TIMEOUT_MS);
-		if (bytes_sent < 0)
+		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending write_byte\n");
+			if (!error_counter--)
+				return -1;
+		}
 	}
 }
 
@@ -161,6 +168,7 @@ int read_byte()
 {
 	unsigned char data_in[1];
 	int bytes_received = 0;
+	int error_counter = 5;
 	while(bytes_received != 1) {
 		bytes_received = libusb_control_transfer(
 			devh,
@@ -172,15 +180,45 @@ int read_byte()
 			sizeof(data_in),
 			TIMEOUT_MS);
 
-		if (bytes_received != 1)
+		if (bytes_received != 1) {
 			fprintf(stderr, "Error receiving read_byte\n");
+			if (!error_counter--)
+				return -1;
+		}
 	}
 	return data_in[0];
+}
+
+int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
+{
+	unsigned char data_in[USB_BLOCK_SIZE+1];
+	int bytes_received = 0;
+	int error_counter = 9;
+	while(bytes_received != n) {
+		bytes_received = libusb_control_transfer(
+			devh,
+			CONTROL_REQUEST_TYPE_IN,
+			HID_GET_IDLE,
+			(HID_REPORT_TYPE_INPUT<<8)|(first ? 0x01 : 0x02),
+			INTERFACE_NUMBER,
+			data_in,
+			n,
+			TIMEOUT_MS);
+
+		if (bytes_received != n) {
+			fprintf(stderr, "Error receiving block(%p, %d) = %d\n", block, n, bytes_received);
+			if (!error_counter--)
+				return -1;
+		}
+	}
+	memcpy(block, data_in, n);
+	return 0;
 }
 
 void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
+	int error_counter = 5;
 	while(bytes_sent < 0) {
 		bytes_sent = libusb_control_transfer(
 			devh,
@@ -192,8 +230,11 @@ void set_mode(unsigned char output)
 			0,				// wLength
 			TIMEOUT_MS);
 
-		if (bytes_sent < 0)
+		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
+			if (!error_counter--)
+				return -1;
+		}
 	}
 }
 #if 0

@@ -13,9 +13,24 @@ long client_read_block(BYTE *block, long n)
 		return fast_client_read_block(block, n);
 #endif
 
-#if defined(IBM) && !defined(USB)
+#ifdef IBM
+#  ifdef USB
+	SET_INPUT;
+	long ret = 0;
+	BOOLEAN first = true;
+	while(n) {
+		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
+		ret = usb_client_read_block(block, lbl, first);
+		first = FALSE;
+		if (ret < 0) break;
+		block += lbl;
+		n -= lbl;
+	}
+	return ret;
+#  else
 	if (!cable_type)
 		return laplink_client_read_block(block, n);
+#  endif
 #endif
 
 	SET_INPUT;
