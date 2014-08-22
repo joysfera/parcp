@@ -15,7 +15,6 @@ long client_read_block(BYTE *block, long n)
 
 #ifdef IBM
 #  ifdef USB
-	SET_INPUT;
 	long ret = 0;
 	BOOLEAN first = true;
 	while(n) {
@@ -105,17 +104,35 @@ long client_write_block(const BYTE *block, long n)
 		return fast_client_write_block(block, n);
 #endif
 
-#if defined(IBM) && !defined(USB)
+#ifdef IBM
+#  ifdef USB
+	long ret = 0;
+	BOOLEAN first = true;
+	while(n) {
+		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
+		ret = usb_client_write_block(block, lbl, first);
+		first = FALSE;
+		if (ret < 0) break;
+		block += lbl;
+		n -= lbl;
+	}
+	LDPRINT("l STROBE is HIGH, waiting for HIGH\n");
+	STROBE_HIGH;
+	WAIT_HIGH;
+	SET_INPUT;
+	return ret;
+#  else
 	if (!cable_type)
 		return laplink_client_write_block(block, n);
+#  endif
 #endif
 
 #ifdef IODEBUG
 	GET_BYTE(x);
-	if (x != 0xff)
-		LDPRINT("! WARNING!!! Other side is not receiving!");
-	else
-		LDPRINT("_ Other side's input has been set OK.\n");
+	if (x != 0xff) {
+		LDPRINT("! WARNING! Other side is not receiving!");
+		return -1;
+	}
 #endif
 
 	SET_OUTPUT;
@@ -161,10 +178,10 @@ long server_write_block(const BYTE *block, long n)
 
 #ifdef IODEBUG
 	GET_BYTE(x);
-	if (x != 0xff)
-		LDPRINT("! WARNING!!! Other side is not receiving!");
-	else
-		LDPRINT("Other side's input has been set OK.\n");
+	if (x != 0xff) {
+		LDPRINT("! WARNING! Other side is not receiving!");
+		return -1;
+	}
 #endif
 
 	SET_OUTPUT;

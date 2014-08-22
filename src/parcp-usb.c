@@ -112,7 +112,7 @@ void set_strobe(unsigned char strobe)
 		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending set_strobe\n");
 			if (!error_counter--)
-				return -1;
+				return;
 		}
 	}
 }
@@ -159,7 +159,7 @@ void write_byte(unsigned char value)
 		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending write_byte\n");
 			if (!error_counter--)
-				return -1;
+				return;
 		}
 	}
 }
@@ -215,6 +215,30 @@ int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
 	return 0;
 }
 
+int usb_client_write_block(BYTE *block, int n, BOOLEAN first)
+{
+	int bytes_sent = 0;
+	int error_counter = 9;
+	while(bytes_sent != n) {
+		bytes_sent = libusb_control_transfer(
+			devh,
+			CONTROL_REQUEST_TYPE_OUT,
+			HID_SET_REPORT,
+			(HID_REPORT_TYPE_OUTPUT<<8)|(first ? 0x01 : 0x02),
+			INTERFACE_NUMBER,
+			block,
+			n,
+			TIMEOUT_MS);
+
+		if (bytes_sent != n) {
+			fprintf(stderr, "Error sending block(%p, %d) = %d\n", block, n, bytes_sent);
+			if (!error_counter--)
+				return -1;
+		}
+	}
+	return 0;
+}
+
 void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
@@ -233,7 +257,7 @@ void set_mode(unsigned char output)
 		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
 			if (!error_counter--)
-				return -1;
+				return;
 		}
 	}
 }
