@@ -1,3 +1,5 @@
+#include <math.h>
+
 extern int time_out;
 
 #define WAIT_LOW	{int i=TIMER+time_out; while(IS_READY) if (TIMER>i) {SET_INPUT;STROBE_HIGH;return -1;};}
@@ -61,9 +63,27 @@ long server_read_block(BYTE *block, long n)
 		return fast_server_read_block(block, n);
 #endif
 
-#if defined(IBM) && !defined(USB)
+#ifdef IBM
+#  ifdef USB
+	long ret = 0;
+	BOOLEAN first = true;
+	while(n) {
+		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
+		ret = usb_server_read_block(block, lbl, first);
+		first = FALSE;
+		if (ret < 0) break;
+		block += lbl;
+		n -= lbl;
+	}
+	LDPRINT("l STROBE is LOW, waiting for HIGH\n");
+	WAIT_HIGH;
+	LDPRINT("l STROBE is HIGH\n");
+	STROBE_HIGH;
+	return ret;
+#  else
 	if (!cable_type)
 		return laplink_server_read_block(block, n);
+#  endif
 #endif
 
 	SET_INPUT;
@@ -120,7 +140,7 @@ long client_write_block(const BYTE *block, long n)
 	STROBE_HIGH;
 	WAIT_HIGH;
 	SET_INPUT;
-	return ret;
+	return ret; // doesn't really work, usb_client_write_block does not return anything
 #  else
 	if (!cable_type)
 		return laplink_client_write_block(block, n);
@@ -168,9 +188,26 @@ long server_write_block(const BYTE *block, long n)
 		return fast_server_write_block(block, n);
 #endif
 
-#if defined(IBM) && !defined(USB)
+#ifdef IBM
+#  ifdef USB
+	long ret = 0;
+	BOOLEAN first = true;
+	while(n) {
+		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
+		ret = usb_server_write_block(block, lbl, first);
+		first = FALSE;
+		if (ret < 0) break;
+		block += lbl;
+		n -= lbl;
+	}
+	STROBE_HIGH;
+	LDPRINT("l Write_block: STROBE is HIGH\n");
+	SET_INPUT;
+	return ret; // doesn't really work, usb_server_write_block does not return anything
+#  else
 	if (!cable_type)
 		return laplink_server_write_block(block, n);
+#  endif
 #endif
 
 	LDPRINT("l Waiting for LOW\n");

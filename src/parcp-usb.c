@@ -126,7 +126,7 @@ int get_busy()
 		bytes_received = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_IDLE,
+			HID_GET_REPORT,
 			(HID_REPORT_TYPE_INPUT<<8)|0x00,
 			INTERFACE_NUMBER,
 			data_in,
@@ -198,7 +198,7 @@ int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
 		bytes_received = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_IDLE,
+			HID_GET_REPORT,
 			(HID_REPORT_TYPE_INPUT<<8)|(first ? 0x01 : 0x02),
 			INTERFACE_NUMBER,
 			data_in,
@@ -215,7 +215,7 @@ int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
 	return 0;
 }
 
-int usb_client_write_block(BYTE *block, int n, BOOLEAN first)
+int usb_client_write_block(const BYTE *block, int n, BOOLEAN first)
 {
 	int bytes_sent = 0;
 	int error_counter = 9;
@@ -225,6 +225,56 @@ int usb_client_write_block(BYTE *block, int n, BOOLEAN first)
 			CONTROL_REQUEST_TYPE_OUT,
 			HID_SET_REPORT,
 			(HID_REPORT_TYPE_OUTPUT<<8)|(first ? 0x01 : 0x02),
+			INTERFACE_NUMBER,
+			block,
+			n,
+			TIMEOUT_MS);
+
+		if (bytes_sent != n) {
+			fprintf(stderr, "Error sending block(%p, %d) = %d\n", block, n, bytes_sent);
+			if (!error_counter--)
+				return -1;
+		}
+	}
+	return 0;
+}
+
+int usb_server_read_block(BYTE *block, int n, BOOLEAN first)
+{
+	unsigned char data_in[USB_BLOCK_SIZE+1];
+	int bytes_received = 0;
+	int error_counter = 9;
+	while(bytes_received != n) {
+		bytes_received = libusb_control_transfer(
+			devh,
+			CONTROL_REQUEST_TYPE_IN,
+			HID_GET_REPORT,
+			(HID_REPORT_TYPE_INPUT<<8)|(first ? 0x03 : 0x04),
+			INTERFACE_NUMBER,
+			data_in,
+			n,
+			TIMEOUT_MS);
+
+		if (bytes_received != n) {
+			fprintf(stderr, "Error receiving block(%p, %d) = %d\n", block, n, bytes_received);
+			if (!error_counter--)
+				return -1;
+		}
+	}
+	memcpy(block, data_in, n);
+	return 0;
+}
+
+int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
+{
+	int bytes_sent = 0;
+	int error_counter = 9;
+	while(bytes_sent != n) {
+		bytes_sent = libusb_control_transfer(
+			devh,
+			CONTROL_REQUEST_TYPE_OUT,
+			HID_SET_REPORT,
+			(HID_REPORT_TYPE_OUTPUT<<8)|(first ? 0x03 : 0x04),
 			INTERFACE_NUMBER,
 			block,
 			n,
