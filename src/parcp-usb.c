@@ -7,18 +7,12 @@
 #include "parcp-usb.h"
 
 // Values for bmRequestType in the Setup transaction's Data packet.
-
 static const int CONTROL_REQUEST_TYPE_IN = LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
 static const int CONTROL_REQUEST_TYPE_OUT = LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
 
 // From the HID spec:
-
 static const int HID_GET_REPORT = 0x01;
-static const int HID_GET_IDLE   = 0x02;
-static const int HID_GET_PROTOCOL = 0x03;
 static const int HID_SET_REPORT = 0x09;
-static const int HID_SET_IDLE   = 0x0a;
-static const int HID_SET_PROTOCOL = 0x0b;
 static const int HID_REPORT_TYPE_INPUT = 0x01;
 static const int HID_REPORT_TYPE_OUTPUT = 0x02;
 static const int HID_REPORT_TYPE_FEATURE = 0x03;
@@ -102,8 +96,8 @@ void set_strobe(unsigned char strobe)
 		bytes_sent = libusb_control_transfer(
 			devh,
 			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_IDLE,			// bRequest
-			(HID_REPORT_TYPE_OUTPUT<<8)|strobe, // wValue
+			HID_SET_REPORT,
+			(HID_REPORT_TYPE_OUTPUT<<8)|(strobe ? 0x06: 0x05), // wValue
 			INTERFACE_NUMBER,		// wIndex
 			NULL,				// pointer to buffer
 			0,				// wLength
@@ -111,6 +105,29 @@ void set_strobe(unsigned char strobe)
 
 		if (bytes_sent < 0) {
 			fprintf(stderr, "Error sending set_strobe\n");
+			if (!error_counter--)
+				return;
+		}
+	}
+}
+
+void set_mode(unsigned char output)
+{
+	int bytes_sent = -1;
+	int error_counter = 5;
+	while(bytes_sent < 0) {
+		bytes_sent = libusb_control_transfer(
+			devh,
+			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
+			HID_SET_REPORT,
+			(HID_REPORT_TYPE_OUTPUT<<8)|(output ? 0x08 : 0x07),
+			INTERFACE_NUMBER,		// wIndex
+			NULL,				// pointer to buffer
+			0,				// wLength
+			TIMEOUT_MS);
+
+		if (bytes_sent < 0) {
+			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
 			if (!error_counter--)
 				return;
 		}
@@ -142,53 +159,6 @@ int get_busy()
 	return data_in[0];
 }
 
-void write_byte(unsigned char value)
-{
-	int bytes_sent = -1;
-	int error_counter = 5;
-	while(bytes_sent < 0) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_PROTOCOL,		// bRequest
-			(HID_REPORT_TYPE_OUTPUT<<8)|value, // wValue
-			INTERFACE_NUMBER,		// wIndex
-			NULL,				// pointer to buffer
-			0,				// wLength
-			TIMEOUT_MS);
-		if (bytes_sent < 0) {
-			fprintf(stderr, "Error sending write_byte\n");
-			if (!error_counter--)
-				return;
-		}
-	}
-}
-
-int read_byte()
-{
-	unsigned char data_in[1];
-	int bytes_received = 0;
-	int error_counter = 5;
-	while(bytes_received != 1) {
-		bytes_received = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_PROTOCOL,
-			(HID_REPORT_TYPE_INPUT<<8)|0x00,
-			INTERFACE_NUMBER,
-			data_in,
-			sizeof(data_in),
-			TIMEOUT_MS);
-
-		if (bytes_received != 1) {
-			fprintf(stderr, "Error receiving read_byte\n");
-			if (!error_counter--)
-				return -1;
-		}
-	}
-	return data_in[0];
-}
-
 int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
 {
 	unsigned char data_in[USB_BLOCK_SIZE+1];
@@ -207,7 +177,7 @@ int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
 
 		if (bytes_received != n) {
 			fprintf(stderr, "Error receiving block(%p, %d) = %d\n", block, n, bytes_received);
-			if (!error_counter--)
+			// if (!error_counter--)
 				return -1;
 		}
 	}
@@ -287,29 +257,6 @@ int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
 		}
 	}
 	return 0;
-}
-
-void set_mode(unsigned char output)
-{
-	int bytes_sent = -1;
-	int error_counter = 5;
-	while(bytes_sent < 0) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_IDLE,			// bRequest
-			(0<<8)|output, // wValue
-			INTERFACE_NUMBER,		// wIndex
-			NULL,				// pointer to buffer
-			0,				// wLength
-			TIMEOUT_MS);
-
-		if (bytes_sent < 0) {
-			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
-			if (!error_counter--)
-				return;
-		}
-	}
 }
 #if 0
 int main()

@@ -23,7 +23,7 @@ long client_read_block(BYTE *block, long n)
 		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
 		ret = usb_client_read_block(block, lbl, first);
 		first = FALSE;
-		if (ret < 0) break;
+		// if (ret < 0) break;
 		block += lbl;
 		n -= lbl;
 	}

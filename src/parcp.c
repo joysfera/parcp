@@ -643,10 +643,12 @@ int receive_file(FILE *handle, long lfile)
 			if (!_checksum)
 				break;
 
-			if (read_long() != compute_CRC32(block_buffer, lblock))
-				write_word(M_REPEAT);			/* repeat the block transfer */
-			else
+			if (read_long() == compute_CRC32(block_buffer, lblock))
 				break;	/* CRC is OK */
+
+			DPRINT("l CRC fail, repeating block transfer\n");
+			fprintf(stderr, "_ CRC fail, repeating block transfer\n");
+			write_word(M_REPEAT);			/* repeat the block transfer */
 		} while(repeat_transfer--);
 
 		if (_checksum && repeat_transfer < 0) {
