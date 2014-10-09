@@ -3,9 +3,9 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-HAVE_USB = -DUSB
+HAVE_USB = -DUSB -DVUSB
 
-LIB_USB = -lusb-1.0
+LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
 
 STATIC =
 #STATIC = -static
@@ -28,6 +28,10 @@ parshell : $(SHELL_OBJS)
 
 parcp : $(OBJS)
 	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB)
+	strip $@
+
+pt : parcp-usb.o
+	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
 	strip $@
 
 parserve : $(SEROBJS)

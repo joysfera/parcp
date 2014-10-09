@@ -144,7 +144,7 @@ int get_busy()
 			devh,
 			CONTROL_REQUEST_TYPE_IN,
 			HID_GET_REPORT,
-			(HID_REPORT_TYPE_INPUT<<8)|0x00,
+			(HID_REPORT_TYPE_INPUT<<8)|0x05,
 			INTERFACE_NUMBER,
 			data_in,
 			sizeof(data_in),
@@ -261,14 +261,14 @@ int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
 #if 0
 int main()
 {
-	int strobe = 0;
+	int strobe = 0, i;
 
 	if (usb_init() == 0) return 1;
 
-	while(1) {
+	for(i=0; i<5; i++) {
 		set_strobe(strobe);
 		strobe = !strobe;
-		printf("Busy %s, Data = $%02x\n", get_busy() ? "HIGH" : "LOW", read_byte());
+		printf("Busy %s\n", get_busy() ? "HIGH" : "LOW");
 		sleep(1);
 	}
 
