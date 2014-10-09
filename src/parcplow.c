@@ -136,7 +136,7 @@ long client_write_block(const BYTE *block, long n)
 		block += lbl;
 		n -= lbl;
 	}
-	LDPRINT("l STROBE is HIGH, waiting for HIGH\n");
+	LDPRINT("l STROBE is HIGH, waiting for HIGH write_block\n");
 	STROBE_HIGH;
 	WAIT_HIGH;
 	SET_INPUT;
