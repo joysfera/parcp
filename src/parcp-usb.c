@@ -173,7 +173,7 @@ int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
 {
 	unsigned char data_out[USB_BLOCK_SIZE+2];
 	data_out[0] = (first ? 0x03 : 0x04);
-	memcpy(data_out+UO, block, n);
+	memcpy(data_out+1, block, n);
 	return usb_write_block(data_out, n);
 }
 
