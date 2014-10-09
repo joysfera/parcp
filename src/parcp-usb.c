@@ -2,27 +2,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <libusb-1.0/libusb.h>
+#include "/home/joy/Qt/HIDAPI/hidapi.h"
 #include "element.h"
 #include "parcp-usb.h"
 
-// Values for bmRequestType in the Setup transaction's Data packet.
-static const int CONTROL_REQUEST_TYPE_IN = LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
-static const int CONTROL_REQUEST_TYPE_OUT = LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
-
-// From the HID spec:
-static const int HID_GET_REPORT = 0x01;
-static const int HID_SET_REPORT = 0x09;
-static const int HID_REPORT_TYPE_INPUT = 0x01;
-static const int HID_REPORT_TYPE_OUTPUT = 0x02;
-static const int HID_REPORT_TYPE_FEATURE = 0x03;
-
-static const int INTERFACE_NUMBER = 0;
 static const int TIMEOUT_MS = 5000;
-
-int exchange_feature_reports_via_control_transfers(libusb_device_handle *devh);
-int exchange_input_and_output_reports_via_control_transfers(libusb_device_handle *devh);
-int exchange_input_and_output_reports_via_interrupt_transfers(libusb_device_handle *devh);
 
 long long current_timestamp() {
     struct timeval te; 
@@ -32,243 +16,190 @@ long long current_timestamp() {
     return milliseconds;
 }
 
-struct libusb_device_handle *devh = NULL;
+#ifdef VUSB
+#define UO	0
+#else
+#define UO	1
+#endif
+
+struct hid_device *devh = NULL;
 
 int usb_init(void)
 {
 	// Change these as needed to match idVendor and idProduct in your device's device descriptor.
+#ifdef VUSB
 	static const int VENDOR_ID = 0x16c0;
 	static const int PRODUCT_ID = 0x05df;
+#else
+	static const int VENDOR_ID = 0x03eb;
+	static const int PRODUCT_ID = 0x204f;
+#endif
 
-	int device_ready = 0;
-	int result;
-
-	result = libusb_init(NULL);
-	if (result >= 0)
-	{
-		devh = libusb_open_device_with_vid_pid(NULL, VENDOR_ID, PRODUCT_ID);
-
-		if (devh != NULL)
-		{
-			// The HID has been detected.
-			// Detach the hidusb driver from the HID to enable using libusb.
-			libusb_detach_kernel_driver(devh, INTERFACE_NUMBER);
-			{
-				result = libusb_claim_interface(devh, INTERFACE_NUMBER);
-				if (result >= 0)
-				{
-					device_ready = 1;
-				}
-				else
-				{
-					fprintf(stderr, "libusb_claim_interface error %d\n", result);
-				}
-			}
-		}
-		else
-		{
-			fprintf(stderr, "Unable to find the device.\n");
-		}
-	}
-	else
-	{
-		fprintf(stderr, "Unable to initialize libusb.\n");
+	if (hid_init()) {
+		fprintf(stderr, "HID init failed\n");
+		return FALSE;
 	}
 
-	return device_ready;
+        devh = hid_open(VENDOR_ID, PRODUCT_ID, NULL);
+	if (!devh) {
+		fprintf(stderr, "HID open failed\n");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 void usb_exit()
 {
 	// Finished using the device.
 	if (devh != NULL) {
-		libusb_release_interface(devh, 0);
-		libusb_close(devh);
+		hid_close(devh);
 	}
-	libusb_exit(NULL);
+	hid_exit();
 }
 
 void set_strobe(unsigned char strobe)
 {
 	int bytes_sent = -1;
-	int error_counter = 5;
+	int error_counter = 0;
+	unsigned char buf[USB_BLOCK_SIZE+2];
+	buf[0] = ( strobe ? 0x06: 0x05 );
 	while(bytes_sent < 0) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_REPORT,
-			(HID_REPORT_TYPE_OUTPUT<<8)|(strobe ? 0x06: 0x05), // wValue
-			INTERFACE_NUMBER,		// wIndex
-			NULL,				// pointer to buffer
-			0,				// wLength
-			TIMEOUT_MS);
-
+		bytes_sent = hid_send_feature_report(devh, buf, 1);
 		if (bytes_sent < 0) {
-			fprintf(stderr, "Error sending set_strobe\n");
-			if (!error_counter--)
+			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
+			if (++error_counter >= 9)
 				return;
 		}
 	}
+	//fprintf(stderr, "set_strobe OK\n");
 }
 
 void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
-	int error_counter = 5;
+	int error_counter = 0;
+	unsigned char buf[USB_BLOCK_SIZE+2];
+	buf[0] = ( output ? 0x08: 0x07 );
 	while(bytes_sent < 0) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_REPORT,
-			(HID_REPORT_TYPE_OUTPUT<<8)|(output ? 0x08 : 0x07),
-			INTERFACE_NUMBER,		// wIndex
-			NULL,				// pointer to buffer
-			0,				// wLength
-			TIMEOUT_MS);
-
+		bytes_sent = hid_send_feature_report(devh, buf, 1);
 		if (bytes_sent < 0) {
-			fprintf(stderr, "Error sending set_mode: %d\n", bytes_sent);
-			if (!error_counter--)
+			fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
+			if (++error_counter >= 9)
 				return;
 		}
 	}
+	//fprintf(stderr, "set_mode OK\n");
 }
 
 int get_busy()
 {
-	unsigned char data_in[1];
-	int error_counter = 5;
-	int bytes_received = 0;
-	while(bytes_received != 1) {
-		bytes_received = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_REPORT,
-			(HID_REPORT_TYPE_INPUT<<8)|0x05,
-			INTERFACE_NUMBER,
-			data_in,
-			sizeof(data_in),
-			TIMEOUT_MS);
-
-		if (bytes_received != 1) {
-			fprintf(stderr, "Error receiving get_busy\n");
-			if (!error_counter--)
+	unsigned char buf[USB_BLOCK_SIZE+2];
+	buf[0] = 0x05;
+	int error_counter = 0;
+	int bytes_received = -1;
+	while(bytes_received < 0) {
+		bytes_received = hid_get_feature_report(devh, buf, 1+UO);
+		if (bytes_received < 0) {
+			fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
+			if (++error_counter >= 9)
 				return -1;
 		}
 	}
-	return data_in[0];
+	BOOLEAN busy = buf[UO];
+	// fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+	return busy;
 }
 
-int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
+int usb_read_block(BYTE *data_in, int n)
 {
-	unsigned char data_in[USB_BLOCK_SIZE+1];
-	int bytes_received = 0;
-	int error_counter = 9;
-	while(bytes_received != n) {
-		bytes_received = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_REPORT,
-			(HID_REPORT_TYPE_INPUT<<8)|(first ? 0x01 : 0x02),
-			INTERFACE_NUMBER,
-			data_in,
-			n,
-			TIMEOUT_MS);
-
-		if (bytes_received != n) {
-			fprintf(stderr, "Error receiving block(%p, %d) = %d\n", block, n, bytes_received);
+	int bytes_received = -1;
+	// int error_counter = 9;
+	while(bytes_received < 0) {
+		bytes_received = hid_get_feature_report(devh, data_in, n+UO);
+		if (bytes_received != n+UO) {
+			fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
 			// if (!error_counter--)
 				return -1;
 		}
 	}
-	memcpy(block, data_in, n);
+	// fprintf(stderr, "read_block OK, received %d bytes\n", bytes_received);
 	return 0;
 }
 
-int usb_client_write_block(const BYTE *block, int n, BOOLEAN first)
+int usb_write_block(const BYTE *data_out, int n)
 {
-	int bytes_sent = 0;
-	int error_counter = 9;
-	while(bytes_sent != n) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,
-			HID_SET_REPORT,
-			(HID_REPORT_TYPE_OUTPUT<<8)|(first ? 0x01 : 0x02),
-			INTERFACE_NUMBER,
-			block,
-			n,
-			TIMEOUT_MS);
-
-		if (bytes_sent != n) {
-			fprintf(stderr, "Error sending block(%p, %d) = %d\n", block, n, bytes_sent);
-			if (!error_counter--)
+	int bytes_sent = -1;
+	int error_counter = 0;
+	while(bytes_sent < 0) {
+		bytes_sent = hid_send_feature_report(devh, data_out, n+1);
+		if (bytes_sent != n+1) {
+			fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
+			if (++error_counter >= 9)
 				return -1;
 		}
 	}
+	// fprintf(stderr, "write_block OK, sent %d bytes\n", bytes_sent);
 	return 0;
+}
+
+int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
+{
+	unsigned char data_in[USB_BLOCK_SIZE+2];
+	data_in[0] = (first ? 0x01 : 0x02);
+	int ret = usb_read_block(data_in, n);
+	memcpy(block, data_in+UO, n);
+	return ret;
 }
 
 int usb_server_read_block(BYTE *block, int n, BOOLEAN first)
 {
-	unsigned char data_in[USB_BLOCK_SIZE+1];
-	int bytes_received = 0;
-	int error_counter = 9;
-	while(bytes_received != n) {
-		bytes_received = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_REPORT,
-			(HID_REPORT_TYPE_INPUT<<8)|(first ? 0x03 : 0x04),
-			INTERFACE_NUMBER,
-			data_in,
-			n,
-			TIMEOUT_MS);
+	unsigned char data_in[USB_BLOCK_SIZE+2];
+	data_in[0] = (first ? 0x03 : 0x04);
+	int ret = usb_read_block(data_in, n);
+	memcpy(block, data_in+UO, n);
+	return ret;
+}
 
-		if (bytes_received != n) {
-			fprintf(stderr, "Error receiving block(%p, %d) = %d\n", block, n, bytes_received);
-			if (!error_counter--)
-				return -1;
-		}
-	}
-	memcpy(block, data_in, n);
-	return 0;
+int usb_client_write_block(const BYTE *block, int n, BOOLEAN first)
+{
+	unsigned char data_out[USB_BLOCK_SIZE+2];
+	data_out[0] = (first ? 0x01 : 0x02);
+	memcpy(data_out+1, block, n);
+	return usb_write_block(data_out, n);
 }
 
 int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
 {
-	int bytes_sent = 0;
-	int error_counter = 9;
-	while(bytes_sent != n) {
-		bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,
-			HID_SET_REPORT,
-			(HID_REPORT_TYPE_OUTPUT<<8)|(first ? 0x03 : 0x04),
-			INTERFACE_NUMBER,
-			block,
-			n,
-			TIMEOUT_MS);
-
-		if (bytes_sent != n) {
-			fprintf(stderr, "Error sending block(%p, %d) = %d\n", block, n, bytes_sent);
-			if (!error_counter--)
-				return -1;
-		}
-	}
-	return 0;
+	unsigned char data_out[USB_BLOCK_SIZE+2];
+	data_out[0] = (first ? 0x03 : 0x04);
+	memcpy(data_out+UO, block, n);
+	return usb_write_block(data_out, n);
 }
+
 #if 0
 int main()
 {
-	int strobe = 0, i;
+	BYTE buf[USB_BLOCK_SIZE+2];
 
-	if (usb_init() == 0) return 1;
+	int strobe = 0;
 
+	if (usb_init() == 0) { fprintf(stderr, "USB init failed\n"); return 1; }
+
+	set_mode(TRUE);
+
+	int i;
 	for(i=0; i<5; i++) {
+#if 1
+		printf("STROBE %s\n", strobe ? "HIGH" : "LOW");
 		set_strobe(strobe);
 		strobe = !strobe;
-		printf("Busy %s\n", get_busy() ? "HIGH" : "LOW");
+		printf("BUSY %s\n", get_busy() ? "HIGH" : "LOW");
+#else
+		buf[0] = buf[1] = buf[2] = buf[3] = 0;
+		usb_client_read_block(buf, 2, TRUE);
+		printf("[0]=%d, [1]=%d, [2]=%d, [3]=%d\n", buf[0], buf[1], buf[2], buf[3]);
+#endif
 		sleep(1);
 	}
 
