@@ -570,8 +570,11 @@ int send_file(FILE *handle, long lfile)
 		}
 
 		write_long(lblock);		/* sending length of block. Special values 0 and -1 */
-		if (read_long() != lblock)		/* read it back and compare it */
+		long block_len_check = read_long();
+		if (block_len_check != lblock) {	/* read it back and compare it */
+			DPRINT2("send_file(): block length check failed: %08lx != %08lx\n", lblock, block_len_check);
 			errexit("A communication error in send_file() - sorry", ERROR_BADDATA);
+		}
 
 		if (ret_flag)
 			break;		/* quit send_file() due to either error reading or interrupt transfer */
