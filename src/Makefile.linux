@@ -6,8 +6,8 @@ DEBUG =
 #HAVE_USB = -DUSB -DVUSB
 HAVE_USB = -DUSB
 
-#LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
-LIB_USB = -lusb-1.0
+LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+#LIB_USB = -lusb-1.0
 
 STATIC =
 #STATIC = -static

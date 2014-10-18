@@ -18,13 +18,12 @@ long client_read_block(BYTE *block, long n)
 #ifdef IBM
 #  ifdef USB
 	long ret = 0;
-	BOOLEAN first = true;
-	while(n) {
-		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
-		ret = usb_client_read_block(block, lbl, first);
-		first = FALSE;
-		// if (ret < 0) break;
-		block += lbl;
+	long offset = 0;
+	usb_set_client_read_size(n);
+	while(n > 0) {
+		unsigned lbl = min(USB_BLOCK_SIZE - (offset == 0 ? 1 : 0), n);
+		ret = usb_read_block(block, offset, lbl);
+		offset += lbl;
 		n -= lbl;
 	}
 	return ret;
@@ -66,13 +65,12 @@ long server_read_block(BYTE *block, long n)
 #ifdef IBM
 #  ifdef USB
 	long ret = 0;
-	BOOLEAN first = true;
-	while(n) {
-		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
-		ret = usb_server_read_block(block, lbl, first);
-		first = FALSE;
-		if (ret < 0) break;
-		block += lbl;
+	long offset = 0;
+	usb_set_server_read_size(n);
+	while(n > 0) {
+		unsigned lbl = min(USB_BLOCK_SIZE - (offset == 0 ? 1 : 0), n);
+		ret = usb_read_block(block, offset, lbl);
+		offset += lbl;
 		n -= lbl;
 	}
 	LDPRINT("l STROBE is LOW, waiting for HIGH\n");
@@ -127,13 +125,16 @@ long client_write_block(const BYTE *block, long n)
 #ifdef IBM
 #  ifdef USB
 	long ret = 0;
-	BOOLEAN first = true;
-	while(n) {
-		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
-		ret = usb_client_write_block(block, lbl, first);
-		first = FALSE;
+	long offset = 0;
+	unsigned lbl = min(USB_BLOCK_SIZE - 1, n);
+	usb_set_client_write_size(n, block);
+	offset += lbl;
+	n -= lbl;
+	while(n > 0) {
+		lbl = min(USB_BLOCK_SIZE, n);
+		ret = usb_write_block(block, offset, lbl);
 		if (ret < 0) break;
-		block += lbl;
+		offset += lbl;
 		n -= lbl;
 	}
 	LDPRINT("l STROBE is HIGH, waiting for HIGH write_block\n");
@@ -191,13 +192,16 @@ long server_write_block(const BYTE *block, long n)
 #ifdef IBM
 #  ifdef USB
 	long ret = 0;
-	BOOLEAN first = true;
-	while(n) {
-		unsigned lbl = min(first ? USB_BLOCK_SIZE-1 : USB_BLOCK_SIZE, n);
-		ret = usb_server_write_block(block, lbl, first);
-		first = FALSE;
+	long offset = 0;
+	unsigned lbl = min(USB_BLOCK_SIZE - 1, n);
+	usb_set_server_write_size(n, block);
+	offset += lbl;
+	n -= lbl;
+	while(n > 0) {
+		lbl = min(USB_BLOCK_SIZE, n);
+		ret = usb_write_block(block, offset, lbl);
 		if (ret < 0) break;
-		block += lbl;
+		offset += lbl;
 		n -= lbl;
 	}
 	STROBE_HIGH;

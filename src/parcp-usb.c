@@ -5,7 +5,7 @@
 #include "element.h"
 #include "parcp-usb.h"
 
-#define LIBUSB	1
+#define LIBUSB	0
 
 #ifdef VUSB
 #define UO	0
@@ -153,123 +153,187 @@ void usb_exit()
 #endif
 }
 
-void set_strobe(unsigned char strobe)
+int usb_send(const BYTE *block, int len)
 {
-	int bytes_sent = -1;
-	int error_counter = 0;
-	unsigned char buf[USB_BLOCK_SIZE+2];
-	buf[0] = ( strobe ? 0x06: 0x05 );
-	while(bytes_sent < 0) {
-		bytes_sent = hid_send_feature_report(devh, buf, 1);
-		if (bytes_sent < 0) {
-			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
-			if (++error_counter >= 9)
-				return;
-		}
+	BYTE buf[64+1];
+	buf[0] = 0; // report number for HIDAPI
+	memcpy(buf+1, block, len);
+	int ret = hid_send_feature_report(devh, buf, len+1); // len+1 should be exactly size of descriptor for MS-Windows
+	if (ret > 0)
+		ret--; // correct returned number for HIDAPI
+	return ret;
+}
+
+int usb_receive(BYTE *block, int len)
+{
+	BYTE buf[64+1];
+	buf[0] = 0; // report number for HIDAPI
+	int ret = hid_get_feature_report(devh, buf, sizeof(buf));
+	if (ret > 0) {
+		ret--; // correct returned number for HIDAPI
+		fprintf(stderr, "usb_receive() copying %d bytes\n", len);
+		memcpy(block, buf+1, len);
 	}
-	//fprintf(stderr, "set_strobe OK\n");
+	return ret;
 }
 
 void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
-	unsigned char buf[USB_BLOCK_SIZE+2];
-	buf[0] = ( output ? 0x08: 0x07 );
+	unsigned char buf[3];
+	buf[0] = 0x05; // mode
+	buf[1] = output;
 	while(bytes_sent < 0) {
-		bytes_sent = hid_send_feature_report(devh, buf, 1);
-		if (bytes_sent < 0) {
+		bytes_sent = usb_send(buf, 3);
+		if (bytes_sent != 3) {
 			fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
 			if (++error_counter >= 9)
 				return;
 		}
 	}
-	//fprintf(stderr, "set_mode OK\n");
+	fprintf(stderr, "set_mode %s\n", output ? "OUT" : "IN");
+}
+
+void set_strobe(unsigned char strobe)
+{
+	int bytes_sent = -1;
+	int error_counter = 0;
+	unsigned char buf[3];
+	buf[0] = 0x06; // strobe
+	buf[1] = strobe;
+	while(bytes_sent < 0) {
+		bytes_sent = usb_send(buf, 3);
+		if (bytes_sent != 3) {
+			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
+			if (++error_counter >= 9)
+				return;
+		}
+	}
+	fprintf(stderr, "set_strobe %s\n", strobe ? "HIGH" : "LOW");
 }
 
 int get_busy()
 {
-	unsigned char buf[USB_BLOCK_SIZE+2];
-	buf[0] = 0x05;
+	unsigned char buf[USB_BLOCK_SIZE+4+UO];
+	buf[0] = 0x01;
 	int error_counter = 0;
 	int bytes_received = -1;
 	while(bytes_received < 0) {
 		bytes_received = hid_get_feature_report(devh, buf, 1+UO);
-		if (bytes_received < 0) {
+		if (bytes_received != 2) {
 			fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
 			if (++error_counter >= 9)
 				return -1;
 		}
 	}
-	BOOLEAN busy = buf[UO];
-	//fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+	BOOLEAN busy = buf[0];
+	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
 	return busy;
 }
 
-int usb_read_block(BYTE *data_in, int n)
+int usb_receive_block(BYTE *data_in, int n)
 {
+	unsigned char buf[USB_BLOCK_SIZE+4+1];
+	memset(buf, 0, sizeof(buf));
 	int bytes_received = -1;
 	// int error_counter = 9;
 	while(bytes_received < 0) {
-		bytes_received = hid_get_feature_report(devh, data_in, n+UO);
-		if (bytes_received != n+UO) {
+		bytes_received = usb_receive(buf, sizeof(buf));
+		if (bytes_received != n) {
 			fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
 			// if (!error_counter--)
 				return -1;
 		}
 	}
-	// fprintf(stderr, "read_block OK, received %d bytes\n", bytes_received);
-	return 0;
+	memcpy(data_in, buf, n);
+	fprintf(stderr, "read_block OK, received %d bytes: [%02x %02x %02x]\n", bytes_received, data_in[0], data_in[1], data_in[2]);
+	return bytes_received;
 }
 
-int usb_write_block(const BYTE *data_out, int n)
+int usb_transmit_block(const BYTE *data_out, int n)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
 	while(bytes_sent < 0) {
-		bytes_sent = hid_send_feature_report(devh, data_out, n+1);
-		if (bytes_sent != n+1) {
+		bytes_sent = usb_send(data_out, n);
+		if (bytes_sent != n) {
 			fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
 			if (++error_counter >= 9)
 				return -1;
 		}
 	}
 	// fprintf(stderr, "write_block OK, sent %d bytes\n", bytes_sent);
-	return 0;
+	return bytes_sent;
 }
 
-int usb_client_read_block(BYTE *block, int n, BOOLEAN first)
+int usb_set_client_read_size(long n)
 {
-	unsigned char data_in[USB_BLOCK_SIZE+2];
-	data_in[0] = (first ? 0x01 : 0x02);
-	int ret = usb_read_block(data_in, n);
-	memcpy(block, data_in+UO, n);
+	unsigned char buffer[4];
+	buffer[0] = 0x01; // 0x01 = client read
+	buffer[1] = n >> 16;
+	buffer[2] = n >> 8;
+	buffer[3] = n;
+	int ret = usb_transmit_block(buffer, 4);
+	fprintf(stderr, "usb_set_client_read_size(%ld) = %d\n", n, ret);
+}
+
+int usb_set_server_read_size(long n)
+{
+	unsigned char buffer[4];
+	buffer[0] = 0x02; // 0x02 = server read
+	buffer[1] = n >> 16;
+	buffer[2] = n >> 8;
+	buffer[3] = n;
+	return usb_transmit_block(buffer, 4);
+}
+
+int usb_set_client_write_size(long n, const BYTE *block)
+{
+	unsigned char buffer[USB_BLOCK_SIZE+4];
+	buffer[0] = 0x03; // 0x03 = client write
+	buffer[1] = n >> 16;
+	buffer[2] = n >> 8;
+	buffer[3] = n;
+	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
+	fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
+	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
+}
+
+int usb_set_server_write_size(long n, const BYTE *block)
+{
+	unsigned char buffer[USB_BLOCK_SIZE+4];
+	buffer[0] = 0x04; // 0x04 = server write
+	buffer[1] = n >> 16;
+	buffer[2] = n >> 8;
+	buffer[3] = n;
+	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
+	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
+}
+
+int usb_read_block(BYTE *block, long offset, int n)
+{
+	unsigned char buffer[USB_BLOCK_SIZE+4];
+	memset(buffer, 0, sizeof(buffer));
+	int ret = usb_receive_block(buffer, sizeof(buffer));
+	// check that buffer[0] == n;
+	// check that buffer[1-3] == offset;
+	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+	memcpy(block + offset, buffer+4, n);
 	return ret;
 }
 
-int usb_server_read_block(BYTE *block, int n, BOOLEAN first)
+int usb_write_block(const BYTE *block, long offset, int n)
 {
-	unsigned char data_in[USB_BLOCK_SIZE+2];
-	data_in[0] = (first ? 0x03 : 0x04);
-	int ret = usb_read_block(data_in, n);
-	memcpy(block, data_in+UO, n);
+	unsigned char buffer[USB_BLOCK_SIZE+4];
+	buffer[0] = 0x08; // data transmit
+	buffer[1] = offset >> 16;
+	buffer[2] = offset >> 8;
+	buffer[3] = offset;
+	memcpy(buffer+4, block + offset, n);
+	int ret = usb_transmit_block(buffer, 4+n);
+	fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
 	return ret;
-}
-
-int usb_client_write_block(const BYTE *block, int n, BOOLEAN first)
-{
-	unsigned char data_out[USB_BLOCK_SIZE+2];
-	data_out[0] = (first ? 0x01 : 0x02);
-	memcpy(data_out+1, block, n);
-	return usb_write_block(data_out, n);
-}
-
-int usb_server_write_block(const BYTE *block, int n, BOOLEAN first)
-{
-	unsigned char data_out[USB_BLOCK_SIZE+2];
-	data_out[0] = (first ? 0x03 : 0x04);
-	memcpy(data_out+1, block, n);
-	return usb_write_block(data_out, n);
 }
 
 #if 0
@@ -288,6 +352,7 @@ int main()
 #if 1
 		printf("STROBE %s\n", strobe ? "HIGH" : "LOW");
 		set_strobe(strobe);
+	set_mode(strobe);
 		strobe = !strobe;
 		printf("BUSY %s\n", get_busy() ? "HIGH" : "LOW");
 #else
