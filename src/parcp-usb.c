@@ -7,12 +7,6 @@
 
 #define LIBUSB	0
 
-#ifdef VUSB
-#define UO	0
-#else
-#define UO	1
-#endif
-
 // Change these as needed to match idVendor and idProduct in your device's device descriptor.
 #ifdef VUSB
 static const int VENDOR_ID = 0x16c0;
@@ -158,7 +152,7 @@ int usb_send(const BYTE *block, int len)
 	BYTE buf[64+1];
 	buf[0] = 0; // report number for HIDAPI
 	memcpy(buf+1, block, len);
-	int ret = hid_send_feature_report(devh, buf, len+1); // len+1 should be exactly size of descriptor for MS-Windows
+	int ret = hid_send_feature_report(devh, buf, len+1); // len should be exactly size of descriptor for MS-Windows
 	if (ret > 0)
 		ret--; // correct returned number for HIDAPI
 	return ret;
@@ -181,12 +175,12 @@ void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
-	unsigned char buf[3];	// TODO vsechny tyto '3' zmenit na '2'
+	unsigned char buf[2];
 	buf[0] = 0x05; // mode
 	buf[1] = output;
 	while(bytes_sent < 0) {
-		bytes_sent = usb_send(buf, 3);
-		if (bytes_sent != 3) {
+		bytes_sent = usb_send(buf, 2);
+		if (bytes_sent != 2) {
 			fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
 			if (++error_counter >= 9)
 				return;
@@ -199,12 +193,12 @@ void set_strobe(unsigned char strobe)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
-	unsigned char buf[3];
+	unsigned char buf[2];
 	buf[0] = 0x06; // strobe
 	buf[1] = strobe;
 	while(bytes_sent < 0) {
-		bytes_sent = usb_send(buf, 3);
-		if (bytes_sent != 3) {
+		bytes_sent = usb_send(buf, 2);
+		if (bytes_sent != 2) {
 			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
 			if (++error_counter >= 9)
 				return;
@@ -215,13 +209,13 @@ void set_strobe(unsigned char strobe)
 
 int get_busy()
 {
-	unsigned char buf[USB_BLOCK_SIZE+4+UO];
+	unsigned char buf[USB_BLOCK_SIZE+4];
 	buf[0] = 0x01;
 	int error_counter = 0;
 	int bytes_received = -1;
 	while(bytes_received < 0) {
-		bytes_received = hid_get_feature_report(devh, buf, 1+UO);
-		if (bytes_received != 2) {
+		bytes_received = hid_get_feature_report(devh, buf, sizeof(buf));
+		if (bytes_received != sizeof(buf)) {
 			fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
 			if (++error_counter >= 9)
 				return -1;
