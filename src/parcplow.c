@@ -73,10 +73,6 @@ long server_read_block(BYTE *block, long n)
 		offset += lbl;
 		n -= lbl;
 	}
-	LDPRINT("l STROBE is LOW, waiting for HIGH\n");
-	WAIT_HIGH;
-	LDPRINT("l STROBE is HIGH\n");
-	STROBE_HIGH;
 	return ret;
 #  else
 	if (!cable_type)
@@ -137,10 +133,6 @@ long client_write_block(const BYTE *block, long n)
 		offset += lbl;
 		n -= lbl;
 	}
-	LDPRINT("l STROBE is HIGH, waiting for HIGH write_block\n");
-	STROBE_HIGH;
-	WAIT_HIGH;
-	SET_INPUT;
 	return ret; // doesn't really work, usb_client_write_block does not return anything
 #  else
 	if (!cable_type)
@@ -204,9 +196,6 @@ long server_write_block(const BYTE *block, long n)
 		offset += lbl;
 		n -= lbl;
 	}
-	STROBE_HIGH;
-	LDPRINT("l Write_block: STROBE is HIGH\n");
-	SET_INPUT;
 	return ret; // doesn't really work, usb_server_write_block does not return anything
 #  else
 	if (!cable_type)
