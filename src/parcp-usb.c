@@ -171,7 +171,7 @@ int usb_receive(BYTE *block, int len)
 	int ret = hid_get_feature_report(devh, buf, sizeof(buf));
 	if (ret > 0) {
 		ret--; // correct returned number for HIDAPI
-		fprintf(stderr, "usb_receive() copying %d bytes\n", len);
+		// fprintf(stderr, "usb_receive() copying %d bytes\n", len);
 		memcpy(block, buf+1, len);
 	}
 	return ret;
@@ -181,7 +181,7 @@ void set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
-	unsigned char buf[3];
+	unsigned char buf[3];	// TODO vsechny tyto '3' zmenit na '2'
 	buf[0] = 0x05; // mode
 	buf[1] = output;
 	while(bytes_sent < 0) {
@@ -192,7 +192,7 @@ void set_mode(unsigned char output)
 				return;
 		}
 	}
-	fprintf(stderr, "set_mode %s\n", output ? "OUT" : "IN");
+	// fprintf(stderr, "set_mode %s\n", output ? "OUT" : "IN");
 }
 
 void set_strobe(unsigned char strobe)
@@ -210,7 +210,7 @@ void set_strobe(unsigned char strobe)
 				return;
 		}
 	}
-	fprintf(stderr, "set_strobe %s\n", strobe ? "HIGH" : "LOW");
+	// fprintf(stderr, "set_strobe %s\n", strobe ? "HIGH" : "LOW");
 }
 
 int get_busy()
@@ -228,7 +228,7 @@ int get_busy()
 		}
 	}
 	BOOLEAN busy = buf[0];
-	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+	// fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
 	return busy;
 }
 
@@ -247,7 +247,7 @@ int usb_receive_block(BYTE *data_in, int n)
 		}
 	}
 	memcpy(data_in, buf, n);
-	fprintf(stderr, "read_block OK, received %d bytes: [%02x %02x %02x]\n", bytes_received, data_in[0], data_in[1], data_in[2]);
+	// fprintf(stderr, "read_block OK, received %d bytes: [%02x %02x %02x]\n", bytes_received, data_in[0], data_in[1], data_in[2]);
 	return bytes_received;
 }
 
@@ -275,7 +275,8 @@ int usb_set_client_read_size(long n)
 	buffer[2] = n >> 8;
 	buffer[3] = n;
 	int ret = usb_transmit_block(buffer, 4);
-	fprintf(stderr, "usb_set_client_read_size(%ld) = %d\n", n, ret);
+	// fprintf(stderr, "usb_set_client_read_size(%ld) = %d\n", n, ret);
+	return ret;
 }
 
 int usb_set_server_read_size(long n)
@@ -296,7 +297,7 @@ int usb_set_client_write_size(long n, const BYTE *block)
 	buffer[2] = n >> 8;
 	buffer[3] = n;
 	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
-	fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
+	// fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
 	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
 }
 
@@ -316,9 +317,9 @@ int usb_read_block(BYTE *block, long offset, int n)
 	unsigned char buffer[USB_BLOCK_SIZE+4];
 	memset(buffer, 0, sizeof(buffer));
 	int ret = usb_receive_block(buffer, sizeof(buffer));
-	// check that buffer[0] == n;
-	// check that buffer[1-3] == offset;
-	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+	// TODO: check that buffer[0] == n;
+	// TODO: check that buffer[1-3] == offset;
+	// fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 	memcpy(block + offset, buffer+4, n);
 	return ret;
 }
@@ -332,7 +333,7 @@ int usb_write_block(const BYTE *block, long offset, int n)
 	buffer[3] = offset;
 	memcpy(buffer+4, block + offset, n);
 	int ret = usb_transmit_block(buffer, 4+n);
-	fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
+	// fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
 	return ret;
 }
 
