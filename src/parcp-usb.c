@@ -216,7 +216,10 @@ int get_busy()
 	while(bytes_received < 0) {
 		bytes_received = hid_get_feature_report(devh, buf, sizeof(buf));
 		if (bytes_received != sizeof(buf)) {
-			fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
+			if (error_counter)
+				fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
+			else
+				fputc('\\', stderr);
 			if (++error_counter >= 9)
 				return -1;
 		}
@@ -252,7 +255,10 @@ int usb_transmit_block(const BYTE *data_out, int n)
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(data_out, n);
 		if (bytes_sent != n) {
-			fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
+			if (error_counter)
+				fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
+			else
+				fputc('|', stderr);
 			if (++error_counter >= 9)
 				return -1;
 		}
