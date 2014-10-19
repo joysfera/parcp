@@ -200,10 +200,10 @@ void write_long(long x)
 {
 	BYTE a[4+1];
 
+	a[0] = x>>24;
+	a[1] = x>>16;
+	a[2] = x>>8;
 	a[3] = x;
-	a[2] = (x = x>>8);
-	a[1] = (x = x>>8);
-	a[0] = x>>8;
 
 	DPRINT2("l Write_long(%ld=$%08lx)\n", x, x);
 
@@ -214,14 +214,14 @@ void write_longlong(long long x)
 {
 	BYTE a[8+1];
 
+	a[0] = x>>56;
+	a[1] = x>>48;
+	a[2] = x>>40;
+	a[3] = x>>32;
+	a[4] = x>>24;
+	a[5] = x>>16;
+	a[6] = x>>8;
 	a[7] = x;
-	a[6] = (x = x>>8);
-	a[5] = (x = x>>8);
-	a[4] = (x = x>>8);
-	a[3] = (x = x>>8);
-	a[2] = (x = x>>8);
-	a[1] = (x = x>>8);
-	a[0] = x>>8;
 
 	DPRINT2("l Write_long_long(%lld=$%llx)\n", x, x);
 
