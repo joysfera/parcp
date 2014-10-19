@@ -144,7 +144,7 @@ UWORD read_word(void)
 	read_block(a,2);
 	x = (a[0]<<8) | a[1];
 
-	DPRINT2("l Read_word() -> %u=$%x\n", x, x);
+	DPRINT2("l Read_word() -> %u=$%04x\n", x, x);
 
 	return x;
 }
@@ -160,7 +160,7 @@ long read_long(void)
 	x = (x<<8) | a[2];
 	x = (x<<8) | a[3];
 
-	DPRINT2("l Read_long() -> %ld=$%lx\n", x, x);
+	DPRINT2("l Read_long() -> %ld=$%08lx\n", x, x);
 
 	return x;
 }
@@ -191,7 +191,7 @@ void write_word(UWORD x)
 	a[0] = x>>8;
 	a[1] = x;
 
-	DPRINT2("l Write_word(%u=$%x)\n", x, x);
+	DPRINT2("l Write_word(%u=$%04x)\n", x, x);
 
 	write_block(a,2);
 }
@@ -205,7 +205,7 @@ void write_long(long x)
 	a[1] = (x = x>>8);
 	a[0] = x>>8;
 
-	DPRINT2("l Write_long(%ld=$%lx)\n", x, x);
+	DPRINT2("l Write_long(%ld=$%08lx)\n", x, x);
 
 	write_block(a,4);
 }
