@@ -84,6 +84,7 @@ void wait_for_client(void)	/* waits and returns spare CPU cycles to other proces
 void wait_before_read(void)		/* waits before read_xxx() operation to not time out on that */
 {
 	SET_INPUT;
+	DPRINT("wait_before_read()\n");
 	if (client) {
 		/* we must put the STROBE low to allow server to send us data */
 		STROBE_LOW;
@@ -92,6 +93,7 @@ void wait_before_read(void)		/* waits before read_xxx() operation to not time ou
 		if (stop_waiting())
 			errexit("Waiting for other side interrupted by user.", ERROR_USERSTOP);
 	}
+	DPRINT("STROBE and BUSY are both LOW now\n");
 }
 
 #ifndef PARCP_SERVER
@@ -104,30 +106,16 @@ void wait_before_read(void)		/* waits before read_xxx() operation to not time ou
 
 void read_block(BYTE *block, long n)
 {
-	long status;
-
-	DPRINT2("l Read_block(%p, %ld)\n", block, n);
-
-	status = client ? client_read_block(block, n) : server_read_block(block, n);
-
+	long status = client ? client_read_block(block, n) : server_read_block(block, n);
 	if (status < 0)
 		errexit("Timeout. Please increase Timeout value in PARCP config file.", ERROR_TIMEOUT);
-
-	DPRINT("l Read_block: end\n");
 }
 
 void write_block(const BYTE *block, long n)
 {
-	long status;
-
-	DPRINT2("l Write_block(%p, %ld)\n", block, n);
-
-	status = client ? client_write_block(block, n) : server_write_block(block, n);
-
+	long status = client ? client_write_block(block, n) : server_write_block(block, n);
 	if (status < 0)
 		errexit("Timeout. Please increase Timeout value in PARCP config file.", ERROR_TIMEOUT);
-
-	DPRINT("l Write_block: end\n");
 }
 
 #else

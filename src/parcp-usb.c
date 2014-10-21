@@ -297,7 +297,9 @@ int usb_set_client_write_size(long n, const BYTE *block)
 	buffer[2] = n >> 8;
 	buffer[3] = n;
 	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
-	// fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
+#if IODEBUG
+	fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
+#endif
 	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
 }
 
@@ -318,8 +320,16 @@ int usb_read_block(BYTE *block, long offset, int n)
 	memset(buffer, 0, sizeof(buffer));
 	int ret = usb_receive_block(buffer, sizeof(buffer));
 	// TODO: check that buffer[0] == n;
+	if (buffer[0] != n)
+		fprintf(stderr, "!! read_block(%ld, %d) read only %d bytes\n", offset, n, buffer[0]);
+#if DEBUG
+	else
+		fprintf(stderr, "oo read_block(%ld, %d) OK\n", offset, n);
+#endif
 	// TODO: check that buffer[1-3] == offset;
-	// fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+#if IODEBUG
+	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+#endif
 	memcpy(block + offset, buffer+4, n);
 	return ret;
 }
@@ -333,7 +343,9 @@ int usb_write_block(const BYTE *block, long offset, int n)
 	buffer[3] = offset;
 	memcpy(buffer+4, block + offset, n);
 	int ret = usb_transmit_block(buffer, 4+n);
-	// fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
+#if IODEBUG
+	fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
+#endif
 	return ret;
 }
 
