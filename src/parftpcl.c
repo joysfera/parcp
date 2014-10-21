@@ -460,6 +460,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 				write_word(M_DIR);
 				send_string(p2);
 				write_word(maska);
+				wait_before_read();
 				receive_string(dir_buffer);
 			}
 			else {

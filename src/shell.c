@@ -318,6 +318,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 			write_word(M_DIR);
 			send_string("");	/* filemask */
 			write_word(0);
+			wait_before_read();
 			receive_string(dirbufer);	/* dir list comes this way */
 		}
 		else {
