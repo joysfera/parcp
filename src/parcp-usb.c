@@ -152,7 +152,7 @@ int usb_send(const BYTE *block, int len)
 	BYTE buf[64+1];
 	buf[0] = 0; // report number for HIDAPI
 	memcpy(buf+1, block, len);
-	int ret = hid_send_feature_report(devh, buf, len+1); // len should be exactly size of descriptor for MS-Windows
+	int ret = hid_send_feature_report(devh, buf, sizeof(buf));
 	if (ret > 0)
 		ret--; // correct returned number for HIDAPI
 	return ret;
@@ -165,7 +165,6 @@ int usb_receive(BYTE *block, int len)
 	int ret = hid_get_feature_report(devh, buf, sizeof(buf));
 	if (ret > 0) {
 		ret--; // correct returned number for HIDAPI
-		// fprintf(stderr, "usb_receive() copying %d bytes\n", len);
 		memcpy(block, buf+1, len);
 	}
 	return ret;
@@ -180,7 +179,7 @@ void set_mode(unsigned char output)
 	buf[1] = output;
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(buf, 2);
-		if (bytes_sent != 2) {
+		if (bytes_sent < 0) {
 			fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
 			if (++error_counter >= 9)
 				return;
@@ -198,7 +197,7 @@ void set_strobe(unsigned char strobe)
 	buf[1] = strobe;
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(buf, 2);
-		if (bytes_sent != 2) {
+		if (bytes_sent < 0) {
 			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
 			if (++error_counter >= 9)
 				return;
@@ -215,7 +214,7 @@ int get_busy()
 	int bytes_received = -1;
 	while(bytes_received < 0) {
 		bytes_received = hid_get_feature_report(devh, buf, sizeof(buf));
-		if (bytes_received != sizeof(buf)) {
+		if (bytes_received <= 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
 			else
@@ -239,12 +238,11 @@ int usb_receive_block(BYTE *data_in, int n)
 		bytes_received = usb_receive(buf, sizeof(buf));
 		if (bytes_received != n) {
 			fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
-			// if (!error_counter--)
+			// if (!error_counter--) <-- must not repeat usb_receive_block or the client-server sync breaks
 				return -1;
 		}
 	}
 	memcpy(data_in, buf, n);
-	// fprintf(stderr, "read_block OK, received %d bytes: [%02x %02x %02x]\n", bytes_received, data_in[0], data_in[1], data_in[2]);
 	return bytes_received;
 }
 
@@ -254,7 +252,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 	int error_counter = 0;
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(data_out, n);
-		if (bytes_sent != n) {
+		if (bytes_sent < 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
 			else
@@ -263,7 +261,6 @@ int usb_transmit_block(const BYTE *data_out, int n)
 				return -1;
 		}
 	}
-	// fprintf(stderr, "write_block OK, sent %d bytes\n", bytes_sent);
 	return bytes_sent;
 }
 
@@ -275,7 +272,6 @@ int usb_set_client_read_size(long n)
 	buffer[2] = n >> 8;
 	buffer[3] = n;
 	int ret = usb_transmit_block(buffer, 4);
-	// fprintf(stderr, "usb_set_client_read_size(%ld) = %d\n", n, ret);
 	return ret;
 }
 
@@ -320,7 +316,7 @@ int usb_read_block(BYTE *block, long offset, int n)
 	memset(buffer, 0, sizeof(buffer));
 	int ret = usb_receive_block(buffer, sizeof(buffer));
 	// TODO: check that buffer[0] == n;
-	if (buffer[0] != n)
+	if (buffer[0] != n && buffer[0]-1 != n)
 		fprintf(stderr, "!! read_block(%ld, %d) read only %d bytes\n", offset, n, buffer[0]);
 #if DEBUG
 	else
@@ -344,7 +340,8 @@ int usb_write_block(const BYTE *block, long offset, int n)
 	memcpy(buffer+4, block + offset, n);
 	int ret = usb_transmit_block(buffer, 4+n);
 #if IODEBUG
-	fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
+	if (n != 60)
+		fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
 #endif
 	return ret;
 }
