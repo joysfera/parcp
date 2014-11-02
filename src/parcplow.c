@@ -34,20 +34,23 @@ long client_read_block(BYTE *block, long n)
 #endif
 
 	SET_INPUT;
+	STROBE_LOW;
 
 	while(TRUE) {
 		LDPRINT("l STROBE is LOW, waiting for LOW\n");
-		STROBE_LOW; WAIT_LOW;
+		WAIT_LOW;
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 1st byte = $%x, STROBE is HIGH, waiting for HIGH\n",x);
-		STROBE_HIGH; WAIT_HIGH;
+		STROBE_HIGH;
+		WAIT_HIGH;
 		if (i>=n)
 			break;
 
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 2nd byte = $%x\n",x);
+		STROBE_LOW;
 	}
 	return 0;
 }
@@ -90,19 +93,17 @@ long server_read_block(BYTE *block, long n)
 		block[i++]=x;
 		LDPRINT1("l 1st byte = $%x, STROBE is LOW\n",x);
 		STROBE_LOW;
+		LDPRINT("l Waiting for HIGH\n");
+		WAIT_HIGH;
 
 		if (i>=n)
 			break;
 
-		LDPRINT("l Waiting for HIGH\n");
-		WAIT_HIGH;
 		GET_BYTE(x);
 		block[i++]=x;
 		LDPRINT1("l 2nd byte = $%x, STROBE is HIGH\n",x);
 		STROBE_HIGH;
 	}
-	LDPRINT("l STROBE is LOW, waiting for HIGH\n");
-	WAIT_HIGH;
 	LDPRINT("l STROBE is HIGH\n");
 	STROBE_HIGH;
 	return 0;
