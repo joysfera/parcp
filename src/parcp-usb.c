@@ -175,6 +175,9 @@ void set_mode(unsigned char output)
 	int bytes_sent = -1;
 	int error_counter = 0;
 	unsigned char buf[2];
+#if IODEBUG
+	fprintf(stderr, "set_mode %s\n", output ? "OUT" : "IN");
+#endif
 	buf[0] = 0x05; // mode
 	buf[1] = output;
 	while(bytes_sent < 0) {
@@ -185,7 +188,6 @@ void set_mode(unsigned char output)
 				return;
 		}
 	}
-	// fprintf(stderr, "set_mode %s\n", output ? "OUT" : "IN");
 }
 
 void set_strobe(unsigned char strobe)
@@ -193,6 +195,9 @@ void set_strobe(unsigned char strobe)
 	int bytes_sent = -1;
 	int error_counter = 0;
 	unsigned char buf[2];
+#if IODEBUG
+	fprintf(stderr, "set_strobe %s\n", strobe ? "HIGH" : "LOW");
+#endif
 	buf[0] = 0x06; // strobe
 	buf[1] = strobe;
 	while(bytes_sent < 0) {
@@ -203,7 +208,6 @@ void set_strobe(unsigned char strobe)
 				return;
 		}
 	}
-	// fprintf(stderr, "set_strobe %s\n", strobe ? "HIGH" : "LOW");
 }
 
 int get_busy()
@@ -217,14 +221,18 @@ int get_busy()
 		if (bytes_received <= 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
+#if IODEBUG
 			else
 				fputc('\\', stderr);
+#endif
 			if (++error_counter >= 9)
 				return -1;
 		}
 	}
 	BOOLEAN busy = buf[0];
-	// fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+#if IODEBUG
+	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+#endif
 	return busy;
 }
 
@@ -255,8 +263,10 @@ int usb_transmit_block(const BYTE *data_out, int n)
 		if (bytes_sent < 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
+#if IODEBUG
 			else
 				fputc('|', stderr);
+#endif
 			if (++error_counter >= 9)
 				return -1;
 		}
@@ -338,6 +348,9 @@ int usb_write_block(const BYTE *block, long offset, int n)
 	buffer[2] = offset >> 8;
 	buffer[3] = offset;
 	memcpy(buffer+4, block + offset, n);
+#if IODEBUG
+	fprintf(stderr, "usb_write_block(%ld, %d)\n", offset, n);
+#endif
 	int ret = usb_transmit_block(buffer, 4+n);
 #if IODEBUG
 	if (n != 60)
