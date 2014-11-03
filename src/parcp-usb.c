@@ -353,7 +353,7 @@ int usb_write_block(const BYTE *block, long offset, int n)
 #endif
 	int ret = usb_transmit_block(buffer, 4+n);
 #if IODEBUG
-	if (n != 60)
+	if (n != USB_BLOCK_SIZE)
 		fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
 #endif
 	return ret;
