@@ -183,7 +183,12 @@ void set_mode(unsigned char output)
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(buf, 2);
 		if (bytes_sent < 0) {
-			fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
+			if (error_counter)
+				fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
+#if USBDEBUG
+			else
+				fputc('^', stderr);
+#endif
 			if (++error_counter >= 9)
 				return;
 		}
@@ -203,7 +208,37 @@ void set_strobe(unsigned char strobe)
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(buf, 2);
 		if (bytes_sent < 0) {
-			fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
+			if (error_counter)
+				fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
+#if USBDEBUG
+			else
+				fputc('/', stderr);
+#endif
+			if (++error_counter >= 9)
+				return;
+		}
+	}
+}
+
+void parcpusb_command(unsigned char command)
+{
+	int bytes_sent = -1;
+	int error_counter = 0;
+	unsigned char buf[2];
+#if IODEBUG
+	fprintf(stderr, "parcpusb_command %d\n", command);
+#endif
+	buf[0] = 0x07; // command
+	buf[1] = command;
+	while(bytes_sent < 0) {
+		bytes_sent = usb_send(buf, 2);
+		if (bytes_sent < 0) {
+			if (error_counter)
+				fprintf(stderr, "%d. error sending parcpusb_command: %d\n", error_counter, bytes_sent);
+#if USBDEBUG
+			else
+				fputc('~', stderr);
+#endif
 			if (++error_counter >= 9)
 				return;
 		}
@@ -221,7 +256,7 @@ int get_busy()
 		if (bytes_received <= 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
-#if IODEBUG
+#if USBDEBUG
 			else
 				fputc('\\', stderr);
 #endif
@@ -244,7 +279,7 @@ int usb_receive_block(BYTE *data_in, int n)
 	// int error_counter = 9;
 	while(bytes_received < 0) {
 		bytes_received = usb_receive(buf, sizeof(buf));
-		if (bytes_received != n) {
+		if (bytes_received < n) {
 			fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
 			// if (!error_counter--) <-- must not repeat usb_receive_block or the client-server sync breaks
 				return -1;
@@ -263,7 +298,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 		if (bytes_sent < 0) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
-#if IODEBUG
+#if USBDEBUG
 			else
 				fputc('|', stderr);
 #endif

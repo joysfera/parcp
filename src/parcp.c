@@ -2360,7 +2360,7 @@ int zpracovani_parametru(int argc, char *argv[])
 
 /* now parse the command line parameters (so they get higher priority over the config file) */
 
-#define ARG_OPTIONS		"sf:b:q"
+#define ARG_OPTIONS		"sf:b:dq"
 
 	while((i=getopt(argc, argv, ARG_OPTIONS)) != EOF) {
 		switch(tolower(i)) {
@@ -2380,6 +2380,16 @@ int zpracovani_parametru(int argc, char *argv[])
 			case 'q':
 				_quiet_mode = TRUE;
 				break;
+
+			case 'd':
+#ifdef IBM
+# ifdef USB
+				if (!usb_init()) exit(1);
+				parcpusb_command(105);
+				usb_exit();
+				exit(1);
+# endif
+#endif
 
 			case '?':
 				puts(USAGE); exit(1);
