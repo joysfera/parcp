@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 typedef unsigned char BYTE;
 
@@ -14,9 +15,9 @@ void parcpkey(BYTE *n, BYTE *crypta)
 	BYTE	buf[13];
 	BYTE	name[KEYSZ];
 	int	ic, k, temp;
-	unsigned random;
-	long seed;
-	register int i, n1;
+	uint16_t random;
+	int32_t seed;
+	int i, n1;
 
 	if (! crypta)
 		return;
