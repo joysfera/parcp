@@ -7,9 +7,6 @@ extern int time_out;
 
 long client_read_block(BYTE *block, long n)
 {
-	BYTE x;
-	long i = 0;
-
 #ifdef ATARI
 	if (_assembler)
 		return fast_client_read_block(block, n);
@@ -21,7 +18,8 @@ long client_read_block(BYTE *block, long n)
 	long offset = 0;
 	usb_set_client_read_size(n);
 	while(n > 0) {
-		unsigned lbl = min(USB_BLOCK_SIZE - (offset == 0 ? 1 : 0), n);
+		unsigned lbl = USB_BLOCK_SIZE - (offset == 0 ? 1 : 0);
+		if (lbl > n) lbl = n;
 		ret = usb_read_block(block, offset, lbl);
 		offset += lbl;
 		n -= lbl;
@@ -32,6 +30,10 @@ long client_read_block(BYTE *block, long n)
 		return laplink_client_read_block(block, n);
 #  endif
 #endif
+
+#ifndef USB
+	BYTE x;
+	long i = 0;
 
 	SET_INPUT;
 	STROBE_LOW;
@@ -53,13 +55,11 @@ long client_read_block(BYTE *block, long n)
 		STROBE_LOW;
 	}
 	return 0;
+#endif
 }
 
 long server_read_block(BYTE *block, long n)
 {
-	BYTE x;
-	long i = 0;
-
 #ifdef ATARI
 	if (_assembler)
 		return fast_server_read_block(block, n);
@@ -71,7 +71,8 @@ long server_read_block(BYTE *block, long n)
 	long offset = 0;
 	usb_set_server_read_size(n);
 	while(n > 0) {
-		unsigned lbl = min(USB_BLOCK_SIZE - (offset == 0 ? 1 : 0), n);
+		unsigned lbl = USB_BLOCK_SIZE - (offset == 0 ? 1 : 0);
+		if (lbl > n) lbl = n;
 		ret = usb_read_block(block, offset, lbl);
 		offset += lbl;
 		n -= lbl;
@@ -82,6 +83,10 @@ long server_read_block(BYTE *block, long n)
 		return laplink_server_read_block(block, n);
 #  endif
 #endif
+
+#ifndef USB
+	BYTE x;
+	long i = 0;
 
 	SET_INPUT;
 
@@ -107,13 +112,11 @@ long server_read_block(BYTE *block, long n)
 	LDPRINT("l STROBE is HIGH\n");
 	STROBE_HIGH;
 	return 0;
+#endif
 }
 
 long client_write_block(const BYTE *block, long n)
 {
-	BYTE x;
-	long i = 0;
-
 #ifdef ATARI
 	if (_assembler)
 		return fast_client_write_block(block, n);
@@ -123,12 +126,14 @@ long client_write_block(const BYTE *block, long n)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
-	unsigned lbl = min(USB_BLOCK_SIZE - 1, n);
+	unsigned lbl = USB_BLOCK_SIZE - 1;
+	if (lbl > n) lbl = n;
 	usb_set_client_write_size(n, block);
 	offset += lbl;
 	n -= lbl;
 	while(n > 0) {
-		lbl = min(USB_BLOCK_SIZE, n);
+		lbl = USB_BLOCK_SIZE;
+		if (lbl > n) lbl = n;
 		ret = usb_write_block(block, offset, lbl);
 		if (ret < 0) break;
 		offset += lbl;
@@ -148,6 +153,10 @@ long client_write_block(const BYTE *block, long n)
 		return -1;
 	}
 #endif
+
+#ifndef USB
+	BYTE x;
+	long i = 0;
 
 	SET_OUTPUT;
 
@@ -170,13 +179,11 @@ long client_write_block(const BYTE *block, long n)
 	WAIT_HIGH;
 	SET_INPUT;
 	return 0;
+#endif
 }
 
 long server_write_block(const BYTE *block, long n)
 {
-	BYTE x;
-	long i = 0;
-
 #ifdef ATARI
 	if (_assembler)
 		return fast_server_write_block(block, n);
@@ -186,12 +193,14 @@ long server_write_block(const BYTE *block, long n)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
-	unsigned lbl = min(USB_BLOCK_SIZE - 1, n);
+	unsigned lbl = USB_BLOCK_SIZE - 1;
+	if (lbl > n) lbl = n;
 	usb_set_server_write_size(n, block);
 	offset += lbl;
 	n -= lbl;
 	while(n > 0) {
-		lbl = min(USB_BLOCK_SIZE, n);
+		lbl = USB_BLOCK_SIZE;
+		if (lbl > n) lbl = n;
 		ret = usb_write_block(block, offset, lbl);
 		if (ret < 0) break;
 		offset += lbl;
@@ -215,6 +224,10 @@ long server_write_block(const BYTE *block, long n)
 	}
 #endif
 
+#ifndef USB
+	BYTE x;
+	long i = 0;
+
 	SET_OUTPUT;
 
 	while(TRUE) {
@@ -235,6 +248,7 @@ long server_write_block(const BYTE *block, long n)
 	LDPRINT("l Write_block: STROBE is HIGH\n");
 	SET_INPUT;
 	return 0;
+#endif
 }
 
 /* ---------------------------------------------------------------------- */

@@ -14,8 +14,8 @@
 #define  TITWIDTH		20	/* max. title length */
 
 struct _tmenu {
-	BYTE	title[TITWIDTH+1]; /* item label */
-	BYTE	stat_text[70];  /* item description */
+	char	title[TITWIDTH+1]; /* item label */
+	char	stat_text[70];  /* item description */
 	BYTE	flag;           /* mask */
 	int		command;        /* action */
 	int		parent;/* rodic */
@@ -25,7 +25,7 @@ struct _tmenu {
 
 typedef struct _tmenu TMENU;
 
-TMENU *new_item(BYTE *title, BYTE *stat_text, int  command, int parent);
+TMENU *new_item(const char *title, const char *stat_text, int command, int parent);
 TMENU *new_menu(TMENU **itemlist);
 void free_menu(TMENU *menu);
 void show_items(WINDOW *win, TMENU *smenu, int poloha);

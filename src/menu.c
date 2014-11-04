@@ -14,7 +14,7 @@ WINDOW *st_text;
 PANEL *pst_text;
 BOOLEAN end_menu;
 
-TMENU *new_item(BYTE * title, BYTE * stat_text, int command, int parent)
+TMENU *new_item(const char *title, const char *stat_text, int command, int parent)
 {
 	TMENU *pmenu;
 	pmenu = (TMENU *) malloc(sizeof(TMENU));
@@ -82,7 +82,7 @@ void free_menu(TMENU * menu)
 void show_items(WINDOW * win, TMENU * smenu, int poloha)
 {
 	TMENU *act;
-	BYTE tmpspc[TITWIDTH + 3];
+	char tmpspc[TITWIDTH + 3];
 	int i;
 
 	act = smenu;

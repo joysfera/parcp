@@ -22,7 +22,7 @@ void init_CRC32(void)
   }
 }
 
-unsigned long compute_CRC32(char *buf, int count)
+unsigned long compute_CRC32(const unsigned char *buf, int count)
 {
   int i;
   unsigned char inx32;

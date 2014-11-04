@@ -75,8 +75,8 @@ int getch(void);
 #define STROBE_HIGH	set_strobe(1)
 #define STROBE_LOW	set_strobe(0);
 #define IS_READY	get_busy()
-#define GET_BYTE(x)	{ x = read_byte(); }
-#define PUT_BYTE(x)	{ write_byte(x); }
+#define GET_BYTE(x)
+#define PUT_BYTE(x)
 #define SET_OUTPUT	set_mode(1);
 #define SET_INPUT	set_mode(0);
 

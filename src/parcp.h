@@ -159,6 +159,7 @@ BOOLEAN do_client(int, FILE *);
 void do_server(void);
 void inicializace(void);
 void client_server_handshaking(BOOLEAN client);
+void wait_before_read(void);
 
 BOOLEAN change_dir(const char *p, char *q);
 void list_dir(const char *p2, int maska, char *zacatek);

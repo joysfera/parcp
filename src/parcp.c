@@ -22,7 +22,8 @@ extern WINDOW *pwincent;
 
 BOOLEAN client = TRUE;	/* PARCP is Client by default */
 
-BYTE *block_buffer, *dir_buffer, *file_buffer, string_buffer[MAXSTRING+1];
+BYTE *block_buffer;
+char *dir_buffer, *file_buffer,  string_buffer[MAXSTRING+1];
 long buffer_len = KILO * BUFFER_LENKB;		/* the size of the transferred block */
 #ifdef __MSDOS__
 char original_path[MAXSTRING];
@@ -514,7 +515,7 @@ void close_copyinfo(int ret_flag)
 		char title_txt[MAXSTRING], buf_bytes[MAXSTRING];
 		show_size64(buf_bytes, copyinfo_pos);
 		sprintf(title_txt, "\n%s %s", copyinfo_sending?"Sent":"Received", buf_bytes);
-		printf(title_txt);
+		printf("%s", title_txt);
 	}
 	else
 		printf("\b\b\b\b");
@@ -691,7 +692,7 @@ void send_string(const char *a)
 	write_word(len);
 	ret_len = read_word();
 	if (ret_len == len)
-		write_block(a, len);
+		write_block((const BYTE *)a, len);
 	else {
 		char errstr[90];
 		sprintf(errstr, "Communication error in send_string(): write_word(%04x), read_word(%04x)\n", len, ret_len);
@@ -703,7 +704,7 @@ void receive_string(char *a)
 {
 	UWORD len = read_word();
 	write_word(len);			/* send it back for elementar safety */
-	read_block(a, len);
+	read_block((BYTE *)a, len);
 }
 
 void allocate_buffers(void)
@@ -848,7 +849,8 @@ BOOLEAN lfn_fs(const char *fname)
 
 char *get_cwd(char *path, int maxlen)
 {
-	getcwd(path, maxlen);
+	char *ret = getcwd(path, maxlen);
+	ret = ret; // UNUSED
 #ifdef ATARI
 	if (! strncmp(path,TOS_DEV,Ltos_dev)) {
 		DPRINT1("> Get_cwd() = '%s' but will be converted\n", path);
@@ -965,7 +967,8 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		}
 		closedir(dir_p);
 
-		getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
+		char *ret = getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
+		ret = ret; // UNUSED
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
 		DPRINT2("d %ld free clusters of %ld bytes each.\n", stfs.f_bfree, stfs.f_bsize);
@@ -1232,10 +1235,13 @@ void check_and_convert_filename(char *fname)
 	BOOLEAN bTOSDRIVE = (fname && *fname && (fname[1] == DVOJTEKA));
 
 	/* check current path and remember if the fs can handle LFN or not */
-	if (is_absolute_path(fname))
+	if (is_absolute_path(fname)) {
 		strcpy(path, fname);
-	else
-		getcwd(path, sizeof(path));
+	}
+	else {
+		char *ret = getcwd(path, sizeof(path));
+		ret = ret; // UNUSED
+	}
 
 	if (lfn_fs(path))		/* lfn is supported so we can go away */
 		return;
@@ -1590,7 +1596,8 @@ int process_files(int Process, const char *src_mask)
 
 		status = process_files_rec(new_srcmask);
 
-		chdir(pwd_backup);
+		int ret = chdir(pwd_backup);
+		ret = ret; // UNUSED
 	}
 	else {
 		DPRINT("s Error while changing directory\n");
@@ -1781,6 +1788,7 @@ int process_files_on_receiver_side()
 			remove_last_slash(fname);
 			DPRINT1("p vytvarim adresar '%s' ... ", fname);
 			status = mkdir(fname);
+			status = status; // to avoid warning if DPRINT is not active
 			DPRINT1("p status = %d\n", status);
 			continue;
 		}
@@ -1967,7 +1975,7 @@ int ReceiveDataAndSetLocalTime(void)
 
 int config_file(const char *soubor, BOOLEAN vytvorit)
 {
-	char crypta[MAXSTRING];
+	BYTE crypta[MAXSTRING];
 	int vysledek;
 
 	if (vytvorit) {
@@ -1980,8 +1988,8 @@ int config_file(const char *soubor, BOOLEAN vytvorit)
 #ifdef STANDALONE
 		registered = TRUE;
 #else
-		parcpkey(username, crypta);
-		registered = check(crypta, keycode);
+		parcpkey((const BYTE*)username, crypta);
+		registered = check(crypta, (const BYTE*)keycode);
 #endif
 
 		if (dirbuf_lines < 1)
@@ -2240,7 +2248,7 @@ void inicializace(void)
 #endif	/* PARCP_SERVER */
 
 	/* allocate RAM */
-	block_buffer = dir_buffer = file_buffer = NULL;	/* tyto bufry alokovat az po handshake() */
+	block_buffer = NULL; dir_buffer = file_buffer = NULL;	/* tyto bufry alokovat az po handshake() */
 
 	/* get system type (uname) */
 	{

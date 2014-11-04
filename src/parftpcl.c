@@ -18,7 +18,8 @@ int get_key()
 	newt = oldt;
 	newt.c_lflag &= ~(ICANON|ECHO);	/* don't echo, return immediately */
 	tcsetattr(0,TCSANOW, &newt);	/* setup the keyboard */
-	read(0,&key,1);					/* read key */
+	int ret = read(0,&key,1);		/* read key */
+	ret = ret; // UNUSED
 	tcsetattr(0,TCSANOW, &oldt);	/* restore the keyboard */
 
 #else			/* MiNT builds on BSD and uses sgtty */
@@ -29,7 +30,7 @@ int get_key()
 	newt = oldt;
 	newt.sg_flags &= ~(ICANON|ECHO|CBREAK);/* don't echo, return immediately, watch out for the ^C */
 	ioctl(0,TIOCSETP,&newt);		/* setup the keyboard */
-	read(0,&key,1);					/* read key */
+	int ret = read(0,&key,1);		/* read key */
 	ioctl(0,TIOCSETP,&oldt);		/* restore the keyboard */
 #endif
 
@@ -219,7 +220,7 @@ void view(const char *s, BOOLEAN is_dir)      /* view a multi-line string, pausi
 			pradek = orez_jmeno(s, maxdel);
 			strncpy(pradek+maxdel, s+MAXFNAME, DIRLINELEN-MAXFNAME);
 			pradek[maxdel + DIRLINELEN-MAXFNAME] = 0;
-			printf(pradek);
+			printf("%s", pradek);
 			s+=DIRLINELEN;
 		}
 		else {
@@ -309,7 +310,7 @@ void print_status(int co)
 			case 'D':	strcat(how, "date & time\n"); break;
 			default:	strcpy(how, "Dir listing is unsorted\n");
 		}
-		printf(how);
+		printf("%s", how);
 	}
 	puts("");
 }
@@ -347,7 +348,8 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 
 		if (! bInBatchMode)
 			printf(">>");
-		fgets(b, sizeof(b), input_commands);
+		char *ret = fgets(b, sizeof(b), input_commands);
+		ret = ret; // UNUSED
 
 		if (bInBatchMode && feof(input_commands)) {	/* end of AUTOEXEC script */
 			bInBatchMode = FALSE;
@@ -384,7 +386,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 		else if(!strcasecmp(p1, "PWD")) {	/* print server current dir */
 			write_word(M_PWD);
 			receive_string(string_buffer);
-			puts(string_buffer);
+			puts((char *)string_buffer);
 		}
 
 		else if(!strcasecmp(p1, "LPWD")) {	/* local current directory */
@@ -402,7 +404,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 			if (read_word() == M_OK)
 				printf("Directory on server is now ");
 			receive_string(string_buffer);
-			puts(string_buffer);
+			puts((char *)string_buffer);
 		}
 
 		else if(!strcasecmp(p1, "LCD")) {	/* local change dir */
@@ -412,7 +414,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 			}
 			if (change_dir(p2, string_buffer))
 				printf("Local directory is now ");
-			puts(string_buffer);
+			puts((char *)string_buffer);
 		}
 
 		else if (!strcasecmp(p1, "MD") || !strcasecmp(p1, "MKDIR")) {	/* make dir on server */
@@ -553,7 +555,8 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 			}
 
 			printf("New name: ");
-			fgets(c, (int)sizeof(c), input_commands);
+			char *ret = fgets(c, (int)sizeof(c), input_commands);
+			ret = ret; // UNUSED
 			p3 = strtok(c, "\n");
 			if (!p3 || !*p3) {
 				puts("ERROR: no new file name");

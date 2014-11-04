@@ -7,7 +7,7 @@ typedef unsigned char BYTE;
 
 #include "parcpkey.h"
 
-void parcpkey(BYTE *n, BYTE *crypta)
+void parcpkey(const BYTE *n, BYTE *crypta)
 {
 	BYTE	t1[ROTORSZ];
 	BYTE	t2[ROTORSZ];
@@ -21,8 +21,8 @@ void parcpkey(BYTE *n, BYTE *crypta)
 
 	if (! crypta)
 		return;
-	strncpy(name, n, sizeof(name));
-	strcpy(buf,"abcdefghijkl");
+	strncpy((char *)name, (const char *)n, sizeof(name));
+	strcpy((char *)buf,"abcdefghijkl");
 	buf[12] = 'm';
 	
 	seed = 123;
@@ -58,7 +58,7 @@ void parcpkey(BYTE *n, BYTE *crypta)
 	}
 }
 
-int check(BYTE *crypta, BYTE *key)
+int check(const BYTE *crypta, const BYTE *key)
 {
 	register int i, a;
 	
@@ -72,9 +72,9 @@ int check(BYTE *crypta, BYTE *key)
 
 #ifdef GENERATE
 
-void generate(BYTE *crypta, BYTE *key)
+void generate(const BYTE *crypta, BYTE *key)
 {
-	register i, a;
+	int i, a;
 	
 	for(i = 0; i < KEYSZ/2; i++) {
 		a = crypta[i];
@@ -83,21 +83,24 @@ void generate(BYTE *crypta, BYTE *key)
 	}
 }
 
-void main(void)
+int main(void)
 {
 	BYTE name[ROTORSZ];
 	BYTE key[KEYSZ+1];
 	BYTE crypta[KEYSZ];
 
 	fprintf(stderr, "Enter user name: ");
-	fgets(name, sizeof(name), stdin);
-	if (name[strlen(name)-1] == '\n')
-		name[strlen(name)-1] = 0;
+	char *ret = fgets((char *)name, sizeof(name), stdin);
+	ret = ret; // UNUSED
+	int len = strlen((char *)name);
+	if (name[len-1] == '\n')
+		name[len-1] = 0;
 	parcpkey(name, crypta);
 	generate(crypta, key);
 	key[KEYSZ] = '\0';
 	printf("\nUserName = %s\nKeyCode = %s\n", name, key);
 	fprintf(stderr,"Key: %s %s\n", key, check(crypta, key) ? "OK" : "wrong!");
+	return 0;
 }
 
 #endif

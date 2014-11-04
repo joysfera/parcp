@@ -21,9 +21,9 @@ long	aktradek,	/* number of the actual line */
 	pocetstran,	/* number of pages of the whole document */
 	pgbuf;		/* offset of the text in the buffer */
 
-BYTE	Sestava[512],	/* buffer for one line */
-	String[256],	/* space for last searched string */
-	view_fname[260];
+char	Sestava[512],	/* buffer for one line */
+	String[256];	/* space for last searched string */
+char	view_fname[260];
 
 int	StartCh,	/* horizontal offset */
 	HWscroll,	/* insert&delete features capability */
@@ -190,8 +190,7 @@ long radek;
 	update_panels();
 }
 
-void tisk_inverz(text)
-BYTE *text;
+void tisk_inverz(const char *text)
 {
 	wattron(headline,A_REVERSE);
 	mvwaddstr(headline,0,0,text);
@@ -219,8 +218,7 @@ int Nacti_cislo()
 	return cislo;
 }
 
-void ReadString(StringName)
-BYTE	*StringName;
+void ReadString(char *StringName)
 {
 	curs_set(cursor_visibility);
 	getstr(StringName);
@@ -232,7 +230,7 @@ long FindDString()
 	long pos, kon, radek;
 	int j, Find, delka;
 
-	delka = strlen(String);
+	delka = strlen((char *)String);
 	for(radek = aktradek+1, kon = findnextnl(ActPos); radek < pocetradku; radek++) {
 		pos = kon;
 		kon = findnextnl(pos);

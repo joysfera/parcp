@@ -202,7 +202,7 @@ void InfoBox(const char *text, int timeout, BOOLEAN button)
 {
 	WINDOW *pwinalert;
 	PANEL *ppanalert;
-	int ww, wh, radku, butposx, butposy, key, i;
+	int ww, wh, radku, butposx, butposy, i;
 	char *kopie_text = strdup(text), *txtptr;
 
 	ww = strlen(text)+4;	/* if the desc. text is short the box will be smaller */
@@ -236,7 +236,8 @@ void InfoBox(const char *text, int timeout, BOOLEAN button)
 		mvwaddstr(pwinalert,butposy,butposx,"[ OK ]");
 		update_panels();
 		doupdate();
-		key = wgetch(pwinalert);
+		int ret = wgetch(pwinalert);
+		ret = ret; // UNUSED
 	}
 
 	del_panel(ppanalert);

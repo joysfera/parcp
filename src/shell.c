@@ -652,8 +652,10 @@ int execute_command(char *cmd, char *cmdline)
 
 		gotodir = *cmd_dir ? TRUE : FALSE;
 
-		if (gotodir)
-			getcwd(bak_pwd, MAXPATH);
+		if (gotodir) {
+			char *ret = getcwd(bak_pwd, MAXPATH);
+			ret = ret; // UNUSED
+		}
 
 		DPRINT2("c cmd_dir = '%s' bak_pwd = '%s'\n", cmd_dir, bak_pwd);
 		/* build complete command line */
@@ -685,11 +687,15 @@ int execute_command(char *cmd, char *cmdline)
 		curs_set(original_cursor);
 #endif
 		if (strcmp(cmd, CLI)) {
-			if (gotodir)
-				chdir(cmd_dir);
+			if (gotodir) {
+				int ret = chdir(cmd_dir);
+				ret = ret; // UNUSED
+			}
 			ret_code = system(prikaz);
-			if (gotodir)
-				chdir(bak_pwd);
+			if (gotodir) {
+				int ret = chdir(bak_pwd);
+				ret = ret; // UNUSED
+			}
 		}
 		else {
 			setvbuf(stdout,NULL,_IONBF,0);	/* disable screen output buffering */
@@ -1061,9 +1067,9 @@ BOOLEAN interakce_menu()
 			if (! EditBox("Registration dialog","Enter your personal keycode",keycode,MAXSTRING))
 				break;
 			if (*keycode) {
-				char crypta[MAXSTRING];
-				parcpkey(username, crypta);
-				registered = check(crypta, keycode);
+				BYTE crypta[MAXSTRING];
+				parcpkey((const BYTE *)username, crypta);
+				registered = check(crypta, (const BYTE *)keycode);
 				if (registered) {
 					MessageBox("Congratulations to successful registration!", MB_OK);
 					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
@@ -1536,9 +1542,10 @@ void do_shell(void)
 
 					if (okno->remote) {
 						/* copy to TMP and then delete it */
-						if (path_to_temp && *path_to_temp) {
+						if (*path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							chdir(path_to_temp);
+							int ret = chdir(path_to_temp);
+							ret = ret; // UNUSED
 
 							DPRINT("v going to copy file under cursor\n");
 
@@ -1550,10 +1557,12 @@ void do_shell(void)
 						else
 							MessageBox("Path to TMP is not set!", MB_OK);
 					}
-					else
-						chdir(okno->adresar);
+					else {
+						int ret = chdir(okno->adresar);
+						ret = ret; // UNUSED
+					}
 
-					if (path_to_viewer && *path_to_viewer)
+					if (*path_to_viewer)
 						execute_command(path_to_viewer, fname);
 					else
 						viewer(fname);	/* internal viewer */
@@ -1561,7 +1570,8 @@ void do_shell(void)
 					if (kopie)
 						remove(fname);
 
-					chdir(cesta);
+					int ret = chdir(cesta);
+					ret = ret; // UNUSED
 				}
 				break;
 
@@ -1575,9 +1585,10 @@ void do_shell(void)
 
 					if (okno->remote) {
 						/* copy to TMP and move it back after editing */
-						if (path_to_temp && *path_to_temp) {
+						if (*path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							chdir(path_to_temp);
+							int ret = chdir(path_to_temp);
+							ret = ret; // UNUSED
 
 							DPRINT("v going to copy file under cursor\n");
 
@@ -1590,10 +1601,12 @@ void do_shell(void)
 						else
 							MessageBox("Path to TMP is not set!", MB_OK);
 					}
-					else
-						chdir(okno->adresar);
+					else {
+						int ret = chdir(okno->adresar);
+						ret = ret; // UNUSED;
+					}
 
-					if (path_to_editor && *path_to_editor)
+					if (*path_to_editor)
 						execute_command(path_to_editor, fname);
 					else
 						MessageBox("External editor is not set!", MB_OK);
@@ -1604,7 +1617,8 @@ void do_shell(void)
 						shell_close_progress_window();
 					}
 
-					chdir(cesta);
+					int ret = chdir(cesta);
+					ret = ret; // UNUSED
 
 					obnov_soucasne(okno);
 				}

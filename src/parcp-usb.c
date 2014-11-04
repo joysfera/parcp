@@ -112,7 +112,7 @@ int hid_get_feature_report(void *dev, BYTE *buffer, int wLength)
 }
 #else
 #include "/home/joy/Qt/HIDAPI/hidapi.h"
-struct hid_device *devh = NULL;
+hid_device *devh = NULL;
 #endif
 
 int usb_init(void)

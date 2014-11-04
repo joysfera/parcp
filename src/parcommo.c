@@ -45,7 +45,8 @@ BOOLEAN hledej_config(char *argv[], char *cesta)
 	}
 
 	if (! konfigOK) {
-		getcwd(cesta, MAXPATH);							/* in current folder */
+		char *ret = getcwd(cesta, MAXPATH);		/* in current folder */
+		ret = ret; // UNUSED
 		p = cesta + strlen(cesta)-1;
 		if (*p != SLASH && *p != BACKSLASH)
 			strcat(cesta, SLASH_STR);

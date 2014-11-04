@@ -5,7 +5,7 @@
 #define MASK 0377
 #define	KEYSZ	16
 
-void parcpkey(BYTE *n, BYTE *crypta);
-int check(BYTE *crypta, BYTE *key);
+void parcpkey(const BYTE *n, BYTE *crypta);
+int check(const BYTE *crypta, const BYTE *key);
 
 #endif
