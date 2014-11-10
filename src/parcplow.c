@@ -146,6 +146,10 @@ long client_write_block(const BYTE *block, long n)
 #  endif
 #endif
 
+#ifndef USB
+	BYTE x;
+	long i = 0;
+
 #ifdef IODEBUG
 	GET_BYTE(x);
 	if (x != 0xff) {
@@ -153,10 +157,6 @@ long client_write_block(const BYTE *block, long n)
 		return -1;
 	}
 #endif
-
-#ifndef USB
-	BYTE x;
-	long i = 0;
 
 	SET_OUTPUT;
 
@@ -216,6 +216,10 @@ long server_write_block(const BYTE *block, long n)
 	LDPRINT("l Waiting for LOW\n");
 	WAIT_LOW;
 
+#ifndef USB
+	BYTE x;
+	long i = 0;
+
 #ifdef IODEBUG
 	GET_BYTE(x);
 	if (x != 0xff) {
@@ -223,10 +227,6 @@ long server_write_block(const BYTE *block, long n)
 		return -1;
 	}
 #endif
-
-#ifndef USB
-	BYTE x;
-	long i = 0;
 
 	SET_OUTPUT;
 
