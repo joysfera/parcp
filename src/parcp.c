@@ -357,7 +357,7 @@ void debug_print(const char *format, ... )
 		}
 
 		if (debuglevel&2 && strchr(nodisp_str, c) == NULL)
-			printf(buffer);
+			printf("%s", buffer);
 	}
 	va_end(args);
 }
@@ -2015,7 +2015,8 @@ int config_file(const char *soubor, BOOLEAN vytvorit)
 		if (!strchr(logfile, SLASH) && !strchr(logfile, BACKSLASH)) {
 			char cesta[MAXPATH];
 
-			getcwd(cesta, sizeof(cesta));
+			char *ret = getcwd(cesta, sizeof(cesta));
+			ret = ret; // UNUSED
 			add_last_slash(cesta);
 			strcat(cesta, logfile);
 			strcpy(logfile, cesta);
@@ -2428,7 +2429,7 @@ int zpracovani_parametru(int argc, char *argv[])
 		DPRINT1("! Creating configuration file: %s\n", cesta);
 		if (config_file(cesta, TRUE) < 0)
 			printf("ERROR: PARCP.CFG creation failed.\n");
-#else
+#elif !defined(USB)
 		/* on the other machines (where parallel port type/number is important) we must quit now */
 #ifndef STANDALONE
 		printf("PARCP configuration file (%s) not found.\nPlease start PARCPCFG in order to create it\n", cesta);
