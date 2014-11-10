@@ -247,7 +247,7 @@ void parcpusb_command(unsigned char command)
 
 int get_busy()
 {
-	unsigned char buf[USB_BLOCK_SIZE+4];
+	unsigned char buf[64+1];
 	buf[0] = 0x01;
 	int error_counter = 0;
 	int bytes_received = -1;
@@ -276,12 +276,19 @@ int usb_receive_block(BYTE *data_in, int n)
 	unsigned char buf[USB_BLOCK_SIZE+4+1];
 	memset(buf, 0, sizeof(buf));
 	int bytes_received = -1;
-	// int error_counter = 9;
-	while(bytes_received < 0) {
+	int error_counter = 0;
+	while(bytes_received <= 0) {
 		bytes_received = usb_receive(buf, sizeof(buf));
 		if (bytes_received < n) {
-			fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
+			if (error_counter)
+				fprintf(stderr, "Fatal error receiving block(%d) = %d\n", n, bytes_received);
+#if USBDEBUG
+			else
+				fputc('&', stderr);
+#endif
 			// if (!error_counter--) <-- must not repeat usb_receive_block or the client-server sync breaks
+			// return -1;
+			if (++error_counter >= 9)
 				return -1;
 		}
 	}
@@ -295,7 +302,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 	int error_counter = 0;
 	while(bytes_sent < 0) {
 		bytes_sent = usb_send(data_out, n);
-		if (bytes_sent < 0) {
+		if (bytes_sent < n) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending block(%d) = %d\n", error_counter, n, bytes_sent);
 #if USBDEBUG
