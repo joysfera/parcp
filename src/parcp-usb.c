@@ -138,7 +138,8 @@ void parcpusb_command(unsigned char command)
 int get_busy()
 {
 	unsigned char buf[64+1];
-	buf[0] = 0x01;
+#if 0
+	buf[0] = 0x01;	// this ReportID does NOT go through in MS Windows - FUCKED WINDOWS!
 	int error_counter = 0;
 	int bytes_received = -1;
 	while(bytes_received < 0) {
@@ -154,6 +155,10 @@ int get_busy()
 				return -1;
 		}
 	}
+#else	// requires new firmware and two roundtrips just to get the BUSY status
+	parcpusb_command(0);
+	usb_receive(buf, 1);
+#endif
 	MYBOOL busy = buf[0];
 #if IODEBUG
 	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
