@@ -5,146 +5,36 @@
 #include "element.h"
 #include "parcp-usb.h"
 
-#define LIBUSB	0
-
-// Change these as needed to match idVendor and idProduct in your device's device descriptor.
-#ifdef VUSB
-static const int VENDOR_ID = 0x16c0;
-static const int PRODUCT_ID = 0x05df;
-#else
 static const int VENDOR_ID = 0x03eb;
 static const int PRODUCT_ID = 0x204f;
-#endif
 
-#if LIBUSB
-#include <libusb-1.0/libusb.h>
-struct libusb_device_handle *devh = NULL;
-static const int CONTROL_REQUEST_TYPE_IN = LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
-static const int CONTROL_REQUEST_TYPE_OUT = LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE;
-// From the HID spec:
-static const int HID_GET_REPORT = 0x01;
-static const int HID_SET_REPORT = 0x09;
-static const int HID_REPORT_TYPE_INPUT = 0x01;
-static const int HID_REPORT_TYPE_OUTPUT = 0x02;
-static const int HID_REPORT_TYPE_FEATURE = 0x03;
-static const int INTERFACE_NUMBER = 0;
-static const int TIMEOUT_MS = 5000;
-
-int Lusb_init()
-{
-	int device_ready = 0;
-	int result;
-
-	result = libusb_init(NULL);
-	if (result >= 0)
-	{
-		devh = libusb_open_device_with_vid_pid(NULL, VENDOR_ID, PRODUCT_ID);
-
-		if (devh != NULL)
-		{
-			// The HID has been detected.
-			// Detach the hidusb driver from the HID to enable using libusb.
-			libusb_detach_kernel_driver(devh, INTERFACE_NUMBER);
-			{
-				result = libusb_claim_interface(devh, INTERFACE_NUMBER);
-				if (result >= 0)
-				{
-					device_ready = 1;
-				}
-				else
-				{
-					fprintf(stderr, "libusb_claim_interface error %d\n", result);
-				}
-			}
-		}
-		else
-		{
-			fprintf(stderr, "Unable to find the device.\n");
-		}
-	}
-	else
-	{
-		fprintf(stderr, "Unable to initialize libusb.\n");
-	}
-
-	return device_ready;
-}
-
-void Lusb_exit()
-{
-	// Finished using the device.
-	if (devh != NULL) {
-		libusb_release_interface(devh, 0);
-		libusb_close(devh);
-	}
-	libusb_exit(NULL);
-}
-
-int hid_send_feature_report(void *dev, const BYTE *buffer, int wLength)
-{
-	unsigned char reportNumber = buffer[0];
-	int bytes_sent = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_OUT,	// bRequestType
-			HID_SET_REPORT,
-			(HID_REPORT_TYPE_OUTPUT<<8)|reportNumber, // wValue
-			INTERFACE_NUMBER,		// wIndex
-			buffer,				// pointer to buffer
-			wLength,			// wLength
-			TIMEOUT_MS);
-
-	return bytes_sent;
-}
-
-int hid_get_feature_report(void *dev, BYTE *buffer, int wLength)
-{
-	unsigned char reportNumber = buffer[0];
-	int bytes_received = libusb_control_transfer(
-			devh,
-			CONTROL_REQUEST_TYPE_IN,
-			HID_GET_REPORT,
-			(HID_REPORT_TYPE_INPUT<<8)|reportNumber,
-			INTERFACE_NUMBER,
-			buffer,
-			wLength,
-			TIMEOUT_MS);
-	return bytes_received;
-}
-#else
-#include "/home/joy/Qt/HIDAPI/hidapi.h"
+#include <HIDAPI/hidapi.h>
 hid_device *devh = NULL;
-#endif
 
 int usb_init(void)
 {
-#if LIBUSB
-	return Lusb_init();
-#else
 	if (hid_init()) {
 		fprintf(stderr, "HID init failed\n");
 		return FALSE;
 	}
 
-        devh = hid_open(VENDOR_ID, PRODUCT_ID, NULL);
+	wchar_t *serial_number = NULL; // TODO read from PARCP.CFG
+
+	devh = hid_open(VENDOR_ID, PRODUCT_ID, serial_number);
 	if (!devh) {
 		fprintf(stderr, "HID open failed\n");
 		return FALSE;
 	}
 
 	return TRUE;
-#endif
 }
 
 void usb_exit()
 {
-#if LIBUSB
-	Lusb_exit();
-#else
 	if (devh != NULL) {
 		hid_close(devh);
 	}
 	hid_exit();
-#endif
 }
 
 int usb_send(const BYTE *block, int len)

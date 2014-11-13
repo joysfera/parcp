@@ -5,15 +5,15 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-HAVE_USB = -DUSB -I/home/joy/Qt
+HAVE_USB = -DUSB -I/Qt
 
-LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+LIB_USB = -L/Qt/HIDAPI/windows -lHIDAPI -lsetupapi
 
 STATIC =
 #STATIC = -static
 #LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
 
-FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
+FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -I..\pdcurses -Wall -fomit-frame-pointer -fno-strength-reduce
 
 PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
@@ -26,13 +26,13 @@ SHELL_FLAGS = -DSHELL $(FLAGS)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parshell : $(SHELL_OBJS)
-	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses $(LIB_USB) $(LDSTATIC)
-	strip parcp
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -L..\pdcurses -lpdcurses $(LIB_USB)  $(LDSTATIC)
+#	strip parcp.exe
 
 parcp : $(OBJS)
 	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB)
-	strip $@
-
+#	strip parcp.exe
+	
 pt : parcp-usb.o
 	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
 
@@ -72,14 +72,14 @@ parcpkey : parcpkey.c parcpkey.h
 all : parshell parserve par_in
 
 tgz:	parshell par_in parserve
-	rm -f parcp.tgz
+	del parcp.tgz
 	tar czvf parcp.tgz parcp par_in parserve
 
 clean :
-	rm -f *.o
+	del *.o
 
 realclean :	clean
-	rm -f parcp parserve par_in parcpkey
+	del parcp parserve par_in parcpkey
 
 ###############################
 
