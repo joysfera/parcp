@@ -79,7 +79,7 @@ int FormatTextToBox(char *text, int max_width)
    the button label. If there's the "Cancel" button it can be selected by
    pressing the ESC key.
 */
-int MessageBox(const char *text, int type)
+int myMessageBox(const char *text, int type)
 {
 	WINDOW *pwinalert;
 	PANEL *ppanalert;
@@ -89,36 +89,36 @@ int MessageBox(const char *text, int type)
 	char *kopie_text = strdup(text), *txtptr;
 
 	switch(type & 0x0f) {
-		case MB_OK:
+		case myMB_OK:
 			numbut = 1;
-			button[0] = "[ OK ]"; hotkey[0] = 'O'; ret[0] = IDOK;
+			button[0] = "[ OK ]"; hotkey[0] = 'O'; ret[0] = myIDOK;
 			break;
-		case MB_OKCANCEL:
+		case myMB_OKCANCEL:
 			numbut = 2;
-			button[0] = "[ OK ]"; hotkey[0] = 'O'; ret[0] = IDOK;
-			button[1] = "[ Cancel ]"; hotkey[1] = 'C'; ret[1] = IDCANCEL;
+			button[0] = "[ OK ]"; hotkey[0] = 'O'; ret[0] = myIDOK;
+			button[1] = "[ Cancel ]"; hotkey[1] = 'C'; ret[1] = myIDCANCEL;
 			break;
-		case MB_YESNO:
+		case myMB_YESNO:
 			numbut = 2;
-			button[0] = "[ Yes ]"; hotkey[0] = 'Y'; ret[0] = IDYES;
-			button[1] = "[ No ]"; hotkey[1] = 'N'; ret[1] = IDNO;
+			button[0] = "[ Yes ]"; hotkey[0] = 'Y'; ret[0] = myIDYES;
+			button[1] = "[ No ]"; hotkey[1] = 'N'; ret[1] = myIDNO;
 			break;
-		case MB_YESNOCANCEL:
+		case myMB_YESNOCANCEL:
 			numbut = 3;
-			button[0] = "[ Yes ]"; hotkey[0] = 'Y'; ret[0] = IDYES;
-			button[1] = "[ No ]"; hotkey[1] = 'N'; ret[1] = IDNO;
-			button[2] = "[ Cancel ]"; hotkey[2] = 'C'; ret[2] = IDCANCEL;
+			button[0] = "[ Yes ]"; hotkey[0] = 'Y'; ret[0] = myIDYES;
+			button[1] = "[ No ]"; hotkey[1] = 'N'; ret[1] = myIDNO;
+			button[2] = "[ Cancel ]"; hotkey[2] = 'C'; ret[2] = myIDCANCEL;
 			break;
-		case MB_RETRYCANCEL:
+		case myMB_RETRYCANCEL:
 			numbut = 2;
-			button[0] = "[ Retry ]"; hotkey[0] = 'R'; ret[0] = IDRETRY;
-			button[1] = "[ Cancel ]"; hotkey[1] = 'C'; ret[1] = IDCANCEL;
+			button[0] = "[ Retry ]"; hotkey[0] = 'R'; ret[0] = myIDRETRY;
+			button[1] = "[ Cancel ]"; hotkey[1] = 'C'; ret[1] = myIDCANCEL;
 			break;
-		case MB_ABORTRETRYIGNORE:
+		case myMB_ABORTRETRYIGNORE:
 			numbut = 3;
-			button[0] = "[ Abort ]"; hotkey[0] = 'A'; ret[0] = IDABORT;
-			button[1] = "[ Retry ]"; hotkey[1]= 'R'; ret[1] = IDRETRY;
-			button[2] = "[ Ignore ]"; hotkey[2] = 'I'; ret[2] = IDIGNORE;
+			button[0] = "[ Abort ]"; hotkey[0] = 'A'; ret[0] = myIDABORT;
+			button[1] = "[ Retry ]"; hotkey[1]= 'R'; ret[1] = myIDRETRY;
+			button[2] = "[ Ignore ]"; hotkey[2] = 'I'; ret[2] = myIDIGNORE;
 			break;
 		default:
 			return 0;
@@ -354,7 +354,7 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 		switch(key = wgetch(w)) {
 			case KEY_HELP:
 			case KEY_F(1):
-				MessageBox("Help for ParShell EditBox:\n\nNavigation - arrow keys Right and Left, Home and End\nBackspace and Delete keys erase characters\nCtrl-X or Ctrl-Y keypress erases whole line\nFunction keys F9, F10, Undo or Escape close the EditBox\nReturn or Enter keys end the editting box and send the entered string to ParShell", MB_OK);
+				myMessageBox("Help for ParShell EditBox:\n\nNavigation - arrow keys Right and Left, Home and End\nBackspace and Delete keys erase characters\nCtrl-X or Ctrl-Y keypress erases whole line\nFunction keys F9, F10, Undo or Escape close the EditBox\nReturn or Enter keys end the editting box and send the entered string to ParShell", myMB_OK);
 				break;
 			case KEY_F(9):
 			case KEY_F(10):

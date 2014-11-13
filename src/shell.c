@@ -300,7 +300,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 		if (! chdir_flag) {
 			char errmsg[MAXSTRING];
 			sprintf(errmsg, "Can't go to '%s' directory.", adresar);
-			MessageBox(errmsg, MB_OK);
+			myMessageBox(errmsg, myMB_OK);
 
 			/* go back to original dir so shell can display a valid directory list */
 			if (okno->remote) {
@@ -561,10 +561,10 @@ int shell_q_overwrite(const char *name)
 	char tmptxt[MAXSTRING];
 
 	sprintf(tmptxt,"File '%s' already exists. Do you want to overwrite it?", name);
-	switch(MessageBox(tmptxt, MB_YESNOCANCEL)) {
-		case IDYES:	ret = 2; break;
-		case IDNO:	ret = 1; break;
-		case IDCANCEL: ret = 0; break;
+	switch(myMessageBox(tmptxt, myMB_YESNOCANCEL)) {
+		case myIDYES:	ret = 2; break;
+		case myIDNO:	ret = 1; break;
+		case myIDCANCEL: ret = 0; break;
 	}
 	return ret;
 }
@@ -573,11 +573,11 @@ int shell_q_bugreport(const char *text)
 {
 	int reakce; 
 
-	switch(MessageBox(text, MB_ABORTRETRYIGNORE)) {
-		case IDABORT:
+	switch(myMessageBox(text, myMB_ABORTRETRYIGNORE)) {
+		case myIDABORT:
 			reakce = 0;
 			break;
-		case IDRETRY:
+		case myIDRETRY:
 			reakce = 2;
 			break;
 		default:
@@ -712,7 +712,7 @@ int execute_command(char *cmd, char *cmdline)
 		update_panels();
 	}
 	else {
-		MessageBox("Command is not defined.", MB_OK);
+		myMessageBox("Command is not defined.", myMB_OK);
 		ret_code = -1;
 	}
 
@@ -802,7 +802,7 @@ void process_entries(OKNO *okno, int (*funkce)(OKNO *okno, int i))
 		}
 /*
 		else
-			MessageBox("The '..' stands for parent dir. You can't copy nor delete it.", MB_OK);
+			myMessageBox("The '..' stands for parent dir. You can't copy nor delete it.", myMB_OK);
 */
 	}
 
@@ -1016,7 +1016,7 @@ MYBOOL interakce_menu()
 		case CM_SAVE:
 			for(;;) {
 				if ((config_file(cfg_fname, TRUE) < 0) || (shell_config_file(cfg_fname, TRUE) < 0))
-					if (MessageBox("Error saving configuration. Isn't the PARCP.CFG write-protected?", MB_ABORTRETRYIGNORE) == IDRETRY)
+					if (myMessageBox("Error saving configuration. Isn't the PARCP.CFG write-protected?", myMB_ABORTRETRYIGNORE) == myIDRETRY)
 						continue;
 				break;
 			}
@@ -1071,20 +1071,20 @@ MYBOOL interakce_menu()
 				parcpkey((const BYTE *)username, crypta);
 				registered = check(crypta, (const BYTE *)keycode);
 				if (registered) {
-					MessageBox("Congratulations to successful registration!", MB_OK);
+					myMessageBox("Congratulations to successful registration!", myMB_OK);
 					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
-					MessageBox("PARCP configuration with your name and keycode has been saved.", MB_OK);
+					myMessageBox("PARCP configuration with your name and keycode has been saved.", myMB_OK);
 					if (dirbuf_lines < DIRBUF_LIN) {
 						/* first of all, increase the number of lines in the dir buffer */
 						dirbuf_lines = DIRBUF_LIN;
 						send_parameters();			/* tell server about the dirbuf_lines change */
 						REALOKUJ_BUF_OKEN;
 						obnovit_okna = TRUE;
-						MessageBox("Number of directory lines has just been increased automatically. Feel free to edit other parameters but don't forget to save the configuration before you exit PARCP.", MB_OK);
+						myMessageBox("Number of directory lines has just been increased automatically. Feel free to edit other parameters but don't forget to save the configuration before you exit PARCP.", myMB_OK);
 					}
 				}
 				else
-					MessageBox("Registration was not successful.", MB_OK);
+					myMessageBox("Registration was not successful.", myMB_OK);
 			}
 			break;
 			
@@ -1186,7 +1186,7 @@ void do_shell(void)
 		/* section or config file not found -> create it! */
 		for(;;) {
 			if (shell_config_file(cfg_fname, TRUE) < 0)
-				if (MessageBox("Automatic creation of PARCP.CFG failed.", MB_ABORTRETRYIGNORE) == IDRETRY)
+				if (myMessageBox("Automatic creation of PARCP.CFG failed.", myMB_ABORTRETRYIGNORE) == myIDRETRY)
 					continue;
 			break;
 		}
@@ -1511,7 +1511,7 @@ void do_shell(void)
 #else
 #define TRANSFER_BREAK_KEY	"Shift+Ctrl"
 #endif
-				MessageBox("PARCP's home at http://joy.sophics.cz/\n\n"\
+				myMessageBox("PARCP's home at http://joy.sophics.cz/\n\n"\
 		"Help for ParShell user interface:\n\n"\
 		"Arrow keys (up,down,left,right) move cursor\n"\
 		"Tab key switches between Client and Server window\n"\
@@ -1524,7 +1524,7 @@ void do_shell(void)
 		TRANSFER_STOP_KEY" stop file copying/moving/deleting\n"
 		TRANSFER_BREAK_KEY" break file transfer immediately\n"
 		"Function keys are listed at bottom of screen\n"\
-		"F20 (Shift+F10) does QUIT for both Client and Server", MB_OK);
+		"F20 (Shift+F10) does QUIT for both Client and Server", myMB_OK);
 				break;
 
 			case KEY_F(2):
@@ -1555,7 +1555,7 @@ void do_shell(void)
 							kopie = TRUE;
 						}
 						else
-							MessageBox("Path to TMP is not set!", MB_OK);
+							myMessageBox("Path to TMP is not set!", myMB_OK);
 					}
 					else {
 						int ret = chdir(okno->adresar);
@@ -1599,7 +1599,7 @@ void do_shell(void)
 							kopie = TRUE;
 						}
 						else
-							MessageBox("Path to TMP is not set!", MB_OK);
+							myMessageBox("Path to TMP is not set!", myMB_OK);
 					}
 					else {
 						int ret = chdir(okno->adresar);
@@ -1609,7 +1609,7 @@ void do_shell(void)
 					if (*path_to_editor)
 						execute_command(path_to_editor, fname);
 					else
-						MessageBox("External editor is not set!", MB_OK);
+						myMessageBox("External editor is not set!", myMB_OK);
 
 					if (kopie) {
 						shell_open_progress_window("Writting", TRUE);
@@ -1636,7 +1636,7 @@ void do_shell(void)
 					sprintf(tmpstr, "Copy file(s)?");
 
 				if (_confirm_copy) {
-					if (MessageBox(tmpstr, MB_YESNO | MB_DEFBUTTON1) == IDNO)
+					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
 						break;
 				}
 				process_entries(okno, kopirovat);
@@ -1655,7 +1655,7 @@ void do_shell(void)
 					sprintf(tmpstr, "Move file(s)?");
 
 				if (_confirm_move) {
-					if (MessageBox(tmpstr, MB_YESNO | MB_DEFBUTTON1) == IDNO)
+					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
 						break;
 				}
 				process_entries(okno, presouvat);
@@ -1701,7 +1701,7 @@ void do_shell(void)
 					sprintf(tmpstr, "Delete file(s)?");
 
 				if (_confirm_delete) {
-					if (MessageBox(tmpstr, MB_YESNO | MB_DEFBUTTON2) == IDNO)
+					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON2) == myIDNO)
 						break;
 				}
 				process_entries(okno, mazat);
@@ -1710,9 +1710,9 @@ void do_shell(void)
 
 			case KEY_F(9):
 				if (interakce_menu()) {
-					int retval = MessageBox("Quit also the PARCP Server?", MB_YESNOCANCEL);
-					if (retval != IDCANCEL) {
-						write_word(retval == IDYES ? M_QUIT : M_LQUIT);
+					int retval = myMessageBox("Quit also the PARCP Server?", myMB_YESNOCANCEL);
+					if (retval != myIDCANCEL) {
+						write_word(retval == myIDYES ? M_QUIT : M_LQUIT);
 						ukoncit_vse = TRUE;
 					}
 				}
