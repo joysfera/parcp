@@ -32,7 +32,7 @@ parshell : $(SHELL_OBJS)
 parcp : $(OBJS)
 	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB)
 #	strip parcp.exe
-	
+
 pt : parcp-usb.o
 	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
 
