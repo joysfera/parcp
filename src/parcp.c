@@ -639,7 +639,6 @@ int receive_file(FILE *handle, long lfile)
 				break;	/* CRC is OK */
 
 			DPRINT("l CRC fail, repeating block transfer\n");
-			fprintf(stderr, "_ CRC fail, repeating block transfer\n");
 			write_word(M_REPEAT);			/* repeat the block transfer */
 		} while(repeat_transfer--);
 
@@ -841,6 +840,8 @@ MYBOOL lfn_fs(const char *fname)
 	return (pathconf(fname, _PC_NAME_MAX) > (8+3+1)) ? TRUE : FALSE;
 #elif defined(__MSDOS__)
 	return (_get_volume_info(fname, NULL, NULL, NULL) & _FILESYS_LFN_SUPPORTED) ? TRUE : FALSE;
+#elif defined(_WIN32)
+	return TRUE; // TODO: GetVolumeInformation
 #else
 	abort; /* return TRUE; */	/* currently unused */
 #endif
@@ -886,6 +887,102 @@ MYBOOL change_dir(const char *p, char *q)
 }
 
 /*******************************************************************************/
+#if _WIN32
+static int statfs (const char *path, struct statfs *buf)
+{
+	HINSTANCE h;
+	FARPROC f;
+	int retval = 0;
+	char tmp [MAX_PATH], resolved_path [MAX_PATH];
+	realpath(path, resolved_path);
+
+	/* check whether GetDiskFreeSpaceExA is supported */
+	h = LoadLibraryA ("kernel32.dll");
+	f = h ? GetProcAddress (h, "GetDiskFreeSpaceExA") : NULL;
+	if (f) {
+		ULARGE_INTEGER bytes_free, bytes_total, bytes_free2;
+            if (!f (resolved_path, &bytes_free2, &bytes_total, &bytes_free)) {
+                errno = ENOENT;
+                retval = - 1;
+              }
+            else {
+                buf -> f_bsize = FAKED_BLOCK_SIZE;
+                buf -> f_bfree = (bytes_free.QuadPart) / FAKED_BLOCK_SIZE;
+                buf -> f_files = buf -> f_blocks = (bytes_total.QuadPart) / FAKED_BLOCK_SIZE;
+                buf -> f_ffree = buf -> f_bavail = (bytes_free2.QuadPart) / FAKED_BLOCK_SIZE;
+              }
+          }
+	else {
+            DWORD sectors_per_cluster, bytes_per_sector;
+            if (h) FreeLibrary (h);
+            if (!GetDiskFreeSpaceA (resolved_path, &sectors_per_cluster, &bytes_per_sector, &buf -> f_bavail, &buf -> f_blocks)) {
+                errno = ENOENT;
+                retval = -1;
+              }
+            else {
+                buf -> f_bsize = sectors_per_cluster * bytes_per_sector;
+                buf -> f_files = buf -> f_blocks;
+                buf -> f_ffree = buf -> f_bavail;
+                buf -> f_bfree = buf -> f_bavail;
+              }
+          }
+	if (h) FreeLibrary (h);
+
+	/* get the FS volume information */
+	if (strspn (":", resolved_path) > 0) resolved_path [3] = '\0'; /* we want only the root */
+	if (GetVolumeInformation (resolved_path, NULL, 0, &buf -> f_fsid, &buf -> f_namelen, NULL, tmp, MAX_PATH)) {
+		buf -> f_type = (strcasecmp ("NTFS", tmp) == 0) ? NTFS_SUPER_MAGIC : MSDOS_SUPER_MAGIC;
+	}
+	else {
+		errno = ENOENT;
+		retval = - 1;
+	}
+	return retval;
+}
+
+int uname(struct utsname *uts)
+{
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+	char *arch = "unknown";
+	switch(sysInfo.wProcessorArchitecture) {
+		case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
+		case PROCESSOR_ARCHITECTURE_AMD64: arch = "x86_64"; break;
+		case PROCESSOR_ARCHITECTURE_IA64: arch = "ia64"; break;
+		case PROCESSOR_ARCHITECTURE_ARM: arch = "arm"; break;
+	}
+	strcpy(uts->machine, arch);
+
+	OSVERSIONINFO osvi;
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	char *win_ver = "Windows";
+	switch(osvi.dwMajorVersion*10 + osvi.dwMinorVersion) {
+		case 52: win_ver = "Windows XP"; break;
+		case 60: win_ver = "Windows Vista"; break;
+		case 61: win_ver = "Windows 7"; break;
+		case 62: win_ver = "Windows 8+"; break;
+	}
+	strcat(uts->sysname, win_ver);
+	return 0;
+}
+
+int settimeofday(const struct timeval * tp, const struct timezone * tzp)
+{
+	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+	static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+	uint64_t    time = EPOCH + tp->tv_sec * 10000000L + tp->tv_usec;
+	FILETIME    file_time;
+	SYSTEMTIME  system_time;
+
+	file_time.dwLowDateTime = time;
+	file_time.dwHighDateTime = time >> 32;
+	FileTimeToSystemTime(&file_time, &system_time);
+
+	SetSystemTime( &system_time );
+	return 0;
+}
+#endif
 
 void list_dir(const char *p2, int maska, char *zacatek)
 {
@@ -991,15 +1088,17 @@ int list_drives(char *p)
 	struct tm *cas;
 	int drives = 0, max_drives = 32 < dirbuf_lines ? 32 : dirbuf_lines;
 
-#ifdef ATARI /* read from drvmap TOS defined variable */
-	long drvmap, ssp;
-
-	ssp = Super(0L);
-	drvmap = *((long *)0x4c2);  /* get which drives are attached */
+#if defined(ATARI) || defined(_WIN32)
+	long drvmap = 0;
+# ifdef ATARI
+	long ssp = Super(0L);
+	drvmap = *((long *)0x4c2);  /* get which drives are attached from drvmap TOS defined variable */
 	if ((*(short *)0x4a6) != 2)
 		drvmap &= ~2;             /* drive B: isn't really there */
 	Super(ssp);
-
+# else
+	drvmap = GetLogicalDrives();
+# endif
 	for (i = 0; i < max_drives; i++) {
 		if (drvmap & (1L << i)) {
 			DIR *dir;

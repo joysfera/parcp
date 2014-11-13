@@ -46,7 +46,9 @@ MYBOOL _is_ready(void)
 /******************************************************************************/
 
 #ifdef IBM
-#include <mntent.h>
+#  ifndef _WIN32
+#    include <mntent.h>
+#  endif
 
 // general things
 #ifdef __MSDOS__

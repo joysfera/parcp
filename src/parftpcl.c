@@ -1,8 +1,12 @@
 /* Routines for PARCP FTP-like command line client */
 
-#ifdef __MSDOS__	/* Unix doesn't know getch() while DJGPP does */
-
-#define get_key()	getch()
+#if defined(_WIN32) || defined(__MSDOS__)	/* Unix doesn't know getch() while DJGPP does */
+#  if defined(_WIN32) && !defined(SHELL)
+#    include <conio.h>
+#    define get_key()	_getch()
+#  else
+#    define get_key()	getch()
+#  endif
 
 #else
 
@@ -36,7 +40,7 @@ int get_key()
 
 	return key;
 }
-#endif /* !__MSDOS__ */
+#endif /* _WIN32 || __MSDOS__ */
 /*******************************************************************************/
 
 int q_overwrite(const char *name)

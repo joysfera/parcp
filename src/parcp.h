@@ -22,11 +22,13 @@
 #include <errno.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <sys/vfs.h>
-#include <sys/utsname.h>
+#ifndef _WIN32
+# include <sys/vfs.h>
+# include <sys/utsname.h>
+# include <termios.h>
+#endif
 #include <sys/time.h>
 #include <time.h>			/* added for GCC 2.95.2 */
-#include <termios.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -38,6 +40,48 @@
 #include "parcpkey.h"
 #include "parcperr.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN  /* exclude winsock.h because of clash with select() */
+#include <windows.h>         /* needed for WinAPI stuff */
+#undef WIN32_LEAN_AND_MEAN
+
+#define _fullpath(res,path,size) \
+  (GetFullPathName ((path), (size), (res), NULL) ? (res) : NULL)
+
+#define realpath(path,resolved_path) _fullpath(resolved_path, path, MAX_PATH)
+
+/*********************** statfs *****************************/
+/* fake block size */
+#define FAKED_BLOCK_SIZE 512
+
+/* linux-compatible values for fs type */
+#define MSDOS_SUPER_MAGIC     0x4d44
+#define NTFS_SUPER_MAGIC      0x5346544E
+
+struct statfs {
+	long    f_type;     /* type of filesystem (see below) */
+	long    f_bsize;    /* optimal transfer block size */
+	unsigned long    f_blocks;   /* total data blocks in file system */
+	long    f_bfree;    /* free blocks in fs */
+	unsigned long    f_bavail;   /* free blocks avail to non-superuser */
+	long    f_files;    /* total file nodes in file system */
+	long    f_ffree;    /* free file nodes in fs */
+	unsigned long    f_fsid;     /* file system id */
+	unsigned long    f_namelen;  /* maximum length of filenames */
+	long    f_spare[6]; /* spare for later */
+};
+
+struct utsname {
+	char sysname[65];
+	char machine[65];
+};
+
+typedef struct timeval {
+	long tv_sec;
+	long tv_usec;
+} timeval;
+#endif
+
 #define ULONG64 unsigned long long
 
 #define CFGFILE		"parcp.cfg"
@@ -47,7 +91,9 @@
 #define TIMER		(time(NULL))
 #define TIME_OUT	10			/* main TIMEOUT is set to 10 seconds */
 #define WAIT4CLIENT	100000UL			/* 100 ms for giving back the spare CPU cycles */
-#define mkdir(a)	mkdir(a,0777)		/* directory with proper access rights */
+#ifndef _WIN32
+# define mkdir(a)	mkdir(a,0777)		/* directory with proper access rights */
+#endif
 
 #define MAXSTRING	260
 #define MAXPATH		260
