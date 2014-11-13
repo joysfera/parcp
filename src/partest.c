@@ -15,12 +15,12 @@
 #ifdef SHELL
 #include <curses.h>
 #include <panel.h>
-extern BOOLEAN curses_initialized;
+extern MYBOOL curses_initialized;
 extern int progress_width;
 extern WINDOW *pwincent;
 #endif
 
-BOOLEAN client = TRUE;	/* PARCP is Client by default */
+MYBOOL client = TRUE;	/* PARCP is Client by default */
 
 BYTE *block_buffer, *dir_buffer, *file_buffer, string_buffer[MAXSTRING+1];
 long buffer_len = KILO * BUFFER_LENKB;		/* velikost prenaseneho bloku */
@@ -28,8 +28,8 @@ long buffer_len = KILO * BUFFER_LENKB;		/* velikost prenaseneho bloku */
 char original_path[MAXSTRING];
 #endif
 
-BOOLEAN INT_flag = FALSE;				/* registruje stisk CTRL-C */
-BOOLEAN _quiet_mode = FALSE;			/* kdyz je TRUE tak se vubec nic nevypisuje (krome ERRORu) */
+MYBOOL INT_flag = FALSE;				/* registruje stisk CTRL-C */
+MYBOOL _quiet_mode = FALSE;			/* kdyz je TRUE tak se vubec nic nevypisuje (krome ERRORu) */
 
 unsigned long g_files = 0, g_bytes = 0, g_folders = 0;
 unsigned long g_files_pos, g_bytes_pos, g_time_pos;
@@ -39,7 +39,7 @@ short page_width  = 80;
 
 int g_last_status = 0;		/* CLI will record errors into this var */
 
-BOOLEAN bInBatchMode = FALSE;
+MYBOOL bInBatchMode = FALSE;
 
 /******************************************************************************/
 void wait_for_client(void)	/* ceka a nezdrzuje zbytek pocitace */
@@ -182,9 +182,9 @@ void catch_ctrl_c(int x)
 
 /* return TRUE if user holds EmergencyQuit keys */
 /* EmergencyQuit keys are either Alt+Shift+Control or Control-C */
-BOOLEAN stop_waiting(void)
+MYBOOL stop_waiting(void)
 {
-	BOOLEAN was_break = INT_flag;
+	MYBOOL was_break = INT_flag;
 
 #ifdef KEYPRESSED
 	if (KEYPRESSED >= 13)		/* Alt+Shift+Control */
@@ -198,9 +198,9 @@ BOOLEAN stop_waiting(void)
 
 /* return TRUE if user holds Stop-File-Transfer keys on Client */
 /* Stop-File-Transfer keys are either Shif+Control or Control-C */
-BOOLEAN break_file_transfer(void)
+MYBOOL break_file_transfer(void)
 {
-	BOOLEAN was_break = INT_flag;
+	MYBOOL was_break = INT_flag;
 
 #ifdef KEYPRESSED
 	if (KEYPRESSED == 6 || KEYPRESSED == 7)	/* Shift+Control */
@@ -213,7 +213,7 @@ BOOLEAN break_file_transfer(void)
 }
 
 /* return TRUE if user pressed Esc key on Client */
-BOOLEAN zastavit_prenos_souboru(void)
+MYBOOL zastavit_prenos_souboru(void)
 {
 	if (client) {
 		int keys = 0;
@@ -285,7 +285,7 @@ char *get_cwd(char *path, int maxlen)
 }
 /*******************************************************************************/
 
-int config_file(const char *soubor, BOOLEAN vytvorit)
+int config_file(const char *soubor, MYBOOL vytvorit)
 {
 	int vysledek;
 
@@ -386,7 +386,7 @@ void inicializace(void)
 
 /*******************************************************************************/
 
-void client_server_handshaking(BOOLEAN client)
+void client_server_handshaking(MYBOOL client)
 {
 	SET_INPUT;
 	STROBE_HIGH;
@@ -425,7 +425,7 @@ int zpracovani_parametru(int argc, char *argv[])
 	int i;
 	extern int optind;
 	extern char *optarg;
-	BOOLEAN konfigOK = FALSE;
+	MYBOOL konfigOK = FALSE;
 
 	batch_file[0] = 0;
 
@@ -499,10 +499,10 @@ int zpracovani_parametru(int argc, char *argv[])
 	return optind;		/* vracim cislo prvniho NEparametru (tj. jmena souboru) */
 }
 
-BOOLEAN test(UWORD x)
+MYBOOL test(UWORD x)
 {
 	UWORD y;
-	BOOLEAN result;
+	MYBOOL result;
 
 	printf("Sending %04x\t", x);
 	write_word(x);

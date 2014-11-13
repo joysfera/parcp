@@ -16,10 +16,10 @@
 */
 
 #include <ctype.h>		/* specialne pro toupper() */
-#include "element.h"		/* specialne pro BOOLEAN */
+#include "element.h"		/* specialne pro MYBOOL */
 /*
-#ifndef BOOLEAN
-# define BOOLEAN int
+#ifndef MYBOOL
+# define MYBOOL int
 # define TRUE 1
 # define FALSE 0
 #endif
@@ -79,9 +79,9 @@
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN match(char *pattern, char *text, BOOLEAN case_sensitive);
+MYBOOL match(char *pattern, char *text, MYBOOL case_sensitive);
 
-int     matche(register char *pattern, register char *text, BOOLEAN case_sensitive);
+int     matche(register char *pattern, register char *text, MYBOOL case_sensitive);
 
 /*----------------------------------------------------------------------------
 *
@@ -89,7 +89,7 @@ int     matche(register char *pattern, register char *text, BOOLEAN case_sensiti
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN is_pattern (char *pattern);
+MYBOOL is_pattern (char *pattern);
 
 /*----------------------------------------------------------------------------
 *
@@ -108,4 +108,4 @@ BOOLEAN is_pattern (char *pattern);
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN is_valid_pattern (char *pattern, int *error_type);
+MYBOOL is_valid_pattern (char *pattern, int *error_type);

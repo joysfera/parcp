@@ -24,7 +24,7 @@
 #define STROBE_HIGH	Ongibit(0x20)
 #define STROBE_LOW	Offgibit(0xcf)
 
-BOOLEAN _is_ready(void)
+MYBOOL _is_ready(void)
 {
 	BYTE	*GPIP=(BYTE *)0xfffffa01L;
 	return (*GPIP & 1);
@@ -85,7 +85,7 @@ int getch(void);
 #define CFG_PORT	"Port"
 #define CFG_UNIBI	"UNI-BI"
 
-BOOLEAN PCunidirect = FALSE;
+MYBOOL PCunidirect = FALSE;
 int print_port = 0x378;
 int port_type = 1;	/* 0 = SPP, 1 = bidir/EPP, 2 = ECP2EPP */
 int cable_type = 1;	/* 0 = LapLink, 1 = bidirectional */

@@ -1,6 +1,6 @@
 /* common functions for PARCP, PARINOUT and PARTEST */
 
-BOOLEAN file_exists(char *fname)
+MYBOOL file_exists(char *fname)
 {
 	FILE *f = fopen(fname, "r");
 	if (f != NULL) {
@@ -11,10 +11,10 @@ BOOLEAN file_exists(char *fname)
 		return FALSE;
 }
 
-BOOLEAN hledej_config(char *argv[], char *cesta)
+MYBOOL hledej_config(char *argv[], char *cesta)
 {
 	char *p;
-	BOOLEAN konfigOK = FALSE;
+	MYBOOL konfigOK = FALSE;
 
 	if ((p = getenv(PARCPDIR)) != NULL) {
 		strcpy(cesta, p);						/* by environment variable */

@@ -22,8 +22,8 @@
 #define MB_DEFBUTTON3		0x20
 
 int MessageBox(const char *text, int type);
-void InfoBox(const char *text, int timeout, BOOLEAN button);
-BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxlen);
+void InfoBox(const char *text, int timeout, MYBOOL button);
+MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen);
 int EditNumber(const char *title, const char *text, TAG_TYPE tag, void *storage);
 
 #endif

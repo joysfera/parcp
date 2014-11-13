@@ -12,7 +12,7 @@
 
 WINDOW *st_text;
 PANEL *pst_text;
-BOOLEAN end_menu;
+MYBOOL end_menu;
 
 TMENU *new_item(const char *title, const char *stat_text, int command, int parent)
 {
@@ -94,7 +94,7 @@ void show_items(WINDOW * win, TMENU * smenu, int poloha)
 			wattroff(win, A_REVERSE);
 
 		if (!(act->flag & MENU_DISABLED)) {
-			BOOLEAN odymil = FALSE;
+			MYBOOL odymil = FALSE;
 
 			memset(tmpspc, ' ', WINWIDTH);
 			if (!(act->flag & MENU_PASSED)) {
@@ -247,7 +247,7 @@ void click_radio(TMENU * first, int cm)
 	}
 }
 
-BOOLEAN is_checked(TMENU * first, int cm)
+MYBOOL is_checked(TMENU * first, int cm)
 {
 	TMENU *act;
 	int vysledek = -1;

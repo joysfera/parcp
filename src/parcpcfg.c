@@ -13,7 +13,7 @@ int getche(void);
 
 void zpracovani_parametru(int argc, char *argv[], char *cesta)
 {
-	BOOLEAN konfigOK = FALSE;
+	MYBOOL konfigOK = FALSE;
 
 /* nejdrive podle priorit najdu konfiguracni soubor */
 	konfigOK = hledej_config(argv, cesta);
@@ -39,9 +39,9 @@ void EXIT(char *a)
 	exit(1);
 }
 
-BOOLEAN is_bidir(int Port)
+MYBOOL is_bidir(int Port)
 {
-	BOOLEAN Ret = FALSE;
+	MYBOOL Ret = FALSE;
 	BYTE j;
 
 	for(j=127;j;j>>=1) {
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 {
 	int LPTport;
 	int Ctrl,Orig;
-	BOOLEAN Ret;
+	MYBOOL Ret;
 	char cfg_file[MAXPATH];
 	int ports[3];
 

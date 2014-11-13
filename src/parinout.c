@@ -24,7 +24,7 @@ void zpracovani_parametru(int argc, char *argv[])
 {
 	char cesta[MAXPATH];
 	extern char *optarg;
-	BOOLEAN konfigOK = FALSE;
+	MYBOOL konfigOK = FALSE;
 
 /* find the config file */
 	konfigOK = hledej_config(argv, cesta);

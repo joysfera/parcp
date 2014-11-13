@@ -198,7 +198,7 @@ int MessageBox(const char *text, int type)
 /*
 	Shows a message box and waits defined number of seconds ('timeout')
 */
-void InfoBox(const char *text, int timeout, BOOLEAN button)
+void InfoBox(const char *text, int timeout, MYBOOL button)
 {
 	WINDOW *pwinalert;
 	PANEL *ppanalert;
@@ -273,7 +273,7 @@ void display_N_spaces(WINDOW *w, int row, int col, int N)
 }
 #define RELCURPOS	(cursor_pos - pozice_zacatku)
 #define REDRAWROW	display_row(0)	/* redraw whole row */
-BOOLEAN EditBox(const char *title, const char *text, char *return_str, int maxlen)
+MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen)
 {
     WINDOW	*w;
 	PANEL	*p;

@@ -182,7 +182,7 @@ char *orez_jmeno(const char *jmeno, int delka_jmena)
 	return radek;
 }
 
-void view(const char *s, BOOLEAN is_dir)      /* view a multi-line string, pausing on screenful */
+void view(const char *s, MYBOOL is_dir)      /* view a multi-line string, pausing on screenful */
 {
 	int odchod, radek;
 	int maxdel = 0;
@@ -315,7 +315,7 @@ void print_status(int co)
 	puts("");
 }
 
-BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
+MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 {
 #define IS_ON(a)	(!strcasecmp(a, "ON") || !strcasecmp(a, "YES"))
 
@@ -437,7 +437,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 
 		else if (!strcasecmp(p1, "DIR") || !strcasecmp(p1, "LS") 	/* dir listing on server */
 			|| !strcasecmp(p1, "LDIR") || !strcasecmp(p1, "LLS")) {/* display local dir */
-			BOOLEAN local = (toupper(*p1) == 'L');
+			MYBOOL local = (toupper(*p1) == 'L');
 			UWORD maska = 0;
 
 			if (p2 == NULL)
@@ -485,7 +485,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 
 		else if (!strcasecmp(p1, "PUT") || !strcasecmp(p1, "PUTDEL")    /* PUT(DEL) file to server */
 			||	!strcasecmp(p1, "GET") || !strcasecmp(p1, "GETDEL")) {	/* GET(DEL) file from server */
-			BOOLEAN sending = strncasecmp(p1, "PUT", 3) == 0 ? TRUE : FALSE;
+			MYBOOL sending = strncasecmp(p1, "PUT", 3) == 0 ? TRUE : FALSE;
 
 			if (p2 == NULL)	{				/* local file name */
 				puts("ERROR: no file name");
@@ -514,7 +514,7 @@ BOOLEAN do_client(int coming_from_shell, FILE *input_commands)
 
 		else if (!strcasecmp(p1, "DEL") || !strcasecmp(p1, "LDEL")
 			|| !strcasecmp(p1, "RM") || !strcasecmp(p1, "LRM")) {
-			BOOLEAN local = (toupper(*p1) == 'L');
+			MYBOOL local = (toupper(*p1) == 'L');
 
 			if (p2 == NULL)	{				/* local file name */
 				puts("ERROR: no file name");

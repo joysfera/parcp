@@ -23,7 +23,7 @@
 
 #include "match.h"
 
-int matche_after_star (register char *pattern, register char *text, BOOLEAN case_sensitive);
+int matche_after_star (register char *pattern, register char *text, MYBOOL case_sensitive);
 
 /*----------------------------------------------------------------------------
 *
@@ -31,7 +31,7 @@ int matche_after_star (register char *pattern, register char *text, BOOLEAN case
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN is_pattern (char *p)
+MYBOOL is_pattern (char *p)
 {
       while (*p)
       {
@@ -65,7 +65,7 @@ BOOLEAN is_pattern (char *p)
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN is_valid_pattern (char *p, int *error_type)
+MYBOOL is_valid_pattern (char *p, int *error_type)
 {
       /* init error_type */
       *error_type = PATTERN_VALID;
@@ -202,13 +202,13 @@ BOOLEAN is_valid_pattern (char *p, int *error_type)
 *
 ----------------------------------------------------------------------------*/
 
-int matche (register char *p, register char *t, BOOLEAN case_sensitive)
+int matche (register char *p, register char *t, MYBOOL case_sensitive)
 {
       register char range_start, range_end;  /* start and end in range */
 
-      BOOLEAN invert;             /* is this [..] or [!..] */
-      BOOLEAN member_match;       /* have I matched the [..] construct? */
-      BOOLEAN loop;               /* should I terminate? */
+      MYBOOL invert;             /* is this [..] or [!..] */
+      MYBOOL member_match;       /* have I matched the [..] construct? */
+      MYBOOL loop;               /* should I terminate? */
 
       for ( ; *p; p++, t++)
       {
@@ -405,7 +405,7 @@ int matche (register char *p, register char *t, BOOLEAN case_sensitive)
 *
 ----------------------------------------------------------------------------*/
 
-int matche_after_star (register char *p, register char *t, BOOLEAN case_sensitive)
+int matche_after_star (register char *p, register char *t, MYBOOL case_sensitive)
 {
       register int match = 0;
       register int nextp;
@@ -476,11 +476,11 @@ int matche_after_star (register char *p, register char *t, BOOLEAN case_sensitiv
 
 /*----------------------------------------------------------------------------
 *
-* match() is a shell to matche() to return only BOOLEAN values.
+* match() is a shell to matche() to return only MYBOOL values.
 *
 ----------------------------------------------------------------------------*/
 
-BOOLEAN match( char *p, char *t, BOOLEAN case_sensitive )
+MYBOOL match( char *p, char *t, MYBOOL case_sensitive )
 {
       int error_type;
 

@@ -15,12 +15,12 @@
 #ifdef SHELL
 #include <curses.h>
 #include <panel.h>
-extern BOOLEAN curses_initialized;
+extern MYBOOL curses_initialized;
 extern int progress_width;
 extern WINDOW *pwincent;
 #endif
 
-BOOLEAN client = TRUE;	/* PARCP is Client by default */
+MYBOOL client = TRUE;	/* PARCP is Client by default */
 
 BYTE *block_buffer;
 char *dir_buffer, *file_buffer,  string_buffer[MAXSTRING+1];
@@ -29,8 +29,8 @@ long buffer_len = KILO * BUFFER_LENKB;		/* the size of the transferred block */
 char original_path[MAXSTRING];
 #endif
 
-BOOLEAN INT_flag = FALSE;				/* registers the press of CTRL-C */
-BOOLEAN _quiet_mode = FALSE;			/* if set to TRUE PARCP doesn't display anything but ERRORs */
+MYBOOL INT_flag = FALSE;				/* registers the press of CTRL-C */
+MYBOOL _quiet_mode = FALSE;			/* if set to TRUE PARCP doesn't display anything but ERRORs */
 
 unsigned long g_files = 0, g_folders = 0, g_start_time = 0;
 unsigned long g_files_pos, g_time_pos;
@@ -44,7 +44,7 @@ short page_width  = 80;
 
 int g_last_status = 0;		/* CLI will record errors into this var */
 
-BOOLEAN bInBatchMode = FALSE;
+MYBOOL bInBatchMode = FALSE;
 
 /******************************************************************************/
 
@@ -228,9 +228,9 @@ void catch_ctrl_c(int x)
 
 /* return TRUE if user holds EmergencyQuit keys */
 /* EmergencyQuit keys are either Alt+Shift+Control or Control-C */
-BOOLEAN stop_waiting(void)
+MYBOOL stop_waiting(void)
 {
-	BOOLEAN was_break = INT_flag;
+	MYBOOL was_break = INT_flag;
 
 #ifdef KEYPRESSED
 	if (KEYPRESSED >= 13)		/* Alt+Shift+Control */
@@ -245,10 +245,10 @@ BOOLEAN stop_waiting(void)
 #ifndef PARCP_SERVER
 /* return TRUE if user holds Stop-File-Transfer keys on Client */
 /* Stop-File-Transfer keys are either Shif+Control or Control-C */
-BOOLEAN break_file_transfer(void)
+MYBOOL break_file_transfer(void)
 {
 #ifndef PARCP_SERVER
-	BOOLEAN was_break = INT_flag;
+	MYBOOL was_break = INT_flag;
 
 #ifdef KEYPRESSED
 	if (KEYPRESSED == 6 || KEYPRESSED == 7)	/* Shift+Control */
@@ -264,7 +264,7 @@ BOOLEAN break_file_transfer(void)
 }
 
 /* return TRUE if user pressed Esc key on Client */
-BOOLEAN zastavit_prenos_souboru(void)
+MYBOOL zastavit_prenos_souboru(void)
 {
 	if (client) {
 		int keys = 0;
@@ -364,12 +364,12 @@ void debug_print(const char *format, ... )
 #endif /* DEBUG */
 
 /*******************************************************************************/
-static BOOLEAN copyinfo_sending;
+static MYBOOL copyinfo_sending;
 static long copyinfo_size_in_blocks;
 static long copyinfo_pos;
 static clock_t copyinfo_time;
 
-void open_copyinfo(BOOLEAN sending, const char *name, long size)
+void open_copyinfo(MYBOOL sending, const char *name, long size)
 {
 	char title_txt[10];
 	strcpy(title_txt, sending?"Sending":"Receiving");
@@ -824,7 +824,7 @@ void receive_parameters(void)
 }
 
 /*******************************************************************************/
-BOOLEAN fs_sensitive(const char *fname)
+MYBOOL fs_sensitive(const char *fname)
 {
 #if defined(ATARI)
 	return (pathconf(fname, _PC_NAME_CASE) == 0) ? TRUE : FALSE;
@@ -835,7 +835,7 @@ BOOLEAN fs_sensitive(const char *fname)
 #endif
 }
 
-BOOLEAN lfn_fs(const char *fname)
+MYBOOL lfn_fs(const char *fname)
 {
 #if defined(ATARI) || defined(__LINUX__)
 	return (pathconf(fname, _PC_NAME_MAX) > (8+3+1)) ? TRUE : FALSE;
@@ -866,7 +866,7 @@ char *get_cwd(char *path, int maxlen)
 	return path;
 }
 
-BOOLEAN change_dir(const char *p, char *q)
+MYBOOL change_dir(const char *p, char *q)
 {
 	if (p && *p) {
 		int status;
@@ -898,7 +898,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 	time_t dneska = time(NULL);
 	struct tm *cas;
 	char dname[MAXPATH],tempo[MAXPATH],fname[MAXFNAME+1],pname[MAXFNAME+1],*p;
-	BOOLEAN compare_sensitive = _case_sensitive & fs_sensitive(p2);
+	MYBOOL compare_sensitive = _case_sensitive & fs_sensitive(p2);
 
 	DPRINT1("d Entering list_dir(%s)\n", p2);
 
@@ -911,8 +911,8 @@ void list_dir(const char *p2, int maska, char *zacatek)
 
 	if ( (dir_p = opendir(dname)) != NULL) {
 		while( (dir_ent = readdir(dir_p)) != NULL) {
-			BOOLEAN matched;
-			BOOLEAN is_dir;
+			MYBOOL matched;
+			MYBOOL is_dir;
 
 			strncpy(fname, dir_ent->d_name, MAXFNAME);
 			fname[MAXFNAME-1] = 0;
@@ -1182,7 +1182,7 @@ void prepare_fname_for_opendir(const char *pathname, char *path, char *name)
 		strcpy(name, "*");		/* in such case all files apply */
 }
 
-BOOLEAN is_absolute_path(const char *path)
+MYBOOL is_absolute_path(const char *path)
 {
 	int len;
 
@@ -1200,7 +1200,7 @@ BOOLEAN is_absolute_path(const char *path)
 	return FALSE;
 }
 
-BOOLEAN has_last_slash(const char *path)
+MYBOOL has_last_slash(const char *path)
 {
 	char c;
 
@@ -1231,8 +1231,8 @@ void check_and_convert_filename(char *fname)
 {
 	char path[MAXPATH];
 	char *copy, *ptr;
-	BOOLEAN last_slash;
-	BOOLEAN bTOSDRIVE = (fname && *fname && (fname[1] == DVOJTEKA));
+	MYBOOL last_slash;
+	MYBOOL bTOSDRIVE = (fname && *fname && (fname[1] == DVOJTEKA));
 
 	/* check current path and remember if the fs can handle LFN or not */
 	if (is_absolute_path(fname)) {
@@ -1453,7 +1453,7 @@ int receive_1_file(void)
 
 	if (stat(name, &stb) == 0) {
 		/* file with same name exists already */
-		BOOLEAN novejsi = (stb.st_mtime > timestamp );
+		MYBOOL novejsi = (stb.st_mtime > timestamp );
 		int action;
 		char over;
 
@@ -1560,7 +1560,7 @@ int receive_1_file(void)
 #define PROCESS_DELETE	0x0004
 #define PROCESS_MOVE	(PROCESS_COPY | PROCESS_DELETE)
 
-BOOLEAN PF_compare_sensitive;
+MYBOOL PF_compare_sensitive;
 int PF_Process;
 
 /* forward reference */
@@ -1844,7 +1844,7 @@ int process_files_on_receiver_side()
 
 /*******************************************************************************/
 
-int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
+int get_files_info(MYBOOL local, const char *src_mask, MYBOOL arch_mode)
 {
 	UWORD status;
 
@@ -1873,7 +1873,7 @@ int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode)
 	return status;
 }
 
-int delete_files(BOOLEAN local, const char *del_mask)
+int delete_files(MYBOOL local, const char *del_mask)
 {
 	int status = 0;
 
@@ -1899,7 +1899,7 @@ int delete_files(BOOLEAN local, const char *del_mask)
 	return status;
 }
 
-int copy_files(BOOLEAN source, const char *p_srcmask, BOOLEAN pote_smazat)
+int copy_files(MYBOOL source, const char *p_srcmask, MYBOOL pote_smazat)
 {
 	int status = 0;
 
@@ -1933,7 +1933,7 @@ int copy_files(BOOLEAN source, const char *p_srcmask, BOOLEAN pote_smazat)
 int return_server_files_info(void)
 {
 	char filemask[MAXPATH];
-	BOOLEAN arch_mode;
+	MYBOOL arch_mode;
 	int status = 0;
 
 	/* M_GETINFO was received by server dispatch routine already */
@@ -1973,7 +1973,7 @@ int ReceiveDataAndSetLocalTime(void)
 
 /*******************************************************************************/
 
-int config_file(const char *soubor, BOOLEAN vytvorit)
+int config_file(const char *soubor, MYBOOL vytvorit)
 {
 	BYTE crypta[MAXSTRING];
 	int vysledek;
@@ -2269,7 +2269,7 @@ void inicializace(void)
 
 /*******************************************************************************/
 
-void client_server_handshaking(BOOLEAN client)
+void client_server_handshaking(MYBOOL client)
 {
 	int val=0;
 	char protorev[16];
@@ -2360,7 +2360,7 @@ int zpracovani_parametru(int argc, char *argv[])
 	int i;
 	extern int optind;
 	extern char *optarg;
-	BOOLEAN konfigOK = FALSE;
+	MYBOOL konfigOK = FALSE;
 
 	batch_file[0] = 0;
 
@@ -2453,7 +2453,7 @@ int main(int argc, char *argv[])
 #endif
 	int i;
 #ifndef PARCP_SERVER
-	BOOLEAN go_interactive = TRUE;
+	MYBOOL go_interactive = TRUE;
 #else
 	client = FALSE;
 #endif	/* PARCP_SERVER */

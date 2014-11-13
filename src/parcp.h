@@ -146,26 +146,26 @@ ULONG64 receive_long();
 void send_collected_info(void);
 void split_filename(const char *pathname, char *path, char *name);
 void prepare_fname_for_opendir(const char *pathname, char *path, char *name);
-BOOLEAN is_absolute_path(const char *path);
-BOOLEAN has_last_slash(const char *path);
+MYBOOL is_absolute_path(const char *path);
+MYBOOL has_last_slash(const char *path);
 char *add_last_slash(char *path);
 char *remove_last_slash(char *path);
 
 void errexit(const char *, int error_code);
 
 char *orez_jmeno(const char *jmeno, int delka_jmena);
-void view(const char *s, BOOLEAN is_dir);
-BOOLEAN do_client(int, FILE *);
+void view(const char *s, MYBOOL is_dir);
+MYBOOL do_client(int, FILE *);
 void do_server(void);
 void inicializace(void);
-void client_server_handshaking(BOOLEAN client);
+void client_server_handshaking(MYBOOL client);
 void wait_before_read(void);
 
-BOOLEAN change_dir(const char *p, char *q);
+MYBOOL change_dir(const char *p, char *q);
 void list_dir(const char *p2, int maska, char *zacatek);
 void setridit_list_dir(char *buffer);
 int list_drives(char *p);
-int delete_files(BOOLEAN local, const char *del_mask);
+int delete_files(MYBOOL local, const char *del_mask);
 
 UWORD read_word(void);
 long read_long(void);
@@ -184,19 +184,19 @@ long client_write_block(const BYTE *, long);
 long server_write_block(const BYTE *, long);
 long fast_client_write_block(const BYTE *, long);
 long fast_server_write_block(const BYTE *, long);
-int get_files_info(BOOLEAN local, const char *src_mask, BOOLEAN arch_mode);
+int get_files_info(MYBOOL local, const char *src_mask, MYBOOL arch_mode);
 int GetLocalTimeAndSendItOver(void);
 int ReceiveDataAndSetLocalTime(void);
-//int get_server_files_info(const char *filemask, BOOLEAN arch_mode);
+//int get_server_files_info(const char *filemask, MYBOOL arch_mode);
 
 UWORD PackParameters(void);
 void send_parameters(void);
 
-int copy_files(BOOLEAN source, const char *p_srcmask, BOOLEAN pote_smazat);
-BOOLEAN stop_waiting(void);
-int config_file(const char *soubor, BOOLEAN vytvorit);
+int copy_files(MYBOOL source, const char *p_srcmask, MYBOOL pote_smazat);
+MYBOOL stop_waiting(void);
+int config_file(const char *soubor, MYBOOL vytvorit);
 char *get_cwd(char *path, int maxlen);
-BOOLEAN file_exists(char *fname);
+MYBOOL file_exists(char *fname);
 char *str_err(int status);
 
 void parcp_sort(void *base, size_t nel, size_t width,

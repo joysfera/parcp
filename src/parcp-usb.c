@@ -264,7 +264,7 @@ int get_busy()
 				return -1;
 		}
 	}
-	BOOLEAN busy = buf[0];
+	MYBOOL busy = buf[0];
 #if IODEBUG
 	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
 #endif

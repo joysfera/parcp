@@ -45,9 +45,9 @@ struct _okno {
 	WINDOW *pwin;
 	int radek;
 	int kurzor;
-	BOOLEAN pozice;
-	BOOLEAN remote;
-	BOOLEAN visible;
+	MYBOOL pozice;
+	MYBOOL remote;
+	MYBOOL visible;
 };
 
 typedef struct _okno OKNO;
@@ -55,7 +55,7 @@ typedef struct _okno OKNO;
 OKNO left, right;
 WINDOW *pwinl, *pwinr, *pwincent;
 PANEL *ppanl, *ppanr, *ppancent;
-BOOLEAN aktivni;
+MYBOOL aktivni;
 
 int original_cursor;	/* remember cursor state */
 int progress_width = 60;
@@ -64,18 +64,18 @@ ULONG64 shell_total_bytes;
 extern unsigned long g_files, g_folders, g_start_time;
 extern long buffer_len;		/* for Block Size setting */
 unsigned long shell_total_files, shell_total_folders;
-BOOLEAN shell_arch_mode;	/* needed for passing info into zjistit_info() */
+MYBOOL shell_arch_mode;	/* needed for passing info into zjistit_info() */
 
-BOOLEAN curses_initialized = FALSE;
+MYBOOL curses_initialized = FALSE;
 
-BOOLEAN has_bold = TRUE;
-BOOLEAN has_dim = TRUE;
+MYBOOL has_bold = TRUE;
+MYBOOL has_dim = TRUE;
 
-BOOLEAN use_colors=TRUE;
-BOOLEAN use_marks=FALSE;
-BOOLEAN smoothscroll=TRUE;
-BOOLEAN vypisovat_delku=TRUE, vypisovat_datum=TRUE, vypisovat_cas=FALSE;
-BOOLEAN _confirm_copy=TRUE, _confirm_move=TRUE, _confirm_delete=TRUE;
+MYBOOL use_colors=TRUE;
+MYBOOL use_marks=FALSE;
+MYBOOL smoothscroll=TRUE;
+MYBOOL vypisovat_delku=TRUE, vypisovat_datum=TRUE, vypisovat_cas=FALSE;
+MYBOOL _confirm_copy=TRUE, _confirm_move=TRUE, _confirm_delete=TRUE;
 #ifdef ATARI
 extern int _ncurses_ANSI_graphics;
 #endif
@@ -117,12 +117,12 @@ char path_to_temp[MAXPATH]="";
 	prekresli_stranku(&right);			\
 }
 
-BOOLEAN oznaceny(OKNO *okno, int i)
+MYBOOL oznaceny(OKNO *okno, int i)
 {
 	return (OZNACENI(okno, i) != '\n');		/* '\n' is there from list_dir() */
 }
 
-void soznaceny(OKNO *okno, int i, BOOLEAN val)
+void soznaceny(OKNO *okno, int i, MYBOOL val)
 {
 	OZNACENI(okno, i) = val ? '\r' : '\n';	/* '\r' is simply a different value */
 }
@@ -189,7 +189,7 @@ void prekresli_radek(OKNO *okno, int i)
 	wattroff(okno->pwin, atribut);
 }
 
-void kurzor(OKNO *okno, BOOLEAN visible)
+void kurzor(OKNO *okno, MYBOOL visible)
 {
 	int radek = okno->kurzor - okno->radek;
 
@@ -271,7 +271,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 		char *dirbufer = okno->buf + DIRLINELEN;	/* buffer for dir list */
 		time_t dneska = time(NULL);
 		struct tm *cas;
-		BOOLEAN chdir_flag;
+		MYBOOL chdir_flag;
 
 		/* make sure we have folder with trailing slash */
 		if (adresar[strlen(adresar)-1] != SLASH)
@@ -382,7 +382,7 @@ void realokuj_buf_okna(OKNO *okno)
 		errexit("Fatal problem with reallocating memory. Aborting..", ERROR_MEMORY);
 }
 
-void inicializace_okna(OKNO *okno, BOOLEAN pozice, BOOLEAN remote)
+void inicializace_okna(OKNO *okno, MYBOOL pozice, MYBOOL remote)
 {
 	char tmpbuf[MAXSTRING];
 
@@ -407,7 +407,7 @@ void inicializace_okna(OKNO *okno, BOOLEAN pozice, BOOLEAN remote)
 	nacti_obsah_s_cestou(okno);
 }
 
-OKNO *aktivizuj(BOOLEAN prave)
+OKNO *aktivizuj(MYBOOL prave)
 {
 	int i;
 	OKNO *okno;
@@ -450,7 +450,7 @@ char *pure_filename(OKNO *okno)
 void zmenit_adresar(OKNO *okno)
 {
 	char cesta[MAXPATH], adr[MAXPATH], najdi_dir[MAXPATH], *p;
-	BOOLEAN najdi_pozic = FALSE;
+	MYBOOL najdi_pozic = FALSE;
 
 	/* get just the folder name */
 	strcpy(cesta, pure_filename(okno));
@@ -504,7 +504,7 @@ void zmenit_adresar(OKNO *okno)
 
 /******************************************************************************/
 
-void shell_open_progress_window(char *title, BOOLEAN progress)
+void shell_open_progress_window(char *title, MYBOOL progress)
 {
 	int title_len = strlen(title);
 	char *space_title = alloca(title_len+3);
@@ -604,7 +604,7 @@ void obnov_opacne(OKNO *okno)
 	obnov_soucasne(okno);
 }
 
-int shell_config_file(char *soubor, BOOLEAN vytvorit)
+int shell_config_file(char *soubor, MYBOOL vytvorit)
 {
 	int vysledek;
 
@@ -645,7 +645,7 @@ int execute_command(char *cmd, char *cmdline)
 
 	if (cmd != NULL && *cmd) {
 		char prikaz[MAXPATH], cmd_dir[MAXPATH], bak_pwd[MAXPATH]="";
-		BOOLEAN gotodir = FALSE;
+		MYBOOL gotodir = FALSE;
 
 		/* separate directory */
 		split_filename(cmd, cmd_dir, NULL);
@@ -720,7 +720,7 @@ int execute_command(char *cmd, char *cmdline)
 }
 
 /* set of functions called from process_entries (the function for processing selected items) */
-int zpracovat_soubory(OKNO *okno, int i, BOOLEAN pote_smazat)
+int zpracovat_soubory(OKNO *okno, int i, MYBOOL pote_smazat)
 {
 	return copy_files(! okno->remote, vyjisti_jmeno(okno, i), pote_smazat);
 }
@@ -748,8 +748,8 @@ int zjistit_info(OKNO *okno, int i)
 void process_entries(OKNO *okno, int (*funkce)(OKNO *okno, int i))
 {
 	int i, radek, count = 0;
-	BOOLEAN ukoncit = FALSE;
-	BOOLEAN progress = TRUE;
+	MYBOOL ukoncit = FALSE;
+	MYBOOL progress = TRUE;
 	char *win_title = "";
 
 	if (funkce == kopirovat)
@@ -811,7 +811,7 @@ void process_entries(OKNO *okno, int (*funkce)(OKNO *okno, int i))
 	vypis_podpis(okno);
 }
 
-void zjistit_kompletni_info(OKNO *okno, BOOLEAN arch_mode)
+void zjistit_kompletni_info(OKNO *okno, MYBOOL arch_mode)
 {
 	shell_total_bytes = shell_total_files = shell_total_folders = 0;
 	shell_arch_mode = arch_mode;
@@ -956,20 +956,20 @@ void init_menu()
 	pmenu = new_menu(pitem);
 }
 
-BOOLEAN interakce_menu()
+MYBOOL interakce_menu()
 {
-	BOOLEAN obnovit_okna = FALSE;
-	BOOLEAN quit_parcp = FALSE;
+	MYBOOL obnovit_okna = FALSE;
+	MYBOOL quit_parcp = FALSE;
 
 	short old_pars = PackParameters();
 	short old_dirbuflin = dirbuf_lines;
 	char old_over_older = _over_older;
 	char old_over_newer = _over_newer;
 	char old_sort_jak = _sort_jak;
-	BOOLEAN old_sort_case = _sort_case;
-	BOOLEAN old_show_hidden = _show_hidden;
-/*	BOOLEAN old_case_sensitive = _case_sensitive; */
-	BOOLEAN old_preserve_case = _preserve_case;
+	MYBOOL old_sort_case = _sort_case;
+	MYBOOL old_show_hidden = _show_hidden;
+/*	MYBOOL old_case_sensitive = _case_sensitive; */
+	MYBOOL old_preserve_case = _preserve_case;
 
 	/* disable things in unregistered version */
 	toggle_command(pmenu, CM_OPT_DIRBUF_LINES, registered);
@@ -1179,7 +1179,7 @@ void do_shell(void)
 	char tmpfnam[MAXFNAME];
 	char selectmask[MAXFNAME]="";
 	int i;
-	BOOLEAN ukoncit_vse = FALSE;
+	MYBOOL ukoncit_vse = FALSE;
 
 	/* read the config file - section [PARSHELL] */
 	if (shell_config_file(cfg_fname, FALSE) <= 0) {
@@ -1294,7 +1294,7 @@ void do_shell(void)
 
 	while(!ukoncit_vse) {
 		int key;
-		BOOLEAN smazat_masku = TRUE;
+		MYBOOL smazat_masku = TRUE;
 
 #ifdef ATARI
 		while(Cconis()) Cnecin();
@@ -1535,7 +1535,7 @@ void do_shell(void)
 			case KEY_F(3):
 				if (! JE_ADR(okno,okno->kurzor)) {
 					char cesta[MAXPATH], fname[MAXFNAME];
-					BOOLEAN kopie = FALSE;
+					MYBOOL kopie = FALSE;
 
 					get_cwd(cesta, sizeof(cesta));
 					strcpy(fname, pure_filename(okno));
@@ -1578,7 +1578,7 @@ void do_shell(void)
 			case KEY_F(4):
 				if (! JE_ADR(okno,okno->kurzor)) {
 					char cesta[MAXPATH], fname[MAXFNAME];
-					BOOLEAN kopie = FALSE;
+					MYBOOL kopie = FALSE;
 
 					get_cwd(cesta, sizeof(cesta));
 					strcpy(fname, pure_filename(okno));
@@ -1740,7 +1740,7 @@ void do_shell(void)
 				if (isascii(key)) {
 					if (strlen(selectmask) < MAXFNAME-1) {
 						int selectlen = strlen(selectmask), pos, foundpos, counter;
-						BOOLEAN marking;
+						MYBOOL marking;
 						selectmask[selectlen++] = key;
 						selectmask[selectlen] = 0;
 						marking = isupper(selectmask[0]);
@@ -1749,7 +1749,7 @@ void do_shell(void)
 						counter = okno->lines;
 						foundpos = -1;
 						while(counter--) {
-							BOOLEAN found = (strncasecmp(selectmask, vyjisti_jmeno(okno, pos), selectlen) == 0);
+							MYBOOL found = (strncasecmp(selectmask, vyjisti_jmeno(okno, pos), selectlen) == 0);
 							if (found) {
 								if (foundpos < 0)
 									foundpos = pos;

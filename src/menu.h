@@ -32,7 +32,7 @@ void show_items(WINDOW *win, TMENU *smenu, int poloha);
 void toggle_command(TMENU *first, int cm, int set);
 void toggle_icheck(TMENU *first, int cm, int set);
 void click_radio(TMENU *first, int cm);
-BOOLEAN is_checked(TMENU *first, int cm);
+MYBOOL is_checked(TMENU *first, int cm);
 int show_menu(TMENU *imenu, int cx, int cy);
 
 #endif /* _menu_h */
