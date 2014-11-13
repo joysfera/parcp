@@ -196,7 +196,7 @@ int copy_files(MYBOOL source, const char *p_srcmask, MYBOOL pote_smazat);
 MYBOOL stop_waiting(void);
 int config_file(const char *soubor, MYBOOL vytvorit);
 char *get_cwd(char *path, int maxlen);
-MYBOOL file_exists(char *fname);
+MYBOOL file_existuje(char *fname);
 char *str_err(int status);
 
 void parcp_sort(void *base, size_t nel, size_t width,

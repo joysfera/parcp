@@ -18,7 +18,7 @@ void zpracovani_parametru(int argc, char *argv[])
 /* check if there isn't config file name on the comand line */
 	if (argc == 2 && argv[1] != NULL) {
 		strcpy(cesta, argv[1]);
-		konfigOK = file_exists(cesta);
+		konfigOK = file_existuje(cesta);
 	}
 
 	if (konfigOK) {

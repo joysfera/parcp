@@ -1,6 +1,6 @@
 /* common functions for PARCP, PARINOUT and PARTEST */
 
-MYBOOL file_exists(char *fname)
+MYBOOL file_existuje(char *fname)
 {
 	FILE *f = fopen(fname, "r");
 	if (f != NULL) {
@@ -23,7 +23,7 @@ MYBOOL hledej_config(char *argv[], char *cesta)
 		if (*p != SLASH && *p != BACKSLASH)
 			strcat(cesta, SLASH_STR);
 		strcat(cesta, CFGFILE);
-		konfigOK = file_exists(cesta);
+		konfigOK = file_existuje(cesta);
 		if (! konfigOK) {
 			printf(PARCPDIR" is set but '%s' is not found!\n\n", cesta);
 			sleep(2);
@@ -40,7 +40,7 @@ MYBOOL hledej_config(char *argv[], char *cesta)
 		if (p != NULL) {
 			*(p+1) = 0;
 			strcat(cesta, CFGFILE);
-			konfigOK = file_exists(cesta);
+			konfigOK = file_existuje(cesta);
 		}
 	}
 
@@ -51,7 +51,7 @@ MYBOOL hledej_config(char *argv[], char *cesta)
 		if (*p != SLASH && *p != BACKSLASH)
 			strcat(cesta, SLASH_STR);
 		strcat(cesta, CFGFILE);
-		konfigOK = file_exists(cesta);
+		konfigOK = file_existuje(cesta);
 	}
 
 	return konfigOK;

@@ -21,7 +21,7 @@ void zpracovani_parametru(int argc, char *argv[], char *cesta)
 /* zkusim jeste jestli neni cesta ke konfigu na prikazove radce */
 	if (argc == 2 && argv[1] != NULL) {
 		strcpy(cesta, argv[1]);
-		konfigOK = file_exists(cesta);
+		konfigOK = file_existuje(cesta);
 	}
 
 	if (konfigOK) {

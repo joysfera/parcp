@@ -444,7 +444,7 @@ int zpracovani_parametru(int argc, char *argv[])
 
 			case 'f':
 				strcpy(cesta, optarg);
-				konfigOK = file_exists(cesta);
+				konfigOK = file_existuje(cesta);
 				break;
 
 			case 'b':
