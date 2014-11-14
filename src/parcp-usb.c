@@ -138,7 +138,7 @@ void parcpusb_command(unsigned char command)
 int get_busy()
 {
 	unsigned char buf[64+1];
-#if 0
+#if 1
 	buf[0] = 0x01;	// this ReportID does NOT go through in MS Windows - FUCKED WINDOWS!
 	int error_counter = 0;
 	int bytes_received = -1;
