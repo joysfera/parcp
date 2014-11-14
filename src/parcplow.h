@@ -63,7 +63,15 @@ int getch(void);
 #define STOP_KEYSTROKE	"Shift+Ctrl+Alt"
 #define ARCHIVE_BIT		_A_ARCH
 #define _PATH_MOUNTED	""
+
+#elif defined _WIN32
+
+#define clrscr()		system("cls")
+#define STOP_KEYSTROKE	"Ctrl-C"
+#define ARCHIVE_BIT		_A_ARCH	/* ?? */
+
 #else
+
 #define __LINUX__
 #define clrscr()
 #define STOP_KEYSTROKE	"Ctrl-C"

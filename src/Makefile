@@ -14,7 +14,8 @@ endif
 
 ifeq ($(FILE), )
 all:
-	$(error Your platform ${OS} is not supported at this time.)
+#	$(error Your platform ${OS} is not supported at this time.)
+	FILE=Makefile.mingw
 endif
 
 include $(FILE)

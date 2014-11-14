@@ -970,9 +970,9 @@ int uname(struct utsname *uts)
 int settimeofday(const struct timeval * tp, const struct timezone * tzp)
 {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
-	static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
-	uint64_t    time = EPOCH + tp->tv_sec * 10000000L + tp->tv_usec;
-	FILETIME    file_time;
+	static const ULONG64 EPOCH = ((ULONG64) 116444736000000000ULL);
+	ULONG64 time = EPOCH + tp->tv_sec * 10000000L + tp->tv_usec;
+	FILETIME file_time;
 	SYSTEMTIME  system_time;
 
 	file_time.dwLowDateTime = time;
@@ -2326,8 +2326,7 @@ void inicializace(void)
 #ifndef PARCP_SERVER
 	/* try to find the real number of lines on the screen for client */
 	{
-#ifndef __MSDOS__	/* DJGPP doesn't have these ioctls. Perhaps we should use conio calls instead. */
-
+#if defined(ATARI) || defined(__LINUX__)
 		struct winsize term_size;
 
 		if (ioctl(0,TIOCGWINSZ,&term_size) == 0) {
@@ -2335,8 +2334,14 @@ void inicializace(void)
 			page_width  = term_size.ws_col;
 		}
 		else
-
-#endif /* __MSDOS__ */
+#elif defined(_WIN32)
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+			page_length = csbi.srWindow.Bottom - csbi.srWindow.Top + 1; // csbi.dwSize.Y;
+			page_width = csbi.dwSize.X;
+		}
+		else
+#endif
 		{
 			char *p;
 			if ( (p=getenv("LINES")) != NULL)

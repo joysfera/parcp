@@ -26,11 +26,11 @@ SHELL_FLAGS = -DSHELL $(FLAGS)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parshell : $(SHELL_OBJS)
-	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -L..\pdcurses -lpdcurses $(LIB_USB)  $(LDSTATIC)
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp.exe $(SHELL_OBJS) -L..\pdcurses -lpdcurses $(LIB_USB)  $(LDSTATIC)
 #	strip parcp.exe
 
 parcp : $(OBJS)
-	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB)
+	gcc $(STATIC) $(FLAGS) -o parcp.exe $(OBJS) $(LIB_USB)
 #	strip parcp.exe
 
 pt : parcp-usb.o

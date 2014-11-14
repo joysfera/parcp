@@ -75,11 +75,6 @@ struct utsname {
 	char sysname[65];
 	char machine[65];
 };
-
-typedef struct timeval {
-	long tv_sec;
-	long tv_usec;
-} timeval;
 #endif
 
 #define ULONG64 unsigned long long
