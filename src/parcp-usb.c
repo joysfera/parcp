@@ -11,19 +11,43 @@ static const int PRODUCT_ID = 0x204f;
 #include <HIDAPI/hidapi.h>
 hid_device *devh = NULL;
 
-int usb_init(void)
+int usb_init(const char *serial)
 {
+	const int MAX_STR = 255;
+	wchar_t wstr[MAX_STR];
+
 	if (hid_init()) {
 		fprintf(stderr, "HID init failed\n");
 		return FALSE;
 	}
 
-	wchar_t *serial_number = NULL; // TODO read from PARCP.CFG
+	wchar_t *serial_number = NULL;
+	if (serial != NULL && strlen(serial) > 0) {
+		int i;
+		for(i = 0; i <= strlen(serial) && i < MAX_STR; i++)
+			wstr[i] = btowc(serial[i]);
+		serial_number = wstr;
+	}
 
 	devh = hid_open(VENDOR_ID, PRODUCT_ID, serial_number);
 	if (!devh) {
-		fprintf(stderr, "HID open failed\n");
+		if (serial_number == NULL)
+			fprintf(stderr, "HID open failed\n");
+		else
+			fprintf(stderr, "HID open of serial '%ls' failed\n", serial_number);
 		return FALSE;
+	}
+
+	int res = hid_get_product_string(devh, wstr, MAX_STR);
+	if (wcscmp(L"PARCP", wstr)) {
+		printf("This is not PARCP USB! Product string of the attached device: '%ls'\n", wstr);
+		return FALSE;
+	}
+
+	if (serial_number == NULL) {
+		res = hid_get_serial_number_string(devh, wstr, MAX_STR);
+		if (res == 0)
+			printf("PARCP USB Serial Number: %ls\n", wstr);
 	}
 
 	return TRUE;
@@ -60,7 +84,7 @@ int usb_receive(BYTE *block, int len)
 	return ret;
 }
 
-void set_mode(unsigned char output)
+MYBOOL set_mode(unsigned char output)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
@@ -80,12 +104,13 @@ void set_mode(unsigned char output)
 				fputc('^', stderr);
 #endif
 			if (++error_counter >= 9)
-				return;
+				return FALSE;
 		}
 	}
+	return TRUE;
 }
 
-void set_strobe(unsigned char strobe)
+MYBOOL set_strobe(unsigned char strobe)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
@@ -105,12 +130,13 @@ void set_strobe(unsigned char strobe)
 				fputc('/', stderr);
 #endif
 			if (++error_counter >= 9)
-				return;
+				return FALSE;
 		}
 	}
+	return TRUE;
 }
 
-void parcpusb_command(unsigned char command)
+MYBOOL parcpusb_command(unsigned char command)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
@@ -130,40 +156,10 @@ void parcpusb_command(unsigned char command)
 				fputc('~', stderr);
 #endif
 			if (++error_counter >= 9)
-				return;
+				return FALSE;
 		}
 	}
-}
-
-int get_busy()
-{
-	unsigned char buf[64+1];
-#if 1
-	buf[0] = 0x01;	// this ReportID does NOT go through in MS Windows - FUCKED WINDOWS!
-	int error_counter = 0;
-	int bytes_received = -1;
-	while(bytes_received < 0) {
-		bytes_received = hid_get_feature_report(devh, buf, sizeof(buf));
-		if (bytes_received <= 0) {
-			if (error_counter)
-				fprintf(stderr, "%d. error receiving get_busy, received %d bytes\n", error_counter, bytes_received);
-#if USBDEBUG
-			else
-				fputc('\\', stderr);
-#endif
-			if (++error_counter >= 9)
-				return -1;
-		}
-	}
-#else	// requires new firmware and two roundtrips just to get the BUSY status
-	parcpusb_command(0);	// any command sets the global_action in firmware to zero
-	usb_receive(buf, 8);	// read with global_action == 0 returns information packet
-#endif
-	MYBOOL busy = buf[3];
-#if IODEBUG
-	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
-#endif
-	return busy;
+	return TRUE;
 }
 
 int usb_receive_block(BYTE *data_in, int n)
@@ -209,6 +205,21 @@ int usb_transmit_block(const BYTE *data_out, int n)
 		}
 	}
 	return bytes_sent;
+}
+
+int get_busy()
+{
+	unsigned char buf[4];
+	// requires new firmware and two roundtrips just to get the BUSY status
+	parcpusb_command(0);	// any command sets the global_action in firmware to zero
+	usb_receive_block(buf, sizeof(buf));	// read with global_action == 0 returns information packet
+	// PROTOCOL_VERSION in buf[0]
+	// FIRMWARE_VERSION in buf[1],buf[2]
+	MYBOOL busy = buf[3];
+#if IODEBUG
+	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
+#endif
+	return busy;
 }
 
 int usb_set_client_read_size(long n)

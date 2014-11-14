@@ -2276,7 +2276,7 @@ void inicializace(void)
 #ifdef IBM
 
 #ifdef USB
-	if (!usb_init()) exit(1);
+	if (!usb_init(usb_serial)) exit(1);
 #else
 	if (! _quiet_mode) {
 		printf("Parallel port base address: %x\n", print_port);
@@ -2497,7 +2497,7 @@ int zpracovani_parametru(int argc, char *argv[])
 			case 'u':
 #ifdef IBM
 # ifdef USB
-				if (!usb_init()) exit(1);
+				if (!usb_init(NULL)) exit(1);
 				int cmd = atoi(optarg);
 				parcpusb_command(cmd);
 				usb_exit();

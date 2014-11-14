@@ -32,6 +32,9 @@ extern char autoexec[MAXPATH];
 #ifdef SHELL
 extern MYBOOL shell;
 #endif
+#ifdef USB
+extern char usb_serial[MAXSTRING];
+#endif
 
 #ifdef DEBUG
 extern short debuglevel;

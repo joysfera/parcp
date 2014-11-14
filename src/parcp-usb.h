@@ -1,10 +1,10 @@
 #include "element.h"
 #define USB_BLOCK_SIZE	60
-int usb_init(void);
+int usb_init(const char *serial);
 void usb_exit();
-void set_mode(unsigned char output);
-void set_strobe(unsigned char strobe);
-void parcpusb_command(unsigned char command);
+MYBOOL set_mode(unsigned char output);
+MYBOOL set_strobe(unsigned char strobe);
+MYBOOL parcpusb_command(unsigned char command);
 int get_busy();
 int usb_set_client_read_size(long n);
 int usb_set_server_read_size(long n);

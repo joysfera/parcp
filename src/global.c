@@ -33,6 +33,9 @@ char autoexec[MAXPATH]="";
 #ifdef SHELL
 MYBOOL shell = TRUE;
 #endif
+#ifdef USB
+char usb_serial[MAXSTRING] = "";
+#endif
 
 #ifdef DEBUG
 short debuglevel=1;

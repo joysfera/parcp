@@ -1,11 +1,15 @@
 struct Config_Tag configs[] = {
 	{ "UserName", String_Tag, username, sizeof(username) },
 	{ "KeyCode", String_Tag, keycode, sizeof(keycode) },
-#if defined(IBM) && !defined(USB)
+#ifdef IBM
+#  ifdef USB
+	{ "UsbSerial", String_Tag, usb_serial, sizeof(usb_serial) },
+#  else
 	{ CFG_PORT, HexLong_Tag, &print_port },
 	{ CFG_UNIBI, Boolean_Tag, &PCunidirect },
 	{ "PortType", Long_Tag, &port_type },
 	{ "CableType", Long_Tag, &cable_type },
+#  endif
 #endif
 	{ "FastRoutines", Boolean_Tag, &_assembler },
 	{ "ProcessSubDir", Boolean_Tag, &_send_subdir },
