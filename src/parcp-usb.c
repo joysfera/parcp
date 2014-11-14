@@ -156,10 +156,10 @@ int get_busy()
 		}
 	}
 #else	// requires new firmware and two roundtrips just to get the BUSY status
-	parcpusb_command(0);
-	usb_receive(buf, 1);
+	parcpusb_command(0);	// any command sets the global_action in firmware to zero
+	usb_receive(buf, 8);	// read with global_action == 0 returns information packet
 #endif
-	MYBOOL busy = buf[0];
+	MYBOOL busy = buf[3];
 #if IODEBUG
 	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
 #endif
