@@ -1881,6 +1881,8 @@ int process_files_on_receiver_side()
 		else if (Process == M_PUT) {
 			receive_1_file();
 		}
+		else if (Process == ERROR_READING_FILE) {	// send_1_file couldn't open the file at all
+		}
 		else if (Process == M_MD) {
 			int status;
 			receive_string(fname);
@@ -1905,9 +1907,13 @@ int process_files_on_receiver_side()
 		if (client) {
 			int reaction;
 
-			/* receive report from server's process_files */
-			wait_before_read();		/* deleting can take a long time */
-			status = read_word();
+			if (Process == ERROR_READING_FILE)
+				status = Process;
+			else {
+				/* receive report from server's process_files */
+				wait_before_read();		/* deleting can take a long time */
+				status = read_word();
+			}
 			DPRINT1("p pfors:status = %x", status);
 
 			if (zastavit_prenos_souboru())
