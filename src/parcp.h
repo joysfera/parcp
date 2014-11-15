@@ -9,7 +9,7 @@
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"3.90"		/* displays on the screen when PARCP starts */
+#define VERZE	"3.94"		/* displays on the screen when PARCP starts */
 #undef BETA				/* beta version for testing */
 #undef WILL_EXPIRE			/* defines expiration */
 

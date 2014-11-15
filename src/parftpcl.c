@@ -29,12 +29,13 @@ int get_key()
 #else			/* MiNT builds on BSD and uses sgtty */
 
 	struct sgttyb oldt, newt;
+	int ret;
 
 	ioctl(0,TIOCGETP,&oldt);
 	newt = oldt;
 	newt.sg_flags &= ~(ICANON|ECHO|CBREAK);/* don't echo, return immediately, watch out for the ^C */
 	ioctl(0,TIOCSETP,&newt);		/* setup the keyboard */
-	int ret = read(0,&key,1);		/* read key */
+	ret = read(0,&key,1);		/* read key */
 	ioctl(0,TIOCSETP,&oldt);		/* restore the keyboard */
 #endif
 
@@ -348,11 +349,11 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 	g_last_status = 0;
 	while(1) {
 		static char b[MAXSTRING];
-		char *p1, *p2;
+		char *p1, *p2, *ret;
 
 		if (! bInBatchMode)
 			printf(">>");
-		char *ret = fgets(b, sizeof(b), input_commands);
+		ret = fgets(b, sizeof(b), input_commands);
 		ret = ret; // UNUSED
 
 		if (bInBatchMode && feof(input_commands)) {	/* end of AUTOEXEC script */
@@ -547,7 +548,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 		}
 
 		else if (!strcasecmp(p1, "REN") || !strcasecmp(p1, "LREN")) {
-			char c[MAXFNAME+1], *p3;
+			char c[MAXFNAME+1], *p3, *ret;
 
 			if (p2 == NULL)	{				/* local file name */
 				puts("ERROR: no file name");
@@ -559,7 +560,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			}
 
 			printf("New name: ");
-			char *ret = fgets(c, (int)sizeof(c), input_commands);
+			ret = fgets(c, (int)sizeof(c), input_commands);
 			ret = ret; // UNUSED
 			p3 = strtok(c, "\n");
 			if (!p3 || !*p3) {

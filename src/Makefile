@@ -3,8 +3,8 @@ ifeq ($(OS),Windows_NT)
 else
 	OS=$(shell uname)
 
-	ifeq ($(OS), Darwin)
-		FILE=Makefile.mac
+	ifeq ($(OS), MiNT)
+		FILE=Makefile.mint
 	endif
 
 	ifeq ($(OS), Linux)

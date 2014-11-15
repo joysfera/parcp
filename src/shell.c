@@ -1216,7 +1216,7 @@ void do_shell(void)
 
 	/* header */
 #ifdef STANDALONE
-		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2002");
+		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2014");
 #else
 #ifdef BETA
 #define PAVERZE "beta"
@@ -1224,9 +1224,9 @@ void do_shell(void)
 #define PAVERZE ""
 #endif
 	if (registered)
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2002. Registered to %s", username);
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2014. Registered to %s", username);
 	else
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2002. Shareware - unregistered copy");
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2014. Shareware - unregistered copy");
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 
@@ -1534,6 +1534,7 @@ void do_shell(void)
 
 			case KEY_F(3):
 				if (! JE_ADR(okno,okno->kurzor)) {
+					int ret;
 					char cesta[MAXPATH], fname[MAXFNAME];
 					MYBOOL kopie = FALSE;
 
@@ -1544,7 +1545,7 @@ void do_shell(void)
 						/* copy to TMP and then delete it */
 						if (*path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							int ret = chdir(path_to_temp);
+							ret = chdir(path_to_temp);
 							ret = ret; // UNUSED
 
 							DPRINT("v going to copy file under cursor\n");
@@ -1570,7 +1571,7 @@ void do_shell(void)
 					if (kopie)
 						remove(fname);
 
-					int ret = chdir(cesta);
+					ret = chdir(cesta);
 					ret = ret; // UNUSED
 				}
 				break;
@@ -1579,6 +1580,7 @@ void do_shell(void)
 				if (! JE_ADR(okno,okno->kurzor)) {
 					char cesta[MAXPATH], fname[MAXFNAME];
 					MYBOOL kopie = FALSE;
+					int ret;
 
 					get_cwd(cesta, sizeof(cesta));
 					strcpy(fname, pure_filename(okno));
@@ -1587,7 +1589,7 @@ void do_shell(void)
 						/* copy to TMP and move it back after editing */
 						if (*path_to_temp) {
 							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							int ret = chdir(path_to_temp);
+							ret = chdir(path_to_temp);
 							ret = ret; // UNUSED
 
 							DPRINT("v going to copy file under cursor\n");
@@ -1617,7 +1619,7 @@ void do_shell(void)
 						shell_close_progress_window();
 					}
 
-					int ret = chdir(cesta);
+					ret = chdir(cesta);
 					ret = ret; // UNUSED
 
 					obnov_soucasne(okno);

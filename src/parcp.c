@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2000
+ * Petr Stehlik (c) 1996-2014
  *
  */
 
@@ -545,6 +545,7 @@ int send_file(FILE *handle, long lfile)
 
 	remaining_length = lfile;
 	do {
+		long block_len_check;
 #ifndef PARCP_SERVER
 		if (break_file_transfer()) {
 			lblock = -1;		/* internal indicator */
@@ -559,7 +560,7 @@ int send_file(FILE *handle, long lfile)
 		}
 
 		write_long(lblock);		/* sending length of block. Special values 0 and -1 */
-		long block_len_check = read_long();
+		block_len_check = read_long();
 		if (block_len_check != lblock) {	/* read it back and compare it */
 			DPRINT2("send_file(): block length check failed: %08lx != %08lx\n", lblock, block_len_check);
 			errexit("A communication error in send_file() - sorry", ERROR_BADDATA);
@@ -1007,6 +1008,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 	DPRINT2("d Opening directory: '%s', using '%s' as file-mask\n", dname, pname);
 
 	if ( (dir_p = opendir(dname)) != NULL) {
+		char *ret;
 		while( (dir_ent = readdir(dir_p)) != NULL) {
 			MYBOOL matched;
 			MYBOOL is_dir;
@@ -1064,7 +1066,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		}
 		closedir(dir_p);
 
-		char *ret = getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
+		ret = getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
 		ret = ret; // UNUSED
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
@@ -1687,6 +1689,7 @@ int process_files(int Process, const char *src_mask)
 		strcpy(root, pwd_backup);
 
 	if (change_dir(root, root)) {
+		int ret;
 		DPRINT1("s Directory changed to: '%s'\n", root);
 
 		/* construct new source mask with relative path from current directory */
@@ -1695,7 +1698,7 @@ int process_files(int Process, const char *src_mask)
 
 		status = process_files_rec(new_srcmask);
 
-		int ret = chdir(pwd_backup);
+		ret = chdir(pwd_backup);
 		ret = ret; // UNUSED
 	}
 	else {
@@ -2479,7 +2482,7 @@ int zpracovani_parametru(int argc, char *argv[])
 
 /* now parse the command line parameters (so they get higher priority over the config file) */
 
-#define ARG_OPTIONS		"sf:b:u:q"
+#define ARG_OPTIONS		"sf:b:qu:c:"
 
 	while((i=getopt(argc, argv, ARG_OPTIONS)) != EOF) {
 		switch(tolower(i)) {
@@ -2510,6 +2513,13 @@ int zpracovani_parametru(int argc, char *argv[])
 				exit(1);
 # endif
 #endif
+
+			case 'c':
+				if (!strcmp("shell", optarg))
+					shell = TRUE;
+				else if (!strcmp("noshell", optarg))
+					shell = FALSE;
+				break;
 
 			case '?':
 				puts(USAGE); exit(1);
@@ -2580,7 +2590,7 @@ int main(int argc, char *argv[])
 	DPRINT1("  PARCP "VERZE" started on %s", ctime(&start_time));
 
 	if (! _quiet_mode) {
-		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2000.");
+		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2014.");
 #ifdef DEBUG
 		puts("DEBUG version "VERZE" (compiled on "__DATE__")\n");
 #else

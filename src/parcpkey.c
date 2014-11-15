@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef __MINT__
+typedef unsigned short int uint16_t;
+typedef int int32_t;
+#else
 #include <stdint.h>
+#endif
 
 typedef unsigned char BYTE;
 

@@ -32,6 +32,7 @@ long client_read_block(BYTE *block, long n)
 #endif
 
 #ifndef USB
+  {
 	BYTE x;
 	long i = 0;
 
@@ -55,6 +56,7 @@ long client_read_block(BYTE *block, long n)
 		STROBE_LOW;
 	}
 	return 0;
+  }
 #endif
 }
 
@@ -85,6 +87,7 @@ long server_read_block(BYTE *block, long n)
 #endif
 
 #ifndef USB
+  {
 	BYTE x;
 	long i = 0;
 
@@ -112,6 +115,7 @@ long server_read_block(BYTE *block, long n)
 	LDPRINT("l STROBE is HIGH\n");
 	STROBE_HIGH;
 	return 0;
+  }
 #endif
 }
 
@@ -147,6 +151,7 @@ long client_write_block(const BYTE *block, long n)
 #endif
 
 #ifndef USB
+  {
 	BYTE x;
 	long i = 0;
 
@@ -179,6 +184,7 @@ long client_write_block(const BYTE *block, long n)
 	WAIT_HIGH;
 	SET_INPUT;
 	return 0;
+  }
 #endif
 }
 
@@ -217,6 +223,7 @@ long server_write_block(const BYTE *block, long n)
 	WAIT_LOW;
 
 #ifndef USB
+  {
 	BYTE x;
 	long i = 0;
 
@@ -248,6 +255,7 @@ long server_write_block(const BYTE *block, long n)
 	LDPRINT("l Write_block: STROBE is HIGH\n");
 	SET_INPUT;
 	return 0;
+  }
 #endif
 }
 

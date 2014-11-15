@@ -230,13 +230,14 @@ void InfoBox(const char *text, int timeout, MYBOOL button)
 	sleep(timeout);
 
 	if (button) {
+		int ret;
 		/* shows the "OK" button and waits for the timeout */
 		keypad(pwinalert,TRUE);
 		wattron(pwinalert, A_REVERSE);
 		mvwaddstr(pwinalert,butposy,butposx,"[ OK ]");
 		update_panels();
 		doupdate();
-		int ret = wgetch(pwinalert);
+		ret = wgetch(pwinalert);
 		ret = ret; // UNUSED
 	}
 
