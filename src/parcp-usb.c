@@ -8,6 +8,8 @@
 static const int VENDOR_ID = 0x03eb;
 static const int PRODUCT_ID = 0x204f;
 
+#define ERROR_RETRIES	4
+
 #include <HIDAPI/hidapi.h>
 hid_device *devh = NULL;
 
@@ -103,7 +105,7 @@ MYBOOL set_mode(unsigned char output)
 			else
 				fputc('^', stderr);
 #endif
-			if (++error_counter >= 9)
+			if (++error_counter >= ERROR_RETRIES)
 				return FALSE;
 		}
 	}
@@ -129,7 +131,7 @@ MYBOOL set_strobe(unsigned char strobe)
 			else
 				fputc('/', stderr);
 #endif
-			if (++error_counter >= 9)
+			if (++error_counter >= ERROR_RETRIES)
 				return FALSE;
 		}
 	}
@@ -155,7 +157,7 @@ MYBOOL parcpusb_command(unsigned char command)
 			else
 				fputc('~', stderr);
 #endif
-			if (++error_counter >= 9)
+			if (++error_counter >= ERROR_RETRIES)
 				return FALSE;
 		}
 	}
@@ -179,7 +181,7 @@ int usb_receive_block(BYTE *data_in, int n)
 #endif
 			// if (!error_counter--) <-- must not repeat usb_receive_block or the client-server sync breaks
 			// return -1;
-			if (++error_counter >= 9)
+			if (++error_counter >= ERROR_RETRIES)
 				return -1;
 		}
 	}
@@ -200,7 +202,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 			else
 				fputc('|', stderr);
 #endif
-			if (++error_counter >= 9)
+			if (++error_counter >= ERROR_RETRIES)
 				return -1;
 		}
 	}
