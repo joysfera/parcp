@@ -694,9 +694,10 @@ void send_string(const char *a)
 	if (ret_len == len)
 		write_block((const BYTE *)a, len);
 	else {
-		char errstr[90];
-		sprintf(errstr, "Communication error in send_string(): write_word(%04x), read_word(%04x)\n", len, ret_len);
+		char *errstr = malloc(90 + len);
+		sprintf(errstr, "Communication error in send_string(%s): write_word(%04x), read_word(%04x)\n", a, len, ret_len);
 		errexit(errstr, ERROR_BADDATA);
+		free(errstr);
 	}
 }
 
@@ -2541,7 +2542,7 @@ int zpracovani_parametru(int argc, char *argv[])
 
 #ifdef USB
 			case 'u':
-				if (!usb_init(NULL)) exit(1);
+				if (!usb_init(usb_serial)) exit(1);
 				int cmd = atoi(optarg);
 				parcpusb_command(cmd);
 				usb_exit();
