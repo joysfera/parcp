@@ -10,6 +10,8 @@ static const int PRODUCT_ID = 0x204f;
 
 #define ERROR_RETRIES	4
 
+#define MIN(a, b) ( ((a) < (b)) ? (a) : (b) )
+
 #include <HIDAPI/hidapi.h>
 hid_device *devh = NULL;
 
@@ -206,7 +208,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 				return -1;
 		}
 	}
-	return bytes_sent;
+	return MIN(bytes_sent, n);
 }
 
 int get_busy()
@@ -231,8 +233,8 @@ int usb_set_client_read_size(long n)
 	buffer[1] = n >> 16;
 	buffer[2] = n >> 8;
 	buffer[3] = n;
-	int ret = usb_transmit_block(buffer, 4);
-	return ret;
+	int sent = usb_transmit_block(buffer, 4);
+	return (sent == 4) ? 0 : -1;
 }
 
 int usb_set_server_read_size(long n)
@@ -242,7 +244,8 @@ int usb_set_server_read_size(long n)
 	buffer[1] = n >> 16;
 	buffer[2] = n >> 8;
 	buffer[3] = n;
-	return usb_transmit_block(buffer, 4);
+	int sent = usb_transmit_block(buffer, 4);
+	return (sent == 4) ? 0 : -1;
 }
 
 int usb_set_client_write_size(long n, const BYTE *block)
@@ -252,11 +255,13 @@ int usb_set_client_write_size(long n, const BYTE *block)
 	buffer[1] = n >> 16;
 	buffer[2] = n >> 8;
 	buffer[3] = n;
-	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
+	int to_send = MIN(n, USB_BLOCK_SIZE);
+	memcpy(buffer + 4, block, to_send);
 #if IODEBUG
 	fprintf(stderr, "usb_set_client_write_size(%ld): %d %d %d...\n", n, block[0], block[1], block[2]);
 #endif
-	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
+	int sent = usb_transmit_block(buffer, to_send+4);
+	return (sent == to_send+4) ? 0 : -1;
 }
 
 int usb_set_server_write_size(long n, const BYTE *block)
@@ -266,18 +271,21 @@ int usb_set_server_write_size(long n, const BYTE *block)
 	buffer[1] = n >> 16;
 	buffer[2] = n >> 8;
 	buffer[3] = n;
-	memcpy(buffer + 4, block, USB_BLOCK_SIZE);
-	return usb_transmit_block(buffer, USB_BLOCK_SIZE+4);
+	int to_send = MIN(n, USB_BLOCK_SIZE);
+	memcpy(buffer + 4, block, to_send);
+	int sent = usb_transmit_block(buffer, to_send+4);
+	return (sent == to_send+4) ? 0 : -1;
 }
 
 int usb_read_block(BYTE *block, long offset, int n)
 {
 	unsigned char buffer[USB_BLOCK_SIZE+4];
 	memset(buffer, 0, sizeof(buffer));
-	int ret = usb_receive_block(buffer, sizeof(buffer));
-	// TODO: check that buffer[0] == n;
-	if (buffer[0] != n && buffer[0]-1 != n)
-		fprintf(stderr, "!! read_block(%ld, %d) read only %d bytes\n", offset, n, buffer[0]);
+	int received = usb_receive_block(buffer, sizeof(buffer));
+	int data_received = buffer[0];
+	MYBOOL all_data_received = (received >= n+4 && (data_received == n || data_received-1 == n)); // -1 => correction for always even transfer size
+	if (!all_data_received)
+		fprintf(stderr, "!! read_block(%ld, %d) read only %d bytes\n", offset, n, data_received);
 #if DEBUG
 	else
 		fprintf(stderr, "oo read_block(%ld, %d) OK\n", offset, n);
@@ -287,7 +295,7 @@ int usb_read_block(BYTE *block, long offset, int n)
 	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 #endif
 	memcpy(block + offset, buffer+4, n);
-	return ret;
+	return all_data_received ? 0 : -1;
 }
 
 int usb_write_block(const BYTE *block, long offset, int n)
@@ -301,12 +309,8 @@ int usb_write_block(const BYTE *block, long offset, int n)
 #if IODEBUG
 	fprintf(stderr, "usb_write_block(%ld, %d)\n", offset, n);
 #endif
-	int ret = usb_transmit_block(buffer, 4+n);
-#if IODEBUG
-	if (n != USB_BLOCK_SIZE)
-		fprintf(stderr, "usb_write_block(%ld, %d) = %d\n", offset, n, ret);
-#endif
-	return ret;
+	int sent = usb_transmit_block(buffer, n+4);
+	return (sent == n+4) ? 0 : -1;
 }
 
 #if 0

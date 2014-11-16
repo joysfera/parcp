@@ -12,10 +12,9 @@ long client_read_block(BYTE *block, long n)
 		return fast_client_read_block(block, n);
 #elif defined(IBM)
 #  ifdef USB
-	long ret = 0;
 	long offset = 0;
-	usb_set_client_read_size(n);
-	while(n > 0) {
+	long ret = usb_set_client_read_size(n);
+	while(ret == 0 && n > 0) {
 		unsigned lbl = USB_BLOCK_SIZE - (offset == 0 ? 1 : 0);
 		if (lbl > n) lbl = n;
 		ret = usb_read_block(block, offset, lbl);
@@ -65,10 +64,9 @@ long server_read_block(BYTE *block, long n)
 		return fast_server_read_block(block, n);
 #elif defined(IBM)
 #  ifdef USB
-	long ret = 0;
 	long offset = 0;
-	usb_set_server_read_size(n);
-	while(n > 0) {
+	long ret = usb_set_server_read_size(n);
+	while(ret == 0 && n > 0) {
 		unsigned lbl = USB_BLOCK_SIZE - (offset == 0 ? 1 : 0);
 		if (lbl > n) lbl = n;
 		ret = usb_read_block(block, offset, lbl);
@@ -122,22 +120,20 @@ long client_write_block(const BYTE *block, long n)
 		return fast_client_write_block(block, n);
 #elif defined(IBM)
 #  ifdef USB
-	long ret = 0;
 	long offset = 0;
 	unsigned lbl = USB_BLOCK_SIZE - 1;
 	if (lbl > n) lbl = n;
-	usb_set_client_write_size(n, block);
+	long ret = usb_set_client_write_size(n, block);
 	offset += lbl;
 	n -= lbl;
-	while(n > 0) {
+	while(ret == 0 && n > 0) {
 		lbl = USB_BLOCK_SIZE;
 		if (lbl > n) lbl = n;
 		ret = usb_write_block(block, offset, lbl);
-		if (ret < 0) break;
 		offset += lbl;
 		n -= lbl;
 	}
-	return ret; // doesn't really work, usb_client_write_block does not return anything
+	return ret;
 #  else
 	if (!cable_type)
 		return laplink_client_write_block(block, n);
@@ -189,22 +185,20 @@ long server_write_block(const BYTE *block, long n)
 		return fast_server_write_block(block, n);
 #elif defined(IBM)
 #  ifdef USB
-	long ret = 0;
 	long offset = 0;
 	unsigned lbl = USB_BLOCK_SIZE - 1;
 	if (lbl > n) lbl = n;
-	usb_set_server_write_size(n, block);
+	long ret = usb_set_server_write_size(n, block);
 	offset += lbl;
 	n -= lbl;
-	while(n > 0) {
+	while(ret == 0 && n > 0) {
 		lbl = USB_BLOCK_SIZE;
 		if (lbl > n) lbl = n;
 		ret = usb_write_block(block, offset, lbl);
-		if (ret < 0) break;
 		offset += lbl;
 		n -= lbl;
 	}
-	return ret; // doesn't really work, usb_server_write_block does not return anything
+	return ret;
 #  else
 	if (!cable_type)
 		return laplink_server_write_block(block, n);
