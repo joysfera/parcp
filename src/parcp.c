@@ -2469,21 +2469,16 @@ void client_server_handshaking(MYBOOL client)
 
 int zpracovani_parametru(int argc, char *argv[])
 {
-	char cesta[MAXPATH], batch_file[MAXPATH];
 	int i;
 	extern int optind;
 	extern char *optarg;
 	MYBOOL konfigOK = FALSE;
 
-	batch_file[0] = 0;
+	/* try to find the config file first */
+	konfigOK = hledej_config(argv, cfg_fname);
 
-/* find the config file first */
-	konfigOK = hledej_config(argv, cesta);
-
-/* now parse the command line parameters (so they get higher priority over the config file) */
-
-#define ARG_OPTIONS		"sf:b:qu:c:"
-
+#define ARG_OPTIONS		"sf:qb:u:c:"
+	/* now parse some of the command line parameters (mainly the config file path) */
 	while((i=getopt(argc, argv, ARG_OPTIONS)) != EOF) {
 		switch(tolower(i)) {
 			case 's':
@@ -2491,34 +2486,12 @@ int zpracovani_parametru(int argc, char *argv[])
 				break;
 
 			case 'f':
-				strcpy(cesta, optarg);
-				konfigOK = file_existuje(cesta);
-				break;
-
-			case 'b':
-				strcpy(batch_file, optarg);
+				strcpy(cfg_fname, optarg);
+				konfigOK = file_existuje(cfg_fname);
 				break;
 
 			case 'q':
 				_quiet_mode = TRUE;
-				break;
-
-			case 'u':
-#ifdef IBM
-# ifdef USB
-				if (!usb_init(NULL)) exit(1);
-				int cmd = atoi(optarg);
-				parcpusb_command(cmd);
-				usb_exit();
-				exit(1);
-# endif
-#endif
-
-			case 'c':
-				if (!strcmp("shell", optarg))
-					shell = TRUE;
-				else if (!strcmp("noshell", optarg))
-					shell = FALSE;
 				break;
 
 			case '?':
@@ -2529,9 +2502,9 @@ int zpracovani_parametru(int argc, char *argv[])
 	if (konfigOK) {
 		int valid_num = 0;
 		if (! _quiet_mode)
-			printf("Configuration file used: %s\n", cesta);
+			printf("Configuration file used: %s\n", cfg_fname);
 	
-		valid_num = config_file(cesta, FALSE);
+		valid_num = config_file(cfg_fname, FALSE);
 
 		if (! _quiet_mode) {
 			if (valid_num >= 0)
@@ -2542,26 +2515,47 @@ int zpracovani_parametru(int argc, char *argv[])
 	}
 	else {
 		/* config file not found! */
-#ifdef ATARI
-		/* on Atari simply create it with the default values */
+#if defined(ATARI) || defined(USB)
+		/* on Atari or with USB simply create it with the default values */
 		if (! _quiet_mode)
-			printf("Configuration file not found.\nIt's being created: %s\n\n", cesta);
-		DPRINT1("! Creating configuration file: %s\n", cesta);
-		if (config_file(cesta, TRUE) < 0)
+			printf("Configuration file not found.\nIt's being created: %s\n\n", cfg_fname);
+		DPRINT1("! Creating configuration file: %s\n", cfg_fname);
+		if (config_file(cfg_fname, TRUE) < 0)
 			printf("ERROR: PARCP.CFG creation failed.\n");
-#elif !defined(USB)
+#else
 		/* on the other machines (where parallel port type/number is important) we must quit now */
-#ifndef STANDALONE
-		printf("PARCP configuration file (%s) not found.\nPlease start PARCPCFG in order to create it\n", cesta);
+# ifndef STANDALONE
+		printf("PARCP configuration file (%s) not found.\nPlease start PARCPCFG in order to create it\n", cfg_fname);
 		exit(ERROR_BADCFG);
-#endif	/* STANDALONE */
-#endif	/* ATARI */
+# endif
+#endif
 	}
 
-	if (*batch_file)
-		strcpy(autoexec, batch_file);	/* move parameter to the struct */
+	/* now parse the rest of command line parameters (so they get higher priority over the config file values) */
+	optind = 0;
+	while((i=getopt(argc, argv, ARG_OPTIONS)) != EOF) {
+		switch(tolower(i)) {
+			case 'b':
+				strcpy(autoexec, optarg);
+				break;
 
-	strcpy(cfg_fname, cesta);	/* remember which config file we use */
+#ifdef USB
+			case 'u':
+				if (!usb_init(NULL)) exit(1);
+				int cmd = atoi(optarg);
+				parcpusb_command(cmd);
+				usb_exit();
+				exit(1);
+#endif
+
+			case 'c':
+				if (!strcmp("shell", optarg))
+					shell = TRUE;
+				else if (!strcmp("noshell", optarg))
+					shell = FALSE;
+				break;
+		}
+	}
 
 	return optind;		/* return the number of first non-parameter (i.e. the first file name) */
 }
