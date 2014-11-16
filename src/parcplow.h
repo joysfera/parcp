@@ -19,7 +19,7 @@
 #include <mintbind.h>
 #include <support.h>
 
-#define	clrscr()	printf("\033E")
+#define	clrscr()	printf("\033E\033v")
 
 #define STROBE_HIGH	Ongibit(0x20)
 #define STROBE_LOW	Offgibit(0xcf)
