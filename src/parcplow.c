@@ -10,9 +10,7 @@ long client_read_block(BYTE *block, long n)
 #ifdef ATARI
 	if (_assembler)
 		return fast_client_read_block(block, n);
-#endif
-
-#ifdef IBM
+#elif defined(IBM)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
@@ -65,9 +63,7 @@ long server_read_block(BYTE *block, long n)
 #ifdef ATARI
 	if (_assembler)
 		return fast_server_read_block(block, n);
-#endif
-
-#ifdef IBM
+#elif defined(IBM)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
@@ -124,9 +120,7 @@ long client_write_block(const BYTE *block, long n)
 #ifdef ATARI
 	if (_assembler)
 		return fast_client_write_block(block, n);
-#endif
-
-#ifdef IBM
+#elif defined(IBM)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
@@ -193,9 +187,7 @@ long server_write_block(const BYTE *block, long n)
 #ifdef ATARI
 	if (_assembler)
 		return fast_server_write_block(block, n);
-#endif
-
-#ifdef IBM
+#elif defined(IBM)
 #  ifdef USB
 	long ret = 0;
 	long offset = 0;
@@ -219,13 +211,13 @@ long server_write_block(const BYTE *block, long n)
 #  endif
 #endif
 
-	LDPRINT("l Waiting for LOW\n");
-	WAIT_LOW;
-
 #ifndef USB
   {
 	BYTE x;
 	long i = 0;
+
+	LDPRINT("l Waiting for LOW\n");
+	WAIT_LOW;
 
 #ifdef IODEBUG
 	GET_BYTE(x);
