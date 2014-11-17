@@ -404,7 +404,7 @@ void open_copyinfo(MYBOOL sending, const char *name, long size)
 
 		if (size > 0) {
 			if (hash_mark)
-				printf("%s %s (%ld blocks) ", title_txt, name, copyinfo_size_in_blocks);
+				printf("%s %s (%ld bytes = %ld blocks)", title_txt, name, size, copyinfo_size_in_blocks);
 			else
 				printf("%s %s    ", title_txt, name);
 		}
@@ -695,7 +695,7 @@ void send_string(const char *a)
 		write_block((const BYTE *)a, len);
 	else {
 		char *errstr = malloc(90 + len);
-		sprintf(errstr, "Communication error in send_string(%s): write_word(%04x), read_word(%04x)\n", a, len, ret_len);
+		sprintf(errstr, "Communication error in send_string(\"%s\"): write_word($%04x), read_word($%04x)\n", a, len, ret_len);
 		errexit(errstr, ERROR_BADDATA);
 		free(errstr);
 	}

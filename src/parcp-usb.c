@@ -98,9 +98,9 @@ MYBOOL set_mode(unsigned char output)
 #endif
 	buf[0] = 0x05; // mode
 	buf[1] = output;
-	while(bytes_sent < 0) {
+	while(bytes_sent < 2) {
 		bytes_sent = usb_send(buf, 2);
-		if (bytes_sent < 0) {
+		if (bytes_sent < 2) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending set_mode: %d\n", error_counter, bytes_sent);
 #if USBDEBUG
@@ -124,9 +124,9 @@ MYBOOL set_strobe(unsigned char strobe)
 #endif
 	buf[0] = 0x06; // strobe
 	buf[1] = strobe;
-	while(bytes_sent < 0) {
+	while(bytes_sent < 2) {
 		bytes_sent = usb_send(buf, 2);
-		if (bytes_sent < 0) {
+		if (bytes_sent < 2) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending set_strobe: %d\n", error_counter, bytes_sent);
 #if USBDEBUG
@@ -150,9 +150,9 @@ MYBOOL parcpusb_command(unsigned char command)
 #endif
 	buf[0] = 0x07; // command
 	buf[1] = command;
-	while(bytes_sent < 0) {
+	while(bytes_sent < 2) {
 		bytes_sent = usb_send(buf, 2);
-		if (bytes_sent < 0) {
+		if (bytes_sent < 2) {
 			if (error_counter)
 				fprintf(stderr, "%d. error sending parcpusb_command: %d\n", error_counter, bytes_sent);
 #if USBDEBUG
@@ -172,7 +172,7 @@ int usb_receive_block(BYTE *data_in, int n)
 	memset(buf, 0, sizeof(buf));
 	int bytes_received = -1;
 	int error_counter = 0;
-	while(bytes_received <= 0) {
+	while(bytes_received < n) {
 		bytes_received = usb_receive(buf, sizeof(buf));
 		if (bytes_received < n) {
 			if (error_counter)
@@ -181,21 +181,20 @@ int usb_receive_block(BYTE *data_in, int n)
 			else
 				fputc('&', stderr);
 #endif
-			// if (!error_counter--) <-- must not repeat usb_receive_block or the client-server sync breaks
-			// return -1;
-			if (++error_counter >= ERROR_RETRIES)
+// must not repeat usb_receive_block or the client-server sync breaks
+//			if (++error_counter >= ERROR_RETRIES)
 				return -1;
 		}
 	}
 	memcpy(data_in, buf, n);
-	return bytes_received;
+	return MIN(bytes_received, n);
 }
 
 int usb_transmit_block(const BYTE *data_out, int n)
 {
 	int bytes_sent = -1;
 	int error_counter = 0;
-	while(bytes_sent < 0) {
+	while(bytes_sent < n) {
 		bytes_sent = usb_send(data_out, n);
 		if (bytes_sent < n) {
 			if (error_counter)
@@ -213,7 +212,7 @@ int usb_transmit_block(const BYTE *data_out, int n)
 
 int get_busy()
 {
-	unsigned char buf[4];
+	unsigned char buf[6];
 	// requires new firmware and two roundtrips just to get the BUSY status
 	parcpusb_command(0);	// any command sets the global_action in firmware to zero
 	usb_receive_block(buf, sizeof(buf));	// read with global_action == 0 returns information packet
@@ -223,6 +222,8 @@ int get_busy()
 #if IODEBUG
 	fprintf(stderr, "get_busy OK: %s\n", busy ? "HIGH" : "LOW");
 #endif
+	if (buf[5])
+		fprintf(stderr, "!! error in adapter - write offset mismatch #%d\n", buf[5]);
 	return busy;
 }
 
@@ -290,7 +291,9 @@ int usb_read_block(BYTE *block, long offset, int n)
 	else
 		fprintf(stderr, "oo read_block(%ld, %d) OK\n", offset, n);
 #endif
-	// TODO: check that buffer[1-3] == offset;
+	long bufoff = (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
+	if (bufoff != offset)
+		fprintf(stderr, "!! read_block(%ld, %d) received offset %ld does not match\n", offset, n, bufoff);
 #if IODEBUG
 	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 #endif
