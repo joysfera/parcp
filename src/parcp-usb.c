@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "element.h"
 #include "parcp-usb.h"
 
@@ -281,8 +282,9 @@ int usb_set_server_write_size(long n, const BYTE *block)
 int usb_read_block(BYTE *block, long offset, int n)
 {
 	unsigned char buffer[USB_BLOCK_SIZE+4];
+	assert(n <= USB_BLOCK_SIZE);
 	memset(buffer, 0, sizeof(buffer));
-	int received = usb_receive_block(buffer, sizeof(buffer));
+	int received = usb_receive_block(buffer, n+4);
 	int data_received = buffer[0];
 	MYBOOL all_data_received = (received >= n+4 && (data_received == n || data_received-1 == n)); // -1 => correction for always even transfer size
 	if (!all_data_received)
@@ -295,7 +297,7 @@ int usb_read_block(BYTE *block, long offset, int n)
 	if (bufoff != offset)
 		fprintf(stderr, "!! read_block(%ld, %d) received offset %ld does not match\n", offset, n, bufoff);
 #if IODEBUG
-	fprintf(stderr, "usb_read_block(%ld, %d) = %d, [%02x %02x %02x %02x %02x %02x]\n", offset, n, ret, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+	fprintf(stderr, "usb_read_block(%ld, %d) = [$%02x $%02x $%02x $%02x $%02x $%02x]\n", offset, n, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 #endif
 	memcpy(block + offset, buffer+4, n);
 	return all_data_received ? 0 : -1;
