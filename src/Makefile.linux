@@ -13,6 +13,8 @@ STATIC =
 #STATIC = -static
 #LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
 
+#DEMO = -DSTANDALONE
+
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
 
 PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c

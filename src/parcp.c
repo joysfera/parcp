@@ -954,18 +954,19 @@ int uname(struct utsname *uts)
 		case PROCESSOR_ARCHITECTURE_ARM: arch = "arm"; break;
 	}
 	strcpy(uts->machine, arch);
+	strcpy(uts->sysname, "Windows");
 
 	OSVERSIONINFO osvi;
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osvi);
-	char *win_ver = "Windows";
+	char *win_ver = "";
 	switch(osvi.dwMajorVersion*10 + osvi.dwMinorVersion) {
-		case 52: win_ver = "Windows XP"; break;
-		case 60: win_ver = "Windows Vista"; break;
-		case 61: win_ver = "Windows 7"; break;
-		case 62: win_ver = "Windows 8+"; break;
+		case 52: win_ver = "XP"; break;
+		case 60: win_ver = "Vista"; break;
+		case 61: win_ver = "7"; break;
+		case 62: win_ver = "8+"; break;
 	}
-	strcat(uts->sysname, win_ver);
+	strcpy(uts->release, win_ver);
 	return 0;
 }
 
@@ -2372,6 +2373,8 @@ void inicializace(void)
 			strcpy(local_machine, uts.machine);
 			strcat(local_machine, "/");
 			strcat(local_machine, uts.sysname);
+			strcat(local_machine, " ");
+			strcat(local_machine, uts.release);
 		}
 		else
 			*local_machine = 0;
@@ -2550,10 +2553,12 @@ int zpracovani_parametru(int argc, char *argv[])
 #endif
 
 			case 'c':
+#ifdef SHELL
 				if (!strcmp("shell", optarg))
 					shell = TRUE;
 				else if (!strcmp("noshell", optarg))
 					shell = FALSE;
+#endif
 				break;
 		}
 	}
