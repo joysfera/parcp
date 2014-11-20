@@ -385,6 +385,10 @@ int show_menu(TMENU * imenu, int cx, int cy)
 
 		case KEY_F(9):
 		case KEY_F(10):
+#ifndef ATARI
+		case '9':
+		case '0':
+#endif
 		case KEY_UNDO:
 		case 27:				/* Escape */
 			comm = 0;

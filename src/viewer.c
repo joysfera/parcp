@@ -270,7 +270,7 @@ int	Repeat;
 void Help()
 {
 	werase(okno);
-	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994,1997\n\n");
+	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994-2014\n\n");
 	waddstr(okno, "Navigation:\n");
 	waddstr(okno, "-----------\n");
 	waddstr(okno, "Cursor keys, PageUp/Down, Home/End\n");
@@ -299,43 +299,109 @@ void KeyLoop()
 		update_panels();
 		doupdate();
 		switch(wgetch(okno)) {
-		case KEY_F(2):	showpage(0); break;
-		case KEY_F(3):	showpage(poslstrana); break;
-		case KEY_UP	:	showpage(aktradek-1); break;
-		case KEY_DOWN:	showpage(aktradek+1); break;
-		case '8':
-		case KEY_PPAGE:	showpage(aktradek-POCETRADKU); break;
+		case KEY_F(2):
+#ifndef ATARI
 		case '2':
-		case KEY_NPAGE:	showpage(aktradek+POCETRADKU); break;
-		case KEY_LEFT:	if (StartCh > 0)
-							--StartCh;
-						Redraw;
-						break;
-		case KEY_RIGHT:	if (StartCh < MAXCHAR-COLS)
-							StartCh++;
-						Redraw;
-						break;
-		case KEY_HOME:	StartCh = 0;
-						Redraw;
-						break;
-		case KEY_END:	StartCh = MAXCHAR-COLS;
-						Redraw;
-						break;
-		case KEY_F(8):	if ( (tab_size <<= 1) > 8)
-							tab_size = 2;
-						Redraw;
-						break;
-		case KEY_F(9):	Redraw;
-						break;
-		case KEY_F(4):	tisk_inverz(" Go to page: ");
-						nastranu = (Nacti_cislo() - 1) * DELKASTRANY;
-						showpage(nastranu);
-						break;
-		case KEY_F(1):	Help(); break;	
+#endif
+			showpage(0); break;
+
+		case KEY_F(3):
+#ifndef ATARI
+		case '3':
+#endif
+			showpage(poslstrana); break;
+
+		case KEY_UP:
+			showpage(aktradek-1); break;
+
+		case KEY_DOWN:
+			showpage(aktradek+1); break;
+
+#ifdef ATARI
+		case '8':
+#endif
+		case KEY_PPAGE:
+			showpage(aktradek-POCETRADKU); break;
+
+#ifdef ATARI
+		case '2':
+#endif
+		case KEY_NPAGE:
+			showpage(aktradek+POCETRADKU); break;
+
+		case KEY_LEFT:
+			if (StartCh > 0)
+				--StartCh;
+			Redraw;
+			break;
+
+		case KEY_RIGHT:
+			if (StartCh < MAXCHAR-COLS)
+				StartCh++;
+			Redraw;
+			break;
+
+		case KEY_HOME:
+			StartCh = 0;
+			Redraw;
+			break;
+
+		case KEY_END:
+			StartCh = MAXCHAR-COLS;
+			Redraw;
+			break;
+
+		case KEY_F(8):
+#ifndef ATARI
+		case '8':
+#endif
+			if ( (tab_size <<= 1) > 8)
+				tab_size = 2;
+			Redraw;
+			break;
+
+		case KEY_F(9):
+#ifndef ATARI
+		case '9':
+#endif
+			Redraw;
+			break;
+
+		case KEY_F(4):
+#ifndef ATARI
+		case '4':
+#endif
+			tisk_inverz(" Go to page: ");
+			nastranu = (Nacti_cislo() - 1) * DELKASTRANY;
+			showpage(nastranu);
+			break;
+
+		case KEY_F(1):
+#ifndef ATARI
+		case '1':
+#endif
+			Help();
+			break;	
+
 		case ESC:
-		case KEY_F(10):	Done = TRUE; break;
-		case KEY_F(7): 	FindDownString(FALSE); break;	
-		case KEY_F(5): 	FindDownString(TRUE); break;	
+		case KEY_F(10):
+#ifndef ATARI
+		case '0':
+#endif
+			Done = TRUE;
+			break;
+
+		case KEY_F(7):
+#ifndef ATARI
+		case '7':
+#endif
+			FindDownString(FALSE); break;	
+
+		case KEY_F(5):
+#ifndef ATARI
+		case '5':
+#endif
+			FindDownString(TRUE); break;	
 		}
 	}
 }

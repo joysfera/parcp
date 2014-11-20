@@ -9,11 +9,14 @@ HAVE_USB = -DUSB -I/home/joy/Qt
 
 LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
 
-STATIC =
 #STATIC = -static
 #LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
 
 #DEMO = -DSTANDALONE
+
+LIB_NCURSES=-lncurses
+# for UTF support in ncurses use ncursesw:
+#LIB_NCURSES=-lncursesw
 
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
 
@@ -24,11 +27,11 @@ ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
 
-SHELL_FLAGS = -DSHELL $(FLAGS)
+SHELL_FLAGS = -DSHELL $(FLAGS) $(DEMO)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parshell : $(SHELL_OBJS)
-	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lncurses $(LIB_USB) $(LDSTATIC)
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel $(LIB_NCURSES) $(LIB_USB) $(LDSTATIC)
 	strip parcp
 
 parcp : $(OBJS)

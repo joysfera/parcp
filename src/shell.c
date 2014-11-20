@@ -11,6 +11,9 @@
 #include <panel.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef __LINUX__
+#include <locale.h>
+#endif
 #ifdef ATARI
 #include <osbind.h>		/* Kbshift() */
 #include <support.h>	/* unx2dos() */
@@ -1192,6 +1195,9 @@ void do_shell(void)
 		}
 	}
 
+#ifdef __LINUX__
+	setlocale(LC_ALL, "");
+#endif
 	initscr();
 	curses_initialized = TRUE;
 	noecho();
@@ -1501,6 +1507,9 @@ void do_shell(void)
 
 			case KEY_HELP:
 			case KEY_F(1):
+#ifndef ATARI
+			case '1':
+#endif
 #ifdef ATARI
 #define TRANSFER_STOP_KEY	"Both Shifts"
 #else
@@ -1528,11 +1537,17 @@ void do_shell(void)
 				break;
 
 			case KEY_F(2):
+#ifndef ATARI
+			case '2':
+#endif
 				execute_command(CLI, NULL);
 				OBNOV_OBE_OKNA_S_CESTOU
 				break;
 
 			case KEY_F(3):
+#ifndef ATARI
+			case '3':
+#endif
 				if (! JE_ADR(okno,okno->kurzor)) {
 					int ret;
 					char cesta[MAXPATH], fname[MAXFNAME];
@@ -1577,6 +1592,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(4):
+#ifndef ATARI
+			case '4':
+#endif
 				if (! JE_ADR(okno,okno->kurzor)) {
 					char cesta[MAXPATH], fname[MAXFNAME];
 					MYBOOL kopie = FALSE;
@@ -1627,6 +1645,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(5):
+#ifndef ATARI
+			case '5':
+#endif
 				if (_check_info) {
 					char buf_total[MAXSTRING];
 					zjistit_kompletni_info(okno, TRUE);
@@ -1646,6 +1667,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(6):
+#ifndef ATARI
+			case '6':
+#endif
 				if (_check_info) {
 					char buf_total[MAXSTRING];
 					zjistit_kompletni_info(okno, TRUE);
@@ -1665,6 +1689,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(7):
+#ifndef ATARI
+			case '7':
+#endif
 				*tmpfnam = 0;
 				if (! EditBox("MkDir", "Enter name of new directory", tmpfnam, sizeof(tmpfnam)))
 					break;
@@ -1695,6 +1722,9 @@ void do_shell(void)
 
 			case KEY_DC:		/* Thing, Windows compatible */
 			case KEY_F(8):
+#ifndef ATARI
+			case '8':
+#endif
 				if (_check_info) {
 					zjistit_kompletni_info(okno, FALSE);	/* ignore _archive_mode */
 					sprintf(tmpstr, "Delete %lu files in %lu folders?", shell_total_files, shell_total_folders);
@@ -1711,6 +1741,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(9):
+#ifndef ATARI
+			case '9':
+#endif
 				if (interakce_menu()) {
 					int retval = myMessageBox("Quit also the PARCP Server?", myMB_YESNOCANCEL);
 					if (retval != myIDCANCEL) {
@@ -1721,6 +1754,9 @@ void do_shell(void)
 				break;
 
 			case KEY_F(10):
+#ifndef ATARI
+			case '0':
+#endif
 				write_word(M_LQUIT);
 				ukoncit_vse = TRUE;
 				break;
