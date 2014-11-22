@@ -261,6 +261,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 	if (!strcmp(adresar, DRIVES_LIST)) {
 		if (okno->remote) {
 			write_word(M_DRV);
+			wait_before_read();
 			receive_string(okno->buf);
 		}
 		else

@@ -479,6 +479,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 
 		else if (!strcasecmp(p1, "DRV")) {	/* listing of server's drives */
 			write_word(M_DRV);
+			wait_before_read();
 			receive_string(dir_buffer);
 			view(dir_buffer, TRUE);
 		}
