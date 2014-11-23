@@ -35,14 +35,14 @@ parshell : $(SHELL_OBJS)
 	strip parcp
 
 parcp : $(OBJS)
-	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB)
+	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
 	strip $@
 
 pt : parcp-usb.o
 	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
 
 parserve : $(SEROBJS)
-	gcc $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB)
+	gcc $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB) $(LDSTATIC)
 	strip $@
 
 par_io : par_io.c global.c cfgopts.c

@@ -1775,8 +1775,9 @@ int process_files_rec(const char *src_mask)
 		write_word(M_MD);
 		send_string(p_dirname);
 		if (remote_status_of_mkdir) {
+			int status;
 			wait_before_read();
-			int status = read_word();
+			status = read_word();
 			status = status; // UNUSED
 		}
 	}
