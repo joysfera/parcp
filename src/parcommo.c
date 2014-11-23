@@ -54,5 +54,21 @@ MYBOOL hledej_config(char *argv[], char *cesta)
 		konfigOK = file_existuje(cesta);
 	}
 
+#ifdef _WIN32
+# define DOMA	"HOMEDATA"
+#else
+# define DOMA	"HOME"
+#endif
+
+	if ((p = getenv(DOMA)) != NULL) {
+		strcpy(cesta, p);				/* by environment variable */
+
+		p = cesta + strlen(cesta)-1;
+		if (*p != SLASH && *p != BACKSLASH)
+			strcat(cesta, SLASH_STR);
+		strcat(cesta, CFGFILE);
+		konfigOK = file_existuje(cesta);
+	}
+
 	return konfigOK;
 }
