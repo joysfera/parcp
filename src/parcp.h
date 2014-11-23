@@ -9,11 +9,11 @@
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"3.94"		/* displays on the screen when PARCP starts */
+#define VERZE	"3.95"		/* displays on the screen when PARCP starts */
 #undef BETA				/* beta version for testing */
 #undef WILL_EXPIRE			/* defines expiration */
 
-#define PROTOKOL	0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
+#define PROTOKOL		0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
 
 #include <stdio.h>
 #include <string.h>
@@ -98,7 +98,7 @@ struct utsname {
 #define DIRLINELEN	(MAXFNAME+10+1+16+1)
 #define DIRBUF_LIN	256
 #define UNREG_DIRBUF_LIN	10
-#define BUFFER_LENKB	50
+#define BUFFER_LENKB	16
 #define	KILO	1024UL
 #define	MAX_DEPTH	8
 #define REPEAT_TRANSFER	3
@@ -170,6 +170,7 @@ struct utsname {
 #define B_ARCH_MODE	0x0040		/* TRUE = use DOS ATTRIB flag for file backup */
 #define B_PRESERVE	0x0080		/* TRUE = preserve file name upper/lower case on DOS like filesystems */
 #define B_CHECKINFO	0x0100		/* TRUE = show progress info */
+#define B_MKDIR_STATUS	0x8000		/* protocol extension, HACK, to be removed once PROTOKOL is increased */
 
 #define	LS_DIRS_ONLY	0x0001
 #define	LS_FILES_ONLY	0x0002

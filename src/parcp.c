@@ -21,6 +21,7 @@ extern WINDOW *pwincent;
 #endif
 
 MYBOOL client = TRUE;	/* PARCP is Client by default */
+MYBOOL remote_status_of_mkdir; /* HACK */
 
 BYTE *block_buffer;
 char *dir_buffer, *file_buffer,  string_buffer[MAXSTRING+1];
@@ -218,6 +219,19 @@ void write_longlong(long long x)
 }
 
 /*******************************************************************************/
+
+void client_reconnecting(void)
+{
+	int val;
+	write_word(HI_CLIENT);
+	val = read_word();
+	if (val != PROTOKOL) {
+		printf("\nServer's Debug info: expected $%04x, received $%04x\n", PROTOKOL, val);
+		write_word(M_QUIT);
+		errexit("Client uses different revision of PARCP communication protocol.", ERROR_HANDSHAKE);
+	}
+	write_word(M_OK);
+}
 
 void catch_ctrl_c(int x)
 {
@@ -768,10 +782,11 @@ UWORD PackParameters(void)
 |	(_keep_attribs ? B_ATTRIBS : 0)							\
 |	(_archive_mode ? B_ARCH_MODE : 0)						\
 |	(_preserve_case ? B_PRESERVE : 0)						\
-|	(_check_info ? B_CHECKINFO : 0)						\
+|	(_check_info ? B_CHECKINFO : 0)							\
+|	B_MKDIR_STATUS	/* HACK, client annonces mkdir status protocol extension */	\
 	;
 }
-#endif /* PARCP_SERVER */
+#endif /* !PARCP_SERVER */
 
 void UnpackParameters(UWORD x)
 {
@@ -784,6 +799,7 @@ void UnpackParameters(UWORD x)
 	_archive_mode = (x & B_ARCH_MODE) ? TRUE : FALSE;
 	_preserve_case = (x & B_PRESERVE) ? TRUE : FALSE;
 	_check_info = (x & B_CHECKINFO) ? TRUE : FALSE;
+	remote_status_of_mkdir = (x & B_MKDIR_STATUS) ? TRUE : FALSE;	/* HACK, server receives client's capability */
 }
 
 #ifndef PARCP_SERVER
@@ -803,7 +819,7 @@ void send_parameters(void)
 	setup_opendir();
 	allocate_buffers();
 }
-#endif /* PARCP_SERVER */
+#endif /* !PARCP_SERVER */
 
 void receive_parameters(void)
 {
@@ -822,6 +838,13 @@ void receive_parameters(void)
 /* set up the application with the new parameters */
 	setup_opendir();
 	allocate_buffers();
+
+/* print information */
+	printf("Client has configured server as follows:\n\
+Block size: %ld kB/s\n\
+Directory lines: %d\n\
+CRC: %s\n\
+Extended protocol: %s\n\n", buffer_len / 1024, dirbuf_lines, _checksum ? "Yes" : "No", remote_status_of_mkdir ? "Yes" : "No");
 }
 
 /*******************************************************************************/
@@ -1751,6 +1774,11 @@ int process_files_rec(const char *src_mask)
 		DPRINT1("r M_MD(%s)\n", p_dirname);
 		write_word(M_MD);
 		send_string(p_dirname);
+		if (remote_status_of_mkdir) {
+			wait_before_read();
+			int status = read_word();
+			status = status; // UNUSED
+		}
 	}
 
 	while( (dir_ent = readdir(dir_p)) != NULL) {
@@ -1894,8 +1922,9 @@ int process_files_on_receiver_side()
 			remove_last_slash(fname);
 			DPRINT1("p vytvarim adresar '%s' ... ", fname);
 			status = mkdir(fname);
-			status = status; // to avoid warning if DPRINT is not active
 			DPRINT1("p status = %d\n", status);
+			if (remote_status_of_mkdir)
+				write_word(status);
 			continue;
 		}
 		else if (Process == M_DELINFO) {
@@ -2020,7 +2049,7 @@ int copy_files(MYBOOL source, const char *p_srcmask, MYBOOL pote_smazat)
 		write_word(M_PSTART);
 		status = process_files(mode, p_srcmask);
 
-		/* if the file stransfer was interrupted by a key press and we are server
+		/* if the file transfer was interrupted by a key press and we are server
 		  we will not be sending a message to the client because it ended up
 		  already and doesn't wait for anything */
 		if (! (status == QUIT_TRANSFER && !client))
@@ -2177,12 +2206,7 @@ void do_server(void)
 			case HI_SERVER:				/* interrupted client tries to connect again */
 				if (! _quiet_mode)
 					printf("Client tries to reconnect... ");
-				write_word(HI_CLIENT);
-				if (read_word() != PROTOKOL) {
-					write_word(M_QUIT);
-					errexit("Other side uses different revision of PARCP communication protocol.", ERROR_HANDSHAKE);
-				}
-				write_word(M_OK);
+				client_reconnecting();
 				if (! _quiet_mode)
 					puts("Client reconnected.");
 				continue;
@@ -2241,7 +2265,15 @@ void do_server(void)
 				break;
 
 			case M_UTS:
-				send_string(local_machine);
+				{
+					/* underscore hack that will be removed once the new PROTOKOL is established */
+					char temp[256];
+					strcpy(temp, local_machine);
+					if (remote_status_of_mkdir)	/* if client has this capability then */
+						strcat(temp, "_");	/* confirm server capability via this HACK */
+					/* end of underscore hack */
+					send_string(temp);
+				}
 				break;
 
 			case M_GETINFO:
@@ -2453,15 +2485,7 @@ void client_server_handshaking(MYBOOL client)
 			errexit("Other side is not PARCP Client", ERROR_HANDSHAKE);
 		}
 
-		write_word(HI_CLIENT);
-
-		if (read_word() != PROTOKOL) {
-			printf("\nServer's Debug info: expected $%04x, received $%04x\n", PROTOKOL, val);
-			write_word(M_QUIT);
-			errexit("Client uses different revision of PARCP communication protocol.", ERROR_HANDSHAKE);
-		}
-
-		write_word(M_OK);
+		client_reconnecting();
 	}
 	if (! _quiet_mode)
 		puts("OK\n");
@@ -2559,6 +2583,10 @@ int zpracovani_parametru(int argc, char *argv[])
 				else if (!strcmp("noshell", optarg))
 					shell = FALSE;
 #endif
+				if (!strcmp("crc", optarg))
+					_checksum = TRUE;
+				else if (!strcmp("nocrc", optarg))
+					_checksum = FALSE;
 				break;
 		}
 	}
@@ -2640,7 +2668,7 @@ int main(int argc, char *argv[])
 	if (client) {
 #ifndef PARCP_SERVER
 		/* exchange features */
-		send_features();
+		send_features();	/* sends also HACKish client_status_of_mkdir */
 
 		/* send client parameters to the server */
 		send_parameters();	/* allocate block and dir buffers here */
@@ -2648,6 +2676,16 @@ int main(int argc, char *argv[])
 		/* detect server type */
 		write_word(M_UTS);
 		receive_string(remote_machine);
+
+		/* underscore hack that will be removed once the PROTOKOL is increased */
+		{
+			int len = strlen(remote_machine);
+			remote_status_of_mkdir = FALSE;
+			if (remote_machine[len-1] == '_') {	/* server confirms it has this capability as well */
+				remote_status_of_mkdir = TRUE;	/* alright, new protocol established */
+				remote_machine[len-1] = '\0';	/* underscore removed */
+			}
+		}
 
 		/* execute commands from auto exec file first */
 		if (*autoexec) {
