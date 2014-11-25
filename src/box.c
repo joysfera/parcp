@@ -355,17 +355,10 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 		switch(key = wgetch(w)) {
 			case KEY_HELP:
 			case KEY_F(1):
-#ifndef ATARI
-			case '1':
-#endif
 				myMessageBox("Help for ParShell EditBox:\n\nNavigation - arrow keys Right and Left, Home and End\nBackspace and Delete keys erase characters\nCtrl-X or Ctrl-Y keypress erases whole line\nFunction keys F9, F10, Undo or Escape close the EditBox\nReturn or Enter keys end the editting box and send the entered string to ParShell", myMB_OK);
 				break;
 			case KEY_F(9):
 			case KEY_F(10):
-#ifndef ATARI
-			case '9':
-			case '0':
-#endif
 			case KEY_UNDO:
 			case 27:	/* Escape */
 				cursor_pos = -1;		/* editing canceled */
