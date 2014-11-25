@@ -403,9 +403,12 @@ void inicializace_okna(OKNO *okno, MYBOOL pozice, MYBOOL remote)
 	okno->visible = FALSE;
 
 	if (remote)
-		snprintf(tmpbuf, WW, " Server  [%s] ", remote_machine);
+		sprintf(tmpbuf, " Server  [%s] ", remote_machine);
 	else
-		snprintf(tmpbuf, WW, " Client  [%s] ", local_machine);
+		sprintf(tmpbuf, " Client  [%s] ", local_machine);
+	// limit too long uname() string
+	tmpbuf[WW-2] = ' ';
+	tmpbuf[WW-1] = '\0';
 	mvaddstr(posazeni-3,2+stred*pozice, tmpbuf);
 
 	nacti_obsah_s_cestou(okno);
