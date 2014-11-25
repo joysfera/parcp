@@ -1075,20 +1075,23 @@ MYBOOL interakce_menu()
 				parcpkey((const BYTE *)username, crypta);
 				registered = check(crypta, (const BYTE *)keycode);
 				if (registered) {
+					char sprtmp[512];
 					myMessageBox("Congratulations to successful registration!", myMB_OK);
-					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
-					myMessageBox("PARCP configuration with your name and keycode has been saved.", myMB_OK);
 					if (dirbuf_lines < DIRBUF_LIN) {
 						/* first of all, increase the number of lines in the dir buffer */
 						dirbuf_lines = DIRBUF_LIN;
 						send_parameters();			/* tell server about the dirbuf_lines change */
 						REALOKUJ_BUF_OKEN;
 						obnovit_okna = TRUE;
-						myMessageBox("Number of directory lines has just been increased automatically. Feel free to edit other parameters but don't forget to save the configuration before you exit PARCP.", myMB_OK);
+						sprintf(sprtmp, "Number of directory lines has just been increased to %d automatically. Feel free to edit other parameters.", dirbuf_lines);
+						myMessageBox(sprtmp, myMB_OK);
 					}
+					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
+					sprintf(sprtmp, "PARCP configuration with your name and keycode has been saved to '%s'.", cfg_fname);
+					myMessageBox(sprtmp, myMB_OK);
 				}
 				else
-					myMessageBox("Registration was not successful.", myMB_OK);
+					myMessageBox("Registration was not successful. Please double check the entered name and keycode.", myMB_OK);
 			}
 			break;
 			
