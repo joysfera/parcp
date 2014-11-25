@@ -592,6 +592,7 @@ int send_file(FILE *handle, long lfile)
 
 			/* here we must wait for other side that writes the block to (possibly) slow
 			   device such as network drive or even floppy */
+			wait_before_read();
 			receiver_status = read_word();
 		} while(receiver_status == M_REPEAT && repeat_transfer--);
 
@@ -650,7 +651,9 @@ int receive_file(FILE *handle, long lfile)
 			if (!_checksum)
 				break;
 
-			if (read_long() == compute_CRC32(block_buffer, lblock))
+			wait_before_read();	// give the other side time to compute the block checksum
+			unsigned long crc = read_long();
+			if (crc == compute_CRC32(block_buffer, lblock))
 				break;	/* CRC is OK */
 
 			DPRINT("l CRC fail, repeating block transfer\n");
@@ -1776,7 +1779,7 @@ int process_files_rec(const char *src_mask)
 		send_string(p_dirname);
 		if (remote_status_of_mkdir) {
 			int status;
-			wait_before_read();
+			wait_before_read();	// wait for the other side to create the folder
 			status = read_word();
 			status = status; // UNUSED
 		}
