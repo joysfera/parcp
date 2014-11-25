@@ -60,7 +60,7 @@ MYBOOL hledej_config(char *argv[], char *cesta)
 # define DOMA	"HOME"
 #endif
 
-	if ((p = getenv(DOMA)) != NULL) {
+	if (! konfigOK && (p = getenv(DOMA)) != NULL) {
 		strcpy(cesta, p);				/* by environment variable */
 
 		p = cesta + strlen(cesta)-1;
