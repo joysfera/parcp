@@ -2564,7 +2564,7 @@ int zpracovani_parametru(int argc, char *argv[])
 	}
 
 	/* now parse the rest of command line parameters (so they get higher priority over the config file values) */
-	optind = 0;
+	optind = 1;
 	while((i=getopt(argc, argv, ARG_OPTIONS)) != EOF) {
 		switch(tolower(i)) {
 			case 'b':
