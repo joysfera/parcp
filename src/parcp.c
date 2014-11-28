@@ -646,13 +646,14 @@ int receive_file(FILE *handle, long lfile)
 
 		repeat_transfer = REPEAT_TRANSFER;
 		do {
+			unsigned long crc;
 			read_block(block_buffer, lblock);			/* read the entire block of data */
 
 			if (!_checksum)
 				break;
 
 			wait_before_read();	// give the other side time to compute the block checksum
-			unsigned long crc = read_long();
+			crc = read_long();
 			if (crc == compute_CRC32(block_buffer, lblock))
 				break;	/* CRC is OK */
 
@@ -1940,6 +1941,7 @@ int process_files_on_receiver_side()
 		else if (Process == M_MD) {
 			int status;
 			receive_string(fname);
+			check_and_convert_filename(fname);
 			remove_last_slash(fname);
 			DPRINT1("p vytvarim adresar '%s' ... ", fname);
 			status = mkdir(fname);
