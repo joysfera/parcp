@@ -851,12 +851,29 @@ Extended protocol: %s\n\n", buffer_len / 1024, dirbuf_lines, _checksum ? "Yes" :
 }
 
 /*******************************************************************************/
+#ifdef _WIN32
+typedef enum { FILESYS_CASE_SENSITIVE, FILESYS_LFN_SUPPORTED } gvi;
+MYBOOL get_volume_info(const char *fname, gvi x)
+{
+	char volumeName[256];
+	long MaximumComponentLength, FileSystemFlags;
+	GetVolumeInformation(fname, volumeName, sizeof(volumeName), NULL, &MaximumComponentLength, &FileSystemFlags, NULL, 0);
+	switch(x) {
+		case FILESYS_CASE_SENSITIVE: return ((FileSystemFlags & FILE_CASE_SENSITIVE_SEARCH) > 0);
+		case FILESYS_LFN_SUPPORTED: return (MaximumComponentLength > (8+3+1));
+	}
+	return FALSE;
+}
+#endif
+
 MYBOOL fs_sensitive(const char *fname)
 {
 #if defined(ATARI)
 	return (pathconf(fname, _PC_NAME_CASE) == 0) ? TRUE : FALSE;
 #elif defined(__MSDOS__)
 	return (_get_volume_info(fname, NULL, NULL, NULL) & _FILESYS_CASE_SENSITIVE) ? TRUE : FALSE;
+#elif defined(_WIN32)
+	return get_volume_info(fname, FILESYS_CASE_SENSITIVE);
 #else
 	return TRUE;	/* Linux */
 #endif
@@ -869,7 +886,7 @@ MYBOOL lfn_fs(const char *fname)
 #elif defined(__MSDOS__)
 	return (_get_volume_info(fname, NULL, NULL, NULL) & _FILESYS_LFN_SUPPORTED) ? TRUE : FALSE;
 #elif defined(_WIN32)
-	return TRUE; // TODO: GetVolumeInformation
+	return get_volume_info(fname, FILESYS_LFN_SUPPORTED);
 #else
 	abort; /* return TRUE; */	/* currently unused */
 #endif
