@@ -1518,29 +1518,30 @@ void do_shell(void)
 			case '1':
 #endif
 #ifdef ATARI
-#define TRANSFER_STOP_KEY	"Both Shifts"
+# define TRANSFER_STOP_KEY	"Both Shifts"
+# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down move cursor, hold Shift for paging.\n"
+# define FKEYS_BLOCKED		""
+# define IMMEDIATE_BREAK	"Ctrl+C breaks file transfer immediately.\n"
 #else
-#define TRANSFER_STOP_KEY	"Esc key"
+# define TRANSFER_STOP_KEY	"Esc key"
+# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down and PageUp/Down/Home/End move cursor.\n"
+# define FKEYS_BLOCKED		"Use numeric keys instead if function keys are not available.\n"
+# define IMMEDIATE_BREAK	""
 #endif
-#ifdef LINUX
-#define TRANSFER_BREAK_KEY	"Ctrl-C"
-#else
-#define TRANSFER_BREAK_KEY	"Shift+Ctrl"
-#endif
-				myMessageBox("PARCP's home at http://joy.sophics.cz/\n\n"\
+				myMessageBox("PARCP's home at http://joy.sophics.cz/parcp/\n\n"\
 		"Help for ParShell user interface:\n\n"\
-		"Arrow keys (up,down,left,right) move cursor\n"\
-		"Tab key switches between Client and Server window\n"\
-		"Insert key selects/unselects files\n"\
-		"Keys '+','-' and '*' on numeric keypad select files, too\n"\
-		"Typing lowercase move cursor\n"\
-		"Typing uppercase select files\n"\
-		"Delete key deletes selected or actual file\n"\
-		"Ctrl-R (or Esc key) refresh contents\n"\
-		TRANSFER_STOP_KEY" stop file copying/moving/deleting\n"
-		TRANSFER_BREAK_KEY" break file transfer immediately\n"
-		"Function keys are listed at bottom of screen\n"\
-		"F20 (Shift+F10) does QUIT for both Client and Server", myMB_OK);
+		"Tab key switches between Client (left) and Server (right) window.\n"\
+		"Arrow keys Left/Right and '/' change directory.\n"\
+		KEYS_FOR_MOVING_CURSOR\
+		"Insert key selects/unselects files.\n"\
+		"Keys '+','-' and '*' on numeric keypad select files, too.\n"\
+		"Typing lowercase moves cursor.\n"\
+		"Typing uppercase selects files.\n"\
+		"Del key deletes selected (if any) or current (under cursor) file.\n"\
+		"Function key actions (F5=Copy) are listed at bottom of window.\n"FKEYS_BLOCKED\
+		"Ctrl+R (or Esc key) refreshes contents.\n"\
+		TRANSFER_STOP_KEY" stops file copying/moving/deleting.\n"IMMEDIATE_BREAK\
+		"F20 = Shift+F10 quits both Client and Server.", myMB_OK);
 				break;
 
 			case KEY_F(2):

@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#define BOX_MAX_WIDTH	60
+#define BOX_MAX_WIDTH	70
 
 #ifndef DJGPP
 int min(int a, int b)
