@@ -1,6 +1,126 @@
 This is the history of PARCP development:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+3.95c - 2014/12/03
+==================
+- Warning about possibly incomplete directory listing added. It suggests
+  user to increase the DirectoryLines setting.
+
+- VFAT fake directory entries made invisible on Atari (hi LetDisk! :-).
+
+- HIDDEN flag respected on files under plain TOS.
+
+- ParShell help instructions corrected and improved.
+
+
+3.95b - 2014/11/28
+==================
+- old bug fixed: recursive copying of folders with long file names
+  with destination on 8+3 filesystem. The folder name is now shortened
+  properly.
+
+- Win32 support for Volume Information (filesystem features) added.
+
+- fixed recently introduced bug (in version 3.95) that caused Atari client
+  to send its folder and quit (like if it was drag&dropped).
+
+
+3.95a - 2014/11/26
+==================
+- two crucial waitings before read added. Should fix transfer timeouts
+  on slow STs with large data blocks.
+
+- the output of uname() (operating system name) shortened to not overflow
+  the window width.
+
+- DirectoryLines are increased automatically before saving the PARCP.CFG
+  upon registering. Users should no longer suffer from incorrect setting.
+
+- recently introduced bug in searching for PARCP.CFG also in $HOME fixed.
+
+- recently introduced bug in ParShell form's input field (keys 1, 9, 0
+  not working) fixed.
+
+
+3.95 - 2014/11/23
+=================
+- PARCP.CFG is now searched also in user's home folder.
+
+- found and fixed a serious bug in PARCP protocol that causes timeouts
+  when copying folders to slow computer. Fixed in an inventive hack in
+  order to preserve the protocol revision.
+
+- server prints information about its current configuration loaded from
+  client (Krupkaj's suggestion).
+
+- "crc" / "nocrc" added to the recently added "-c" command line switch.
+
+- default block size lowered to 16 kB (good for plain ST).
+
+
+3.94 - 2014/11/20
+=================
+- ParShell: if function keys are not available (GNOME, Windows, ...)
+  then the numeric keys (plain numbers) works equally well.
+
+- Windows uname (system information) fixed and improved.
+
+- Atari ST52 line wrap enabled.
+
+- two phase command line parameters parsing in order to properly
+  overwrite values from configuration file by command line switches.
+
+- fixed an old bug in PARCP protocol that appeared when a file could not
+  be opened for reading on server. This is a good reason to upgrade your
+  PARCP, if possible.
+
+- USB "SerialNumber" configuration option added to PARCP.CFG. It allows
+  you to specify which PARCP-USB adapter should be used if there are 
+  several plugged into your computer.
+
+- enormous amount of USB related improvements.
+
+- enormous effort into compiling under MinGW. Had to reimplement a bunch
+  of functions that are not in Win32 API. Also had to rename most
+  of ParShell functions as their names conflicted with WinAPI. Weird.
+
+- fixed PARCP key encrypting/decrypting on 64-bit operating systems.
+
+- important bug fix: "DIR" could time-out. Fixed by adding a waiting
+  for other side before reading the output.
+
+- many other minor changes that are too boring to list here
+
+3.93 - 2014/10/14
+=================
+- USB support added to PARCP (for PARCP-USB).
+
+- parallel port assembler routines for MS-DOS removed (not needed
+  on current PCs as they're magnitude faster than a decade ago).
+
+- an important timing fix: clock() returned CPU time spent in process,
+  not the realtime.
+
+- many many changes and fixes in order to compile the project again
+  after 8 years, using a modern compiler.
+
+- project is now in a git repository
+
+
+3.92 - 2006-06-26
+=================
+- progress window moved a bit up to not cover eventual error message box.
+
+- corrected asm clobbered registers in assembler routines for MS-DOS.
+
+
+3.91 - 2006-06-02
+=================
+- ExchangeFeatures protocol extension implemented.
+
+- send_collected_info() for server to show proper progress info.
+
+
 3.90 - 30.05.2002 - getting ready for 64bit file sizes
 =================
 - I noticed that PARCP was 32-bit limited (actually 31-bit :) regarding
