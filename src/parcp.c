@@ -1118,6 +1118,11 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		}
 		closedir(dir_p);
 
+		if (pocet == dirbuf_lines) {
+			sprintf(p, "Incomplete - increase DirectoryLines!!\n");
+			return;
+		}
+
 		ret = getcwd(dname, sizeof(dname));	/* a workaround for a bug in MiNT libs */
 		ret = ret; // UNUSED
 		DPRINT1("d Directory closed, going to find out free space in %s\n", dname);
