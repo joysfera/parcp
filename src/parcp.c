@@ -1082,6 +1082,12 @@ void list_dir(const char *p2, int maska, char *zacatek)
 			if (stat(tempo, &stb)) {
 				DPRINT2("d stat(%s) returned error %d\n", tempo, errno);
 			}
+#if ATARI
+			if (! _show_hidden && (stb.st_attr & 0x02)) // file is hidden in 8.3 DOS/TOS
+				continue;
+			if (stb.st_attr & 0x08) // entry is VolumeID
+				continue;			// this also removes VFAT fake entries
+#endif
 			is_dir = S_ISDIR(stb.st_mode);
 			if (is_dir && (maska & LS_FILES_ONLY))
 				continue;
