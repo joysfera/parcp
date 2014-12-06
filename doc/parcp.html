@@ -7,16 +7,16 @@
 
 <CENTER>
 <H1><BR>
-                                 PARCP v3.90
+                                 PARCP v3.96
 </H1>
 <H2><BR>
                           written by Petr Stehlik
 </H2>
 <H3>
-                              &copy; 1996-2002
+                              &copy; 1996-2014
 </H3>
 </CENTER>
-Last Update: June 2, 2002
+Last Update: December 6, 2014
 <HR>
 <STRONG>
                             TABLE OF CONTENTS
@@ -101,9 +101,7 @@ Last Update: June 2, 2002
 
 <H1><BR><A NAME="Changes"></A>0. Changes in this Document
 </H1>
-I added information about <A HREF="#Features3">newer Microsoft operating systems</A>,
-updated <A HREF="#Features7">list of changes</A>
-and corrected <A HREF="#Resources5">contact info</A>.
+Added notes about PARCP-USB at some places. Not updated thoroughly and properly yet, sorry.
 
 
 <H1><BR><A NAME="Introduction"></A>1. Introduction
@@ -111,7 +109,7 @@ and corrected <A HREF="#Resources5">contact info</A>.
 <P>
 This is the second try of an useful documentation, I'm not good at that...
 Please read it if you can. If you're too impatient and can't read whole
-documentation before first start of PARCP, please read the "Quick, Five
+documentation before first start of PARCP, please read the "Quick, Three
 lines guide to PARCP installation and use" in the <A HREF="quick.txt">QUICK.TXT</A> file.
 
 
@@ -124,6 +122,10 @@ computers. This allows you to copy many and large files very quickly from
 one machine to another, either by simple drag &amp; drop, or automated in batch
 mode or you can choose from two different user interfaces (command line like
 in a FTP client and fullscreen windows just like Norton Commander).
+In 2014 I developed <a href="http://joy.sophics.cz/parcp/parcp-usb.html">PARCP-USB</a>
+adapter that allows to interconnect computers with parallel ports (Atari and old PC
+machines) with computers that have USB ports (all newer computers basically). So
+PARCP is no longer fixed to parallel ports only.
 
 
 <H2><BR><A NAME="Introduction2"></A> 1.2 Advantages of PARCP
@@ -135,14 +137,13 @@ in a FTP client and fullscreen windows just like Norton Commander).
 <P>
   The PARCP cable is all that's needed to connect two computers, and it can
   be build for very few bucks. You can even look around and if you find
-  parallel LapLink cable, you need nothing but PARCP!
+  parallel LapLink cable, you need nothing but PARCP!<BR>
+  With the PARCP-USB adapter you can use an ordinary USB cable. No need to solder anything.
 <P>
 <LI>[fast and available everywhere]
 <P>
-  Connecting two computers takes only a seconds decision and a few minutes
-  work, no need to search for a netcard. This might even be especially
-  important in the case of notebooks, where netcard are not easily
-  available.
+  Connecting two computers with the cable takes only few seconds. All computers
+  have either parallel ports or USB ports.
 <P>
 <LI>[easy]
 <P>
@@ -153,7 +154,7 @@ in a FTP client and fullscreen windows just like Norton Commander).
 <LI>[available everywhere]
 <P>
   PARCP can connect two computers running different operating systems. No
-  need to search for a common network protocol, PARCP itself is a 'common
+  need to search for a common network protocol, PARCP itself is the 'common
   protocol'.
 <P>
 <LI>[easy and fast]
@@ -195,19 +196,20 @@ PARCP has been designed to work on two different computer platforms:
 <UL>
   <LI> Atari ST/STE/TT/Falcon and compatible computers (Medusa/Hades).
     PARCP is also compatible with all sorts of accelerator cards such
-    as AfterBurner040 for Falcon etc. Milan is not supported yet because it
+    as AfterBurner040 or CT60 for Falcon etc. Milan is not supported yet because it
     lacks the ST-compatible parallel port.
 <P>
   <LI> IBM PC 386 and compatible clones (i.e. machines with 32-bit x86 CPU).
     PARCP has been tested succesfully on AMD 386, Intel 486, Intel Pentium,
-    Cyrix 6x86 and M2 as well as on AMD K6-2 processors.
+    Cyrix 6x86 and M2 as well as on AMD K6-2 processors.<BR>
+    Nowadays also 64-bit AMD and Intel CPUs are supported. And PARCP runs even on ARM!
 </UL>
 <P>
  <I>
  I will use the word <STRONG>Atari</STRONG> as a general reference for any of the computers with
  Motorola CPU inside and running TOS or compatible operating system (MiNT/MagiC)
  and the word <STRONG>PC</STRONG> for any computer with Intel or compatible CPU and running
- DOS or compatible operating system (Windows9x/OS/2) or Linux-ix86.
+ DOS or compatible operating system (DOS/Windows9x/OS/2 for PARCP with cable, Windows XP and up for PARCP-USB) or Linux based one.
  </I>
 <P>
 The main feature of PARCP is the ability of connecting of any two supported
@@ -260,52 +262,61 @@ platforms: Atari, DOS/Windows and Linux.
 All three binary versions of PARCP look and behave exactly the same way,
 which is good for user learning its capabilities.
 
-<P>
+<H4>
   Atari computers (any model):
-<P>
+</H4>
 <UL>
     <LI> TOS
     <LI> MiNT
     <LI> MagiC
 </UL>
-<P>
-  PC computers (with Intel 386 or higher CPU):
-<P>
+<H4>
+  PC computers with PARCP cable:
+</H4>
 <UL>
     <LI> DOS flavors (MS-DOS, DR DOS, FreeDOS)
     <LI> Microsoft Windows95/Windows98/WindowsME
     <LI> OS/2 (in DOS mode)
-    <LI> Linux-ia32 (native application)
+    <LI> Linux on i386/amd64 (native application)
+</UL>
+<H4>
+  PC computers with PARCP-USB:
+</H4>
+<UL>
+    <LI> Microsoft WindowsXP/Vista/7/8+ on i386/amd64 (new native application!)
+    <LI> Linux on i386/amd64/ARMv6 (native application)
 </UL>
 <P>
-    <H4>Microsoft WindowsNT/Windows2000/WindowsXP</H4>
-    Please note PARCP can't run under WindowsNT/W2K/WXP out-of-the-box
+    <H5>Microsoft WindowsNT/Windows2000/WindowsXP and PARCP cable</H5>
+    Please note the old PARCP 3.90 can't run under WindowsNT/W2K/WXP out-of-the-box
     because these operating systems don't allow user programs to access
-    the hardware registers of parallel ports directly.
+    the hardware registers of parallel ports directly. There are several 3rd party
+    drivers for Windows that can overcome that and allow PARCP to run:
+    <ul>
+      <li><a href="http://www.embeddedtronics.com/public/Electronics/minidaq/userport/UserPort.zip">UserPort</a> (tested by Michael Schmid and reported to work) </li>
+      <li><a href="http://www.beyondlogic.org/porttalk/porttalk.htm">PortTalk</a>  (another possible solution, untested)</li>
+      <li><a href="http://www.zeecube.com/">ParPort2004</a> (commercial solution, tested by me) </li>
+    </ul>
+    For LFN support (long file names) you may try installing the following driver: <a href="http://clio.rice.edu/djgpp/ntlfn08b.zip">NT LFN TSR</a>
     <BR>
-    If you need to copy some files from a NTFS drive you can either
+    If you need to copy some files from a NTFS formatted drive without diving into the WindowsNT+ headaches you can either
     use <A HREF="http://www.sysinternals.com">NTFS driver for DOS/Windows9x</A>
     that will allow you to read NTFS under plain DOS or Windows, or you can
     use a recent version of Linux kernel (2.4.x) that contains NTFS driver.
-    <BR>
-    There's a possibility to run PARCP when the OS is patched to allow
-    user programs to access the parallel port. PARCP was tested with
-    <A HREF="http://www.zeecube.com/">ParPort2000</A> and worked
-    fine (only long file names were shortened to 8+3). The runtime license
-    is for 20 USD. There might be other (free) solutions but I haven't found
-    other than the ParPort2000 yet.
-
-<P>
+    <H5>PARCP-USB requires WindowsXP or newer</H5>
+    PARCP-USB adapter, contrary to the PARCP cable, requires newer Windows OS (because DOS does not support USB). The PARCP v3.94+
+    comes with a native MS-Windows binary that runs on both 32-bit and 64-bit Windows.
+<H4>
 Main PARCP features under multitasking OSes:
-<P>
+</H4>
 <UL>
-  <LI> <H4> non-blocking waiting for user action </H4>
+  <LI> <H5> non-blocking waiting for user action </H5>
     PARCP doesn't hog OS nor CPU while waiting for user - the average load
     is close to zero when PARCP is idle. Therefore other applications
     continue working at full speed when PARCP is waiting. Thus you can have
     PARCP Server running all the time in the background, always ready for transmission.
 <P>
-  <LI> <H4> support of long file names (LFN) and file attributes </H4>
+  <LI> <H5> support of long file names (LFN) and file attributes </H5>
     PARCP allows you to copy files from one operating system to another
     with original long file names preserved. Some rather unusual combinations
     of possible transfers of long file names between different environments
@@ -1956,8 +1967,8 @@ probably get fixed.
 </H2>
 <P>
  You can easily get the PARCP cable directly from <A HREF="#Resources5">me</A>. Just send me
- 10 EUR DM, 10 USD or 5 UKP in a (registered) letter and I'll send you back the 2
- metres (6 feets) long PARCP cable. Let me know if you need a longer one.
+ 8 EUR or 10 USD via PayPal and I'll send you back the 2 metres (6 feets) long PARCP cable.
+ Let me know if you need a longer one.
 <P>
 <P>
 
