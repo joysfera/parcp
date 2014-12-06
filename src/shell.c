@@ -1521,19 +1521,18 @@ void do_shell(void)
 # define TRANSFER_STOP_KEY	"Both Shifts"
 # define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down move cursor, hold Shift for paging.\n"
 # define FKEYS_BLOCKED		""
-# define IMMEDIATE_BREAK	"Ctrl+C breaks file transfer immediately.\n"
 #else
 # define TRANSFER_STOP_KEY	"Esc key"
 # define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down and PageUp/Down/Home/End move cursor.\n"
 # define FKEYS_BLOCKED		"Use numeric keys instead if function keys are not available.\n"
-# define IMMEDIATE_BREAK	""
 #endif
+# define IMMEDIATE_BREAK	"Ctrl+C breaks file transfer immediately (sometimes).\n"
 				myMessageBox("PARCP's home at http://joy.sophics.cz/parcp/\n\n"\
 		"Help for ParShell user interface:\n\n"\
 		"Tab key switches between Client (left) and Server (right) window.\n"\
 		"Arrow keys Left/Right and '/' change directory.\n"\
 		KEYS_FOR_MOVING_CURSOR\
-		"Insert key selects/unselects files.\n"\
+		"Insert and SpaceBar keys select/unselect files.\n"\
 		"Keys '+','-' and '*' on numeric keypad select files, too.\n"\
 		"Typing lowercase moves cursor.\n"\
 		"Typing uppercase selects files.\n"\
