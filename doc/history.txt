@@ -1,5 +1,14 @@
-This is the history of PARCP development:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the history of PARCP development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+3.96 - 2014/12/06
+=================
+- properly fixed the VFAT ghost file names and any other weirdness at last.
+
+- enabled waiting for a keypress if PARCP exits with an error message.
+
+- slightly improved the PARCP Help page in the ParShell (press F1/1).
+
 
 3.95c - 2014/12/03
 ==================
@@ -70,6 +79,9 @@ This is the history of PARCP development:
 - two phase command line parameters parsing in order to properly
   overwrite values from configuration file by command line switches.
 
+- new command line option "-c" with single value for now: "shell"/"noshell".
+  Can override setting read from the PARCP configuration file.
+
 - fixed an old bug in PARCP protocol that appeared when a file could not
   be opened for reading on server. This is a good reason to upgrade your
   PARCP, if possible.
@@ -80,7 +92,7 @@ This is the history of PARCP development:
 
 - enormous amount of USB related improvements.
 
-- enormous effort into compiling under MinGW. Had to reimplement a bunch
+- large effort went into compiling under MinGW. Had to reimplement a bunch
   of functions that are not in Win32 API. Also had to rename most
   of ParShell functions as their names conflicted with WinAPI. Weird.
 
