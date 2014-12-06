@@ -1,3 +1,7 @@
+# examples of running make:
+# for static binaries: make -e STATIC=-static
+# for standalone demo: make -e EXT_FLAGS=-DSTANDALONE
+
 DEBUG =
 #DEBUG = -DUSBDEBUG
 #DEBUG = -DIODEBUG
@@ -6,13 +10,21 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
 HAVE_USB = -DUSB -I/home/joy/Qt
-
 LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
 
-#STATIC = -static
-#LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
+ifeq ($(HAVE_USB),)
+	ALL_BIN = parcp parserve par_in
+else
+	ALL_BIN = parcp parserve
+endif
 
-#DEMO = -DSTANDALONE
+#STATIC = -static
+
+ifeq ($(STATIC), -static)
+	LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
+endif
+
+#EXT_FLAGS = -DSTANDALONE
 
 LIB_NCURSES=-lncurses
 # for UTF support in ncurses use ncursesw:
@@ -27,16 +39,16 @@ ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
 
-SHELL_FLAGS = -DSHELL $(FLAGS) $(DEMO)
+SHELL_FLAGS = -DSHELL $(FLAGS)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
-parshell : $(SHELL_OBJS)
+parcp : $(SHELL_OBJS)
 	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel $(LIB_NCURSES) $(LIB_USB) $(LDSTATIC)
-	strip parcp
-
-parcp : $(OBJS)
-	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
 	strip $@
+
+parcpftp : $(OBJS)
+	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
+	strip parcp
 
 pt : parcp-usb.o
 	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
@@ -74,17 +86,14 @@ parcpkey : parcpkey.c parcpkey.h
 	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
 	strip $@
 
-all : parshell parserve par_in
+all : $(ALL_BIN)
 
-tgz:	parshell par_in parserve
+tgz:	$(ALL_BIN)
 	rm -f parcp.tgz
-	tar czvf parcp.tgz parcp par_in parserve
+	tar czvf parcp.tgz $(ALL_BIN)
 
 clean :
-	rm -f *.o
-
-realclean :	clean
-	rm -f parcp parserve par_in parcpkey
+	rm -f *.o $(ALL_BIN) parcpkey parcp.tgz
 
 ###############################
 
