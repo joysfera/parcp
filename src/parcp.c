@@ -340,10 +340,9 @@ void errexit(const char *a, int error_code)
 	chdir(original_path);
 #endif
 
-/*
-	puts("Press Return to exit.");
+	puts("Press Enter to exit.");
 	getchar();
-*/
+
 	exit(error_code);
 }
 /*******************************************************************************/
