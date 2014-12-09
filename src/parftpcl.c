@@ -596,7 +596,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			printf("Client's time is %s", ctime(&time_now));
 			write_word(M_GETTIME);
 			time_now = read_long();
-			printf("Server's time is %s", ctime(&time_now));
+			printf("Server's time is %s", asctime(gmtime(&time_now)));
 		}
 
 		else if (!strcasecmp(p1, "HASH")) {

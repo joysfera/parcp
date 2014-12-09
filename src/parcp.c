@@ -856,7 +856,7 @@ typedef enum { FILESYS_CASE_SENSITIVE, FILESYS_LFN_SUPPORTED } gvi;
 MYBOOL get_volume_info(const char *fname, gvi x)
 {
 	char volumeName[256];
-	long MaximumComponentLength, FileSystemFlags;
+	DWORD MaximumComponentLength, FileSystemFlags;
 	GetVolumeInformation(fname, volumeName, sizeof(volumeName), NULL, &MaximumComponentLength, &FileSystemFlags, NULL, 0);
 	switch(x) {
 		case FILESYS_CASE_SENSITIVE: return ((FileSystemFlags & FILE_CASE_SENSITIVE_SEARCH) > 0);
@@ -2125,21 +2125,40 @@ int return_server_files_info(void)
 
 /*******************************************************************************/
 
+int gmt_offset()
+{
+#if _WIN32
+	TIME_ZONE_INFORMATION tz;
+	int tzi = GetTimeZoneInformation(&tz);
+	int bias = tz.Bias;
+	if (tzi > 0)
+		bias += (tzi == 1 ? tz.StandardBias : tz.DaylightBias);
+	return bias * 60;
+#else
+	time_t t = time(NULL);
+	struct tm *lt = localtime(&t);
+	return lt->tm_gmtoff;
+#endif
+}
+
 int GetLocalTimeAndSendItOver(void)
 {
+	int gmtoff = gmt_offset();
 	struct timeval tv;
 	int status = gettimeofday(&tv, NULL);
-	write_long(status == 0 ? tv.tv_sec : 0L);
+	write_long(status == 0 ? tv.tv_sec + gmtoff : 0L);
 	return status;
 }
 
 int ReceiveDataAndSetLocalTime(void)
 {
+	int gmtoff = gmt_offset();
 	struct timeval tv;
 
 	tv.tv_sec = read_long();
 	if (tv.tv_sec == 0L)
 		return -2;	/* cannot get time from remote computer */
+	tv.tv_sec -= gmtoff;
 	tv.tv_usec = 0;
 	return settimeofday(&tv, NULL);
 }
