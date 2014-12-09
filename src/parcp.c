@@ -2133,7 +2133,7 @@ int gmt_offset()
 	int bias = tz.Bias;
 	if (tzi > 0)
 		bias += (tzi == 1 ? tz.StandardBias : tz.DaylightBias);
-	return bias * 60;
+	return -bias * 60;
 #else
 	time_t t = time(NULL);
 	struct tm *lt = localtime(&t);
