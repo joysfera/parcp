@@ -844,7 +844,7 @@ void receive_parameters(void)
 
 /* print information */
 	printf("Client has configured server as follows:\n\
-Block size: %ld kB/s\n\
+Block size: %ld kB\n\
 Directory lines: %d\n\
 CRC: %s\n\
 Extended protocol: %s\n\n", buffer_len / 1024, dirbuf_lines, _checksum ? "Yes" : "No", remote_status_of_mkdir ? "Yes" : "No");
