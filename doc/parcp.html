@@ -7,16 +7,16 @@
 
 <CENTER>
 <H1><BR>
-                                 PARCP v3.96
+                                 PARCP v3.97
 </H1>
 <H2><BR>
                           written by Petr Stehlik
 </H2>
 <H3>
-                              &copy; 1996-2014
+                              &copy; 1996-2015
 </H3>
 </CENTER>
-Last Update: December 6, 2014
+Last Update: January 12, 2015
 <HR>
 <STRONG>
                             TABLE OF CONTENTS
@@ -28,24 +28,26 @@ Last Update: December 6, 2014
     <MENU>
     <LI><A HREF="#Introduction1"> 1.1 What is PARCP </A>
     <LI><A HREF="#Introduction2"> 1.2 Advantages of PARCP </A>
-    <LI><A HREF="#Introduction3"> 1.3 Features </A>
+    <LI><A HREF="#IntroductionUSB"> 1.3 PARCP and USB </A>
+    <LI><A HREF="#Introduction3"> 1.4 Features </A>
          <MENU>
-         <LI><A HREF="#Features1"> 1.3.1 Supported computer platforms </A>
-         <LI><A HREF="#Features2"> 1.3.2 Parallel (=printer) port type (PC only) </A>
-         <LI><A HREF="#Features3"> 1.3.3 Supported operating systems </A>
-         <LI><A HREF="#Features5"> 1.3.4 User interface </A>
-         <LI><A HREF="#Features6"> 1.3.5 Internals </A>
-         <LI><A HREF="#Features7"> 1.3.6 New features since last release </A>
-         <LI><A HREF="#Features8"> 1.3.7 Summary </A>
+         <LI><A HREF="#Features1"> 1.4.1 Supported computer platforms </A>
+         <LI><A HREF="#Features2"> 1.4.2 Parallel (=printer) port type (PC only) </A>
+         <LI><A HREF="#Features3"> 1.4.3 Supported operating systems </A>
+         <LI><A HREF="#Features5"> 1.4.4 User interface </A>
+         <LI><A HREF="#Features6"> 1.4.5 Internals </A>
+         <LI><A HREF="#Features7"> 1.4.6 New features since last release </A>
+         <LI><A HREF="#Features8"> 1.4.7 Summary </A>
          </MENU>
-    <LI><A HREF="#Introduction4"> 1.4 Future Plans </A>
-    <LI><A HREF="#Introduction5"> 1.5 How much does it cost? </A>
+    <LI><A HREF="#Introduction4"> 1.5 Future Plans </A>
+    <LI><A HREF="#Introduction5"> 1.6 How much does it cost? </A>
     </MENU>
 <P>
 <LI><A HREF="#AdditionalRequiredHardware"> 2. Additional required hardware </A>
     <MENU>
     <LI><A HREF="#AdditionalRequiredHardware1"> 2.1 PARCP cable </A>
     <LI><A HREF="#AdditionalRequiredHardware2"> 2.2 PARCP UNI-BI adapter (PC only) </A>
+    <LI><A HREF="#AdditionalRequiredHardware3"> 2.3 PARCP USB adapter </A>
     </MENU>
 <P>
 <LI><A HREF="#Installation"> 3. Installation </A>
@@ -101,7 +103,13 @@ Last Update: December 6, 2014
 
 <H1><BR><A NAME="Changes"></A>0. Changes in this Document
 </H1>
-Added notes about PARCP-USB at some places. Not updated thoroughly and properly yet, sorry.
+<UL>
+  <LI>Added explicit new <a href="#IntroductionUSB">paragraphs about PARCP-USB</a>.
+  <LI>PARCP.CFG is searched for in user's home folder now as well
+  <LI>USBSerial option slightly documented
+  <LI>-c command line option documented
+  <LI>udev rule for PARCP-USB on Linux added
+</UL>
 
 
 <H1><BR><A NAME="Introduction"></A>1. Introduction
@@ -125,7 +133,7 @@ in a FTP client and fullscreen windows just like Norton Commander).
 In 2014 I developed <a href="http://joy.sophics.cz/parcp/parcp-usb.html">PARCP-USB</a>
 adapter that allows to interconnect computers with parallel ports (Atari and old PC
 machines) with computers that have USB ports (all newer computers basically). So
-PARCP is no longer fixed to parallel ports only.
+PARCP is no longer tied with parallel ports only.
 
 
 <H2><BR><A NAME="Introduction2"></A> 1.2 Advantages of PARCP
@@ -185,10 +193,23 @@ PARCP is no longer fixed to parallel ports only.
 </UL>
 
 
-<H2><BR><A NAME="Introduction3"></A> 1.3 Features
+<H2><BR><A NAME="IntroductionUSB"></A> 1.3 PARCP and USB
 </H2>
 <P>
-<H3><BR><A NAME="Features1"></A>   1.3.1 Supported computer platforms
+With the invention of PARCP-USB adapter the PARCP got zero setup on a PC and it's also generally simpler
+to use on Atari. You just plug the PARCP-USB adapter into your Atari or old PC and start PARCP software. No need to configure
+anything. No need to bother with PAR_IN. You don't care about PC parallel port number, its type, BIOS setup, current input/output state etc.
+Nothing of that since USB devices are plug&amp;play and PARCP software detects everything automatically.
+<P>
+Best of all, with PARCP-USB it's much safer to interconnect two computers. Actually the connection can be permanent and you can turn
+on/off any of the two computers freely. There's no danger like there is with the PARCP cable.
+<P>
+<STRONG>The point is that with PARCP-USB you just plug&amp;play and ignore all sections of this document that talk about PARCP cable, parallel port setup or issues with it.</STRONG>
+
+<H2><BR><A NAME="Introduction3"></A> 1.4 Features
+</H2>
+<P>
+<H3><BR><A NAME="Features1"></A>   1.4.1 Supported computer platforms
 </H3>
 <P>
 PARCP has been designed to work on two different computer platforms:
@@ -222,7 +243,7 @@ computers:
 </UL>
 <P>
 <P>
-<H3><BR><A NAME="Features2"></A>   1.3.2 Parallel (=printer) port type (PC only)
+<H3><BR><A NAME="Features2"></A>   1.4.2 Parallel (=printer) port type (PC only, not for PARCP-USB)
 </H3>
 <P>
 Parallel ports of PC computers are basically of two different types:
@@ -254,7 +275,7 @@ choose which one you will use for PARCP transfers in the process of
 configuration with PARCPCFG.
 
 
-<H3><BR><A NAME="Features3"></A>   1.3.3 Supported operating systems
+<H3><BR><A NAME="Features3"></A>   1.4.3 Supported operating systems
 </H3>
 <P>
 PARCP comes in three different binary files compiled for three supported
@@ -266,7 +287,7 @@ which is good for user learning its capabilities.
   Atari computers (any model):
 </H4>
 <UL>
-    <LI> TOS
+    <LI> TOS 1.04+
     <LI> MiNT
     <LI> MagiC
 </UL>
@@ -275,7 +296,7 @@ which is good for user learning its capabilities.
 </H4>
 <UL>
     <LI> DOS flavors (MS-DOS, DR DOS, FreeDOS)
-    <LI> Microsoft Windows95/Windows98/WindowsME
+    <LI> Microsoft Windows95/Windows98/WindowsME (32-bit DOS application with LFN support)
     <LI> OS/2 (in DOS mode)
     <LI> Linux on i386/amd64 (native application)
 </UL>
@@ -307,7 +328,7 @@ which is good for user learning its capabilities.
     PARCP-USB adapter, contrary to the PARCP cable, requires newer Windows OS (because DOS does not support USB). The PARCP v3.94+
     comes with a native MS-Windows binary that runs on both 32-bit and 64-bit Windows.
 <H4>
-Main PARCP features under multitasking OSes:
+Main PARCP features under multitasking operating systems (all but single TOS):
 </H4>
 <UL>
   <LI> <H5> non-blocking waiting for user action </H5>
@@ -330,7 +351,7 @@ Main PARCP features under multitasking OSes:
 </UL>
 
 
-<H3><BR><A NAME="Features5"></A>   1.3.4 User Interface
+<H3><BR><A NAME="Features5"></A>   1.4.4 User Interface
 </H3>
 <P>
 PARCP 3.x comes with two different users interfaces. Historically first is
@@ -349,7 +370,7 @@ desktop (TOS 2.x, MultiTOS, MagiC, Windows95) and also script files
 processing (see section 4.4).
 <P>
 <P>
-<H3><BR><A NAME="Features6"></A>   1.3.5 Internals
+<H3><BR><A NAME="Features6"></A>   1.4.5 Internals
 </H3>
 <P>
 PARCP is written in C. Additional assembler routines for both
@@ -361,33 +382,32 @@ the result is very efficient full 32-bit code.
 The support of special features of various operating systems is a matter
 of well written GNU C libraries (MiNTlibs on Atari and DJGPP libs on DOS).
 <P>
-It should be very easy to port PARCP to another platform with GNU C compiler
-and a little knowledge of the parallel port programming (hi Amiga freaks! :)
+It should be relatively simple to port PARCP to another platform with GNU C compiler
+and a little knowledge of the parallel port programming.
 <P>
 <P>
-<H3><BR><A NAME="Features7"></A>   1.3.6 New features since last release
+<H3><BR><A NAME="Features7"></A>   1.4.6 New features since last release
 </H3>
 <P>
 The list of most important changes and features of new PARCP version compared
-to previously released PARCP v3.80:
+to previously released PARCP v3.90:
 <P>
 <UL>
-<LI> 64-bit enhacements (copy more than 2GB of data)
-<LI> visual enhancements (file size in kB/MB/GB)
-<LI> fixed weird percentage shown on server
-<LI> ParShell uses SpaceBar to select/unselect files
+<LI> PARCP-USB support
+<LI> bugfixes, bugfixes and once again, more bugfixes!
+<LI> ParShell allows to use numbers 1-9 next to function keys F1-F9
 </UL>
 <P>
 For more detailed informations please read the file <A HREF="history.txt">HISTORY.TXT</A>.
 <P>
 <P>
-<H3><BR><A NAME="Features8"></A>   1.3.7 Summary
+<H3><BR><A NAME="Features8"></A>   1.4.7 Summary
 </H3>
 <P>
 PARCP runs on Atari as well as on PC computers and clones, under all
 known operating systems that provide DOS or TOS support. PARCP makes the best use of any combination of hardware and OS.
 <P>
-Of course there are programs for connecting computers via parallel ports,
+There are also other programs for connecting computers via parallel ports,
 but only PARCP can connect any two computers thus you need not to learn how
 to use many different programs. PARCP is also much faster than its competitors,
 runs under more operating systems, it's simpler to use and supports multitasking.
@@ -395,7 +415,7 @@ runs under more operating systems, it's simpler to use and supports multitasking
 <P>
 
 
-<H2><BR><A NAME="Introduction4"></A> 1.4 Future Plans
+<H2><BR><A NAME="Introduction4"></A> 1.5 Future Plans
 </H2>
 <P>
 There are some things left to do, as well as a few things to fix.
@@ -413,13 +433,13 @@ Write me if you want another feature...
 Other neat features would be:
 <P>
 <UL>
-<LI> a port of PARCP to Amiga computers
+<LI> a port of PARCP to Amiga computers or Mac OS X
 <LI> a native GUI for Atari GEM, 32-bit Windows and X-Windows
 </UL>
 <P>
 
 
-<H2><BR><A NAME="Introduction5"></A> 1.5 How much does it cost?
+<H2><BR><A NAME="Introduction5"></A> 1.6 How much does it cost?
 </H2>
 <P>
 PARCP is shareware. Everyone can distribute PARCP providing the
@@ -607,6 +627,13 @@ explain it better.
 <P>
 <P>
 
+<H2><BR><A NAME="AdditionalRequiredHardware3"></A> 2.3 PARCP USB adapter
+</H2>
+<P>
+PARCP-USB is in detail described at <A HREF="http://joy.sophics.cz/parcp/parcp-usb.html">its own page</A>.
+Generally speaking it's an adapter that is able to convert the parallel port of Atari or a PC into USB port for PARCP needs. Then you simply grab
+a USB cable and connect it to your PC's USB port. There's no PARCP cable anymore.
+
 
 <H1><BR><A NAME="Installation"></A>3. Installation
 </H1>
@@ -635,7 +662,7 @@ by nature, so for Atari you don't need any hardware interface...
 <P>
 <P>
 <U>
-   Common requirements for PC PARCP:
+   Common requirements for DOS version of PC PARCP:
 </U><BR>
 <P>
 PARCP is full 32-bit application thus it requires an Intel 80386 or compatible
@@ -693,17 +720,27 @@ in PARCP distribution archive). All you need is to place CSWDPMI.EXE into
 the %PATH% (e.g. C:\DOS) where the PARCP can find it and run automatically.
 <P>
 <U>
-   Linux-ix86 specific requirements:
+   Linux specific requirements:
 </U><BR>
 <P>
-PARCP is compiled under Linux-ix86 2.2.15 (Debian Linux 2.2 distribution).
+PARCP is compiled on Ubuntu 12.04 distribution.
 Though I expect PARCP will work with any current Linux distribution (if
 not, simply let me know).
 <P>
-In order to get permissions to access the hardware directly it must be run
+In order to get permissions to access the parallel port hardware directly it must be run
 with root privileges (i.e. run it when you are logged as 'root' - otherwise
 it will ends immediately with a core file).
 <P>
+For use with PARCP-USB you want to configure your udev rule so you can then run PARCP as
+a regular user. Copy the following snippet into your /etc/udev/rules.d/ directory and name the
+file say <strong>parcp.rules</strong>. Then you need to trigger your udev to reload the rules using <code>sudo udevadm trigger</code>:
+<P>
+<code>
+######### begin of parcp.rules #######<br>
+# PARCP-USB<br>
+SUBSYSTEM=="usb", ATTR{idVendor}=="03eb", MODE="0666", GROUP="plugdev"<br>
+######### end of parcp.rules #########<br>
+</code>
 <P>
 
 
@@ -1275,7 +1312,7 @@ and EditBox.
 </H2>
 <P>
  Please note: you can easily skip the following section if you're going to
-              use LapLink cable with PARCP.
+              use LapLink cable with PARCP or the PARCP-USB adapter.
 <P>
  Standard parallel port is set to output state (all data lines are set for
  output) by default. It's dangerous to connect two parallel ports together
@@ -1417,10 +1454,12 @@ at several places:
     points to (example: <STRONG>PARCPDIR=C:\PARCP\config</STRONG>, PARCP searchs for
     <STRONG>C:\PARCP\config\parcp.cfg</STRONG>)
 <P>
-  <LI> if it fails, PARCP searches for PARCP.CFG in the directory it was run
+  <LI> if it fails, PARCP searches for PARCP.CFG in the directory where it was started
     from
 <P>
-  <LI> at last it searchs in actual folder
+  <LI> if still no PARCP.CFG found then it tries to locate it in the current path
+<P>
+  <LI> and at last it tries to seach for PARCP.CFG in user's HOME folder ($HOME on Linux, %HOMEDATA% on Windows)
 </UL>
 <P>
 When it finds a valid PARCP.CFG, it will load it. If, however, it doesn't
@@ -1663,7 +1702,7 @@ You need to have a "debug" distribution of PARCP for this.
 </H3>
 <P>
 <PRE GRAPHIC>
-# configuration file for PARCP 3.72
+# configuration file for PARCP 3.97
 [PARCP]
 FastRoutines = Yes      # Yes => use fast assembler routines
 ProcessSubDir = Yes     # Yes => send also files in directories
@@ -1687,6 +1726,7 @@ UserName = User         # your first and last name
 KeyCode = key           # your personal keycode
 Autoexec = auto.txt     # filename = batch file executed after start of PARCP
 Shell = Yes             # Yes => start with fullscreen user interface
+USBSerial = XXXXXXX     # optional identification of PARCP-USB adapter if you have plugged more than one
 <P>
 [PARSHELL]
 UseColors = Yes         # Yes => use colors (white on blue, like Norton Commander)
@@ -1714,6 +1754,8 @@ been eliminated thanks to configuration file. The only valid options are:
 <tr><td>-s                 <td>run PARCP as Server
 <tr><td>-f <configfile>    <td>path to alternate configuration file
 <tr><td>-b <batchfile>     <td>filename of script that will be executed
+<tr><td>-c shell/noshell   <td>overrides Shell=Yes/No in the config file
+<tr><td>-c crc/nocrc       <td>overrides CRC=Yes/No in the config file
 <tr><td>-q                 <td>run quietly, display nothing
 </table>
 <P>
@@ -1823,7 +1865,7 @@ probably get fixed.
     AUTOEXEC.BAT (DOS) or StartUp folder (Windows95).
 <P>
 <LI>You can break running file transfer immediately by pressing <STRONG>Shift+Control</STRONG>
-    key combination (under Linux use <STRONG>Ctrl-C</STRONG>. The transferred file will
+    key combination (under Linux use <STRONG>Ctrl+C</STRONG>. The transferred file will
     be closed but not deleted so you'll end up with partially copied file.
 </UL>
 <P>
@@ -1958,8 +2000,8 @@ probably get fixed.
         PARCP Home Site:
 </U><BR>
 <UL>
-  <LI><A HREF="http://joy.sophics.cz/">http://joy.sophics.cz/</A> <BR>
-        Official Joy WWW site, home of PARCP. Up-to-date versions, on-line history file.
+  <LI><A HREF="http://joy.sophics.cz/parcp/">http://joy.sophics.cz/parcp/</A> <BR>
+        Official PARCP website. Up-to-date versions, on-line history file.
 </UL>
 
 
