@@ -1,6 +1,19 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+3.97 - 2015/01/12
+=================
+- time sync routines now cope with timezones. GETTIME/SETTIME/SHOWTIME
+  should be fully usable even on modern operating systems.
+
+- non-ASCII characters in filenames are now replaced by question mark
+  when they're displayed in the fullscreen or the FTP-like interface.
+  This was necessary as otherwise characters with accents in various 
+  encodings corrupted the display (mainly the ncurses one).
+  When copying files their filenames are still taken verbatim so beware
+  when you have different character encodings on both ends.
+
+
 3.96 - 2014/12/06
 =================
 - properly fixed the VFAT ghost file names and any other weirdness at last.
