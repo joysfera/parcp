@@ -18,7 +18,6 @@
 
 #define BOX_MAX_WIDTH	70
 
-#ifndef DJGPP
 int min(int a, int b)
 {
 	return a < b ? a : b;
@@ -28,7 +27,6 @@ int max(int a, int b)
 {
 	return a > b ? a : b;
 }
-#endif
 
 /*
    Breaks long string to several strings of max_width, divided by '\0'

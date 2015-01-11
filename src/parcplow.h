@@ -52,7 +52,7 @@ MYBOOL _is_ready(void)
 
 // general things
 #ifdef __MSDOS__
-extern __Go32_Info_Block _go32_info_block;
+//extern __Go32_Info_Block _go32_info_block;
 
 int __opendir_flags = __OPENDIR_PRESERVE_CASE;	/* preserve upper/lower filenames */
 

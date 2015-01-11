@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#ifdef __MINT__
+#if defined(__MINT__) || defined(__MSDOS__)
 typedef unsigned short int uint16_t;
 typedef int int32_t;
 #else
