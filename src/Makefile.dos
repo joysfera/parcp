@@ -19,48 +19,39 @@ SHELL_FLAGS = -DSHELL $(FLAGS)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parshell : $(SHELL_OBJS)
-	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel -lpdcur
+	gcc $(STATIC) $(SHELL_FLAGS) -o parcp.exe $(SHELL_OBJS) -lpanel -lpdc~1
 	strip parcp.exe
 
 parcp : $(OBJS)
-	gcc $(FLAGS) -o parcp $(OBJS)
+	gcc $(FLAGS) -o parcp.exe $(OBJS)
 	strip parcp.exe
 
 parserve : $(SEROBJS)
-	gcc $(FLAGS) -o parserve $(SEROBJS)
+	gcc $(FLAGS) -o parserve.exe $(SEROBJS)
 	strip parserve.exe
 
 par_io : par_io.c global.c cfgopts.c
-	gcc $(FLAGS) par_io.c global.c cfgopts.c -o par_io
+	gcc $(FLAGS) par_io.c global.c cfgopts.c -o par_io.exe
 	strip par_io.exe
 
-par_in.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
-
-par_out.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
-
 par_in : par_in.o global.o cfgopts.o
-	gcc $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
+	gcc $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in.exe
 	strip par_in.exe
 
 par_out : par_out.o global.o cfgopts.o
-	gcc $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
+	gcc $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out.exe
 	strip par_out.exe
 
-parcpcfg.o : parcpcfg.c
-	gcc $(FLAGS) -c parcpcfg.c
-
 parcpcfg : parcpcfg.o cfgopts.o global.o
-	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
+	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg.exe
 	strip parcpcfg.exe
 
 parcpkey : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
+	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey.exe
 	strip parcpkey.exe
 
 partest : partest.o $(ZAKL_OBJS)
-	gcc $(FLAGS) -o partest partest.o $(ZAKL_OBJS)
+	gcc $(FLAGS) -o partest.exe partest.o $(ZAKL_OBJS)
 	strip partest.exe
 
 #all : parcp par_in par_out
@@ -68,17 +59,21 @@ all : parshell parserve par_in parcpcfg
 
 clean :
 	del *.o
-	del parcp
-	del par_in
-	del parcpcfg
-	del parserve
-
-realclean : clean
 	del parcp.exe
-	del parserve.exe
 	del par_in.exe
+	del parcpcfg.exe
+	del parserve.exe
 
 ###############################
+
+par_in.o : parinout.c
+	gcc $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
+
+par_out.o : parinout.c
+	gcc $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
+
+parcpcfg.o : parcpcfg.c
+	gcc $(FLAGS) -c parcpcfg.c
 
 parcp.o : $(PARCLIENT)
 	gcc $(FLAGS) -c parcp.c

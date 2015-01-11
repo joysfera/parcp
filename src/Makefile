@@ -1,6 +1,9 @@
 ifeq ($(OS),Windows_NT)
 	FILE=Makefile.mingw
 else
+	ifneq ($(DJGPP),)
+		FILE=Makefile.dos
+	else
 	OS=$(shell uname)
 
 	ifeq ($(OS), MiNT)
@@ -9,6 +12,7 @@ else
 
 	ifeq ($(OS), Linux)
 		FILE=Makefile.linux
+		endif
 	endif
 endif
 ifeq ($(FILE), )
