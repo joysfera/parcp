@@ -172,7 +172,7 @@ int real_delka_jmena(const char *jmeno, int min_delka)
 char *orez_jmeno(const char *jmeno, int delka_jmena)
 {
 	static char radek[MAXSTRING];
-	int real_delka = 0;
+	int real_delka = 0, i;
 
 	memset(radek, ' ', sizeof(radek));
 	strncpy(radek, jmeno, delka_jmena);
@@ -183,6 +183,11 @@ char *orez_jmeno(const char *jmeno, int delka_jmena)
 		strncpy(radek+delka_jmena-3, jmeno+real_delka-3, 3);	/* extension */
 	}
 	radek[MAXSTRING-1] = 0;
+
+	// replace UTF-8 and other accents
+	for(i = 0; i < delka_jmena; i++)
+		if (radek[i] < 32 || radek[i] >= 0x80)
+			radek[i] = '?';
 
 	return radek;
 }

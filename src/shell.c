@@ -344,10 +344,14 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 	if (i >= WW) {		/*  shorten the file length using 'c:/...' */
 		nadpis[3] = nadpis[4] = nadpis[5] = '.';
 		strcpy(nadpis+6,adresar+6+i-WW);
-		i = strlen(nadpis);
 	}
 	else
 		memset(nadpis+i, ' ', WW-i);	/* right pad with spaces */
+
+	// replace UTF-8 and other accents
+	for(i = 0; i < WW; i++)
+		if (nadpis[i] < 32 || nadpis[i] >= 0x80)
+			nadpis[i] = '?';
 
 	nadpis[WW]=0;
 	mvaddstr(posazeni-2,1+okno->pozice*stred,nadpis);
