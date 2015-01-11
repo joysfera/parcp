@@ -34,52 +34,17 @@ parcp : $(OBJS)
 	strip parcp.exe
 
 pt : parcp-usb.o
-	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
+	gcc $(STATIC) $(FLAGS) -o pt.exe parcp-usb.o $(LIB_USB)
 
 parserve : $(SEROBJS)
-	gcc $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB)
-	strip $@
+	gcc $(STATIC) $(FLAGS) -o parserve.exe $(SEROBJS) $(LIB_USB)
+	strip parserve.exe
 
-par_io : par_io.c global.c cfgopts.c
-	gcc $(FLAGS) par_io.c global.c cfgopts.c -o par_io $(LIB_USB)
-	strip $@
-
-par_in.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
-
-par_out.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
-
-par_in : par_in.o global.o cfgopts.o
-	gcc $(STATIC) $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
-	strip $@
-
-par_out : par_out.o global.o cfgopts.o
-	gcc $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
-	strip $@
-
-parcpcfg.o : parcpcfg.c
-	gcc $(FLAGS) -c parcpcfg.c
-
-parcpcfg : parcpcfg.o cfgopts.o global.o
-	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
-	strip $@
-
-parcpkey : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
-	strip $@
-
-all : parshell parserve par_in
-
-tgz:	parshell par_in parserve
-	del parcp.tgz
-	tar czvf parcp.tgz parcp par_in parserve
+all : parshell parserve
 
 clean :
 	del *.o
-
-realclean :	clean
-	del parcp parserve par_in parcpkey
+	del parcp.exe parserve.exe
 
 ###############################
 
