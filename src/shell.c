@@ -692,11 +692,8 @@ int execute_command(char *cmd, char *cmdline)
 		}
 
 		def_prog_mode();	/* save current tty mode */
-#ifndef __PDCURSES__
 		endwin();			/* restore original tty mode */
-#else
-		curs_set(original_cursor);
-#endif
+		//curs_set(original_cursor);
 		if (strcmp(cmd, CLI)) {
 			if (gotodir) {
 				int ret = chdir(cmd_dir);
