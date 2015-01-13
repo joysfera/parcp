@@ -1,6 +1,7 @@
 /* Routines for PARCP FTP-like command line client */
 
 #if defined(_WIN32) || defined(__MSDOS__)	/* Unix doesn't know getch() while DJGPP does */
+#  undef getch
 #  if defined(_WIN32) && !defined(SHELL)
 #    include <conio.h>
 #    define get_key()	_getch()
