@@ -2238,6 +2238,7 @@ void do_server(void)
 		wait_for_client();
 
 		switch(cmd = read_word()) {
+			int ret;
 			case M_PARS:
 				receive_parameters();
 				break;
@@ -2270,7 +2271,8 @@ void do_server(void)
 
 			case M_CD:
 				receive_string(name);
-				write_word( change_dir(name, name2) ? M_OK : M_ERR );
+				ret = change_dir(name, name2);
+				write_word( ret ? M_OK : M_ERR );
 				send_string(name2);
 				break;
 
@@ -2288,7 +2290,8 @@ void do_server(void)
 			case M_MD:
 				receive_string(name);
 				check_and_convert_filename(name);
-				write_word( mkdir(name) ? M_ERR : M_OK);
+				ret = mkdir(name);
+				write_word( ret ? M_ERR : M_OK);
 				break;
 
 			case M_PSTART:
@@ -2313,17 +2316,16 @@ void do_server(void)
 			case M_REN:
 				receive_string(name);
 				receive_string(name2);
-				write_word( rename(name, name2) );
+				ret = rename(name, name2);
+				write_word(ret);
 				break;
 
 			case M_EXEC:
-				receive_string(name);
-				write_word(system(name));
-				break;
-
 			case M_EXECNOWAIT:
 				receive_string(name);
-				(void)system(name);
+				ret = system(name);
+				if (cmd == M_EXEC)
+					write_word(ret);
 				break;
 
 			case M_UTS:
