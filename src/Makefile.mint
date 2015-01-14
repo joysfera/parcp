@@ -75,8 +75,16 @@ partest : partest.o $(ZAKL_OBJS)
 	strip partest
 	fixstk 64k partest
 
-#all : parcp parcp030 par_in par_out
 all : parshell parshell030 parserve parserve030 par_in
+
+tgz : all
+	mv parcp parcp.ttp
+	mv parcp030 parcp030.ttp
+	mv parserve parserve.tos
+	mv parser30 parser30.tos
+	mv par_in par_in.prg
+	tar czvf parcpbin.tgz parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg
+	rm parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg
 
 clean :
 	rm -f *.o
