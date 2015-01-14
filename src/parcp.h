@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  * with parallel ports.
  *
- * Petr Stehlik (c) 1996-2014
+ * Petr Stehlik (c) 1996-2015
  *
  */
 
@@ -157,6 +157,7 @@ struct utsname {
 #define M_PSTART	0x0f18
 #define M_EXCHANGE_FEATURES	0x0f19
 #define M_SENDFILESINFO	0x0f20
+#define M_CMD_EXEC	0x0f21
 
 #define	M_UNKNOWN	0xe000		/* unknown command */
 
@@ -170,16 +171,17 @@ struct utsname {
 #define B_ARCH_MODE	0x0040		/* TRUE = use DOS ATTRIB flag for file backup */
 #define B_PRESERVE	0x0080		/* TRUE = preserve file name upper/lower case on DOS like filesystems */
 #define B_CHECKINFO	0x0100		/* TRUE = show progress info */
-#define B_MKDIR_STATUS	0x8000		/* protocol extension, HACK, to be removed once PROTOKOL is increased */
 
 #define	LS_DIRS_ONLY	0x0001
 #define	LS_FILES_ONLY	0x0002
 #define LS_NEGATE_MASK	0x0080
 
 /******************************************************************************/
-#define FEATURE_LONGLONG		(1L << 0)
-#define FEATURE_SENDFILESINFO	(1L << 1)
-#define ALL_FEATURES	(FEATURE_LONGLONG | FEATURE_SENDFILESINFO)
+#define FEATURE_LONGLONG		(1UL << 0)
+#define FEATURE_SENDFILESINFO	(1UL << 1)
+#define FEATURE_MKDIR_STATUS	(1UL << 2)
+#define FEATURE_CMD_EXEC		(1UL << 3)
+#define ALL_FEATURES	(FEATURE_LONGLONG | FEATURE_SENDFILESINFO | FEATURE_MKDIR_STATUS | FEATURE_CMD_EXEC)
 
 /******************************************************************************/
 

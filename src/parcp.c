@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2014
+ * Petr Stehlik (c) 1996-2015
  *
  */
 
@@ -21,7 +21,6 @@ extern WINDOW *pwincent;
 #endif
 
 MYBOOL client = TRUE;	/* PARCP is Client by default */
-MYBOOL remote_status_of_mkdir; /* HACK */
 
 BYTE *block_buffer;
 char *dir_buffer, *file_buffer,  string_buffer[MAXSTRING+1];
@@ -39,6 +38,10 @@ ULONG64 g_bytes, g_bytes_pos;	/* 64-bit wide counters */
 
 /* features */
 unsigned long g_exch_features = 0;
+#define HAS_LONGLONG		(g_exch_features & FEATURE_LONGLONG)
+#define HAS_SENDFILESINFO	(g_exch_features & FEATURE_SENDFILESINFO)
+#define HAS_MKDIR_STATUS	(g_exch_features & FEATURE_MKDIR_STATUS)
+#define HAS_CMD_EXEC		(g_exch_features & FEATURE_CMD_EXEC)
 
 short page_length = 25;
 short page_width  = 80;
@@ -786,7 +789,6 @@ UWORD PackParameters(void)
 |	(_archive_mode ? B_ARCH_MODE : 0)						\
 |	(_preserve_case ? B_PRESERVE : 0)						\
 |	(_check_info ? B_CHECKINFO : 0)							\
-|	B_MKDIR_STATUS	/* HACK, client annonces mkdir status protocol extension */	\
 	;
 }
 #endif /* !PARCP_SERVER */
@@ -802,7 +804,6 @@ void UnpackParameters(UWORD x)
 	_archive_mode = (x & B_ARCH_MODE) ? TRUE : FALSE;
 	_preserve_case = (x & B_PRESERVE) ? TRUE : FALSE;
 	_check_info = (x & B_CHECKINFO) ? TRUE : FALSE;
-	remote_status_of_mkdir = (x & B_MKDIR_STATUS) ? TRUE : FALSE;	/* HACK, server receives client's capability */
 }
 
 #ifndef PARCP_SERVER
@@ -847,7 +848,7 @@ void receive_parameters(void)
 Block size: %ld kB\n\
 Directory lines: %d\n\
 CRC: %s\n\
-Extended protocol: %s\n\n", buffer_len / 1024, dirbuf_lines, _checksum ? "Yes" : "No", remote_status_of_mkdir ? "Yes" : "No");
+Extended protocol: %s\n\n", buffer_len / 1024, dirbuf_lines, _checksum ? "Yes" : "No", HAS_MKDIR_STATUS ? "Yes" : "No");
 }
 
 /*******************************************************************************/
@@ -1428,9 +1429,6 @@ void check_and_convert_filename(char *fname)
 
 /******************************************************************************/
 
-#define HAS_LONGLONG		(g_exch_features & FEATURE_LONGLONG)
-#define HAS_SENDFILESINFO	(g_exch_features & FEATURE_SENDFILESINFO)
-
 void send_features()
 {
 	long client_features = ALL_FEATURES;
@@ -1806,7 +1804,7 @@ int process_files_rec(const char *src_mask)
 		DPRINT1("r M_MD(%s)\n", p_dirname);
 		write_word(M_MD);
 		send_string(p_dirname);
-		if (remote_status_of_mkdir) {
+		if (HAS_MKDIR_STATUS) {
 			int status;
 			wait_before_read();	// wait for the other side to create the folder
 			status = read_word();
@@ -1957,7 +1955,7 @@ int process_files_on_receiver_side()
 			DPRINT1("p vytvarim adresar '%s' ... ", fname);
 			status = mkdir(fname);
 			DPRINT1("p status = %d\n", status);
-			if (remote_status_of_mkdir)
+			if (HAS_MKDIR_STATUS)
 				write_word(status);
 			continue;
 		}
@@ -2318,15 +2316,7 @@ void do_server(void)
 				break;
 
 			case M_UTS:
-				{
-					/* underscore hack that will be removed once the new PROTOKOL is established */
-					char temp[256];
-					strcpy(temp, local_machine);
-					if (remote_status_of_mkdir)	/* if client has this capability then */
-						strcat(temp, "_");	/* confirm server capability via this HACK */
-					/* end of underscore hack */
-					send_string(temp);
-				}
+				send_string(local_machine);
 				break;
 
 			case M_GETINFO:
@@ -2671,7 +2661,7 @@ int main(int argc, char *argv[])
 	DPRINT1("  PARCP "VERZE" started on %s", ctime(&start_time));
 
 	if (! _quiet_mode) {
-		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2014.");
+		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2015.");
 #ifdef DEBUG
 		puts("DEBUG version "VERZE" (compiled on "__DATE__")\n");
 #else
@@ -2721,7 +2711,7 @@ int main(int argc, char *argv[])
 	if (client) {
 #ifndef PARCP_SERVER
 		/* exchange features */
-		send_features();	/* sends also HACKish client_status_of_mkdir */
+		send_features();
 
 		/* send client parameters to the server */
 		send_parameters();	/* allocate block and dir buffers here */
@@ -2729,16 +2719,6 @@ int main(int argc, char *argv[])
 		/* detect server type */
 		write_word(M_UTS);
 		receive_string(remote_machine);
-
-		/* underscore hack that will be removed once the PROTOKOL is increased */
-		{
-			int len = strlen(remote_machine);
-			remote_status_of_mkdir = FALSE;
-			if (remote_machine[len-1] == '_') {	/* server confirms it has this capability as well */
-				remote_status_of_mkdir = TRUE;	/* alright, new protocol established */
-				remote_machine[len-1] = '\0';	/* underscore removed */
-			}
-		}
 
 		/* execute commands from auto exec file first */
 		if (*autoexec) {
