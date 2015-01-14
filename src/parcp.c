@@ -1034,7 +1034,7 @@ int settimeofday(const struct timeval * tp, const struct timezone * tzp)
 void list_dir(const char *p2, int maska, char *zacatek)
 {
 	int pocet = 0;
-	long total = 0;
+	ULONG64 total = 0;
 	DIR *dir_p;
 	struct dirent *dir_ent;
 	struct stat stb;
@@ -1102,12 +1102,13 @@ void list_dir(const char *p2, int maska, char *zacatek)
 
 			p += sprintf(p, PRINTF_TEMPLATE, fname);
 			if (is_dir) {
-				p += sprintf(p, "     <DIR>");
+				sprintf(p, "     <DIR>");
 			}
 			else {
-				p += sprintf(p, "%10ld", (long)stb.st_size);
+				sprintf(p, "%10lld", (long long)stb.st_size);
 				total += stb.st_size;
 			}
+			p += 10;
 
 			cas = localtime(&stb.st_mtime);
 			if (cas == NULL)
