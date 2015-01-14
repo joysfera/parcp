@@ -435,7 +435,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			}
 			write_word(M_MD);
 			send_string(p2);
-			puts( (read_word() == M_OK) ? "OK" : "CAN\'T CREATE DIRECTORY");
+			puts( (read_word() == M_OK) ? "OK" : "CAN'T CREATE DIRECTORY");
 		}
 
 		else if (!strcasecmp(p1, "LMD") || !strcasecmp(p1, "LMKDIR")) {	/* make dir on client */
@@ -443,7 +443,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				puts("ERROR: no directory given");
 				continue;
 			}
-			puts( (mkdir(p2) == 0) ? "OK" : "CAN\'T CREATE DIRECTORY");
+			puts( (mkdir(p2) == 0) ? "OK" : "CAN'T CREATE DIRECTORY");
 		}
 
 		else if (!strcasecmp(p1, "DIR") || !strcasecmp(p1, "LS") 	/* dir listing on server */
@@ -551,7 +551,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 
 			g_last_status = delete_files(local, p2);
 
-			puts( g_last_status ? "CAN\'T DELETE FILE" : "OK" );
+			puts( g_last_status ? "CAN'T DELETE FILE" : "OK" );
 		}
 
 		else if (!strcasecmp(p1, "REN") || !strcasecmp(p1, "LREN")) {
@@ -584,7 +584,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			else						/* LREN */
 				g_last_status = rename(p2, p3) ? FILE_NOTFOUND : 0;
 
-			puts( g_last_status ? "CAN\'T RENAME FILE" : "OK" );
+			puts( g_last_status ? "CAN'T RENAME FILE" : "OK" );
 		}
 
 		else if (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC")) {
@@ -616,6 +616,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				if (wait) {
 					write_word(M_EXEC);
 					send_string(p2);
+					wait_before_read();
 					g_last_status = read_word() ? FILE_NOTFOUND : 0;
 				}
 				else {
@@ -624,10 +625,11 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 					g_last_status = 0;
 				}
 			}
-			else						/* LEXEC */
+			else {						/* LEXEC */
 				g_last_status = system(p2) ? FILE_NOTFOUND : 0;
+			}
 
-			puts( g_last_status ? "CAN\'T EXEC FILE" : "OK" );
+			puts( g_last_status ? "CAN'T EXEC FILE" : "OK" );
 		}
 
 		else if (!strcasecmp(p1, "GETTIME")) {
@@ -807,8 +809,8 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				"LDEL    template     delete local files (AKA lrm)\n"
 				"REN     filename     rename file on Server\n"
 				"LREN    filename     rename local file\n"
-				"EXEC    filename     run program on Server\n"
-				"LEXEC   filename     run program locally\n"
+				"EXEC [-n] filename   run program on Server (-n = no wait)\n"
+				"LEXEC   filename     run program locally (on Client)\n"
 				"GETTIME              get Server's date/time and set it on Client\n"
 				"PUTTIME              send Client's local date/time and set it on Server\n"
 				"SHOWTTIME            show current date and time on both Client and Server\n"
