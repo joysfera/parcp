@@ -2315,6 +2315,16 @@ void do_server(void)
 				write_word( rename(name, name2) );
 				break;
 
+			case M_EXEC:
+				receive_string(name);
+				write_word(system(name));
+				break;
+
+			case M_EXECNOWAIT:
+				receive_string(name);
+				(void)system(name);
+				break;
+
 			case M_UTS:
 				send_string(local_machine);
 				break;

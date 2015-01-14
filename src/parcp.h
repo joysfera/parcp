@@ -157,7 +157,8 @@ struct utsname {
 #define M_PSTART	0x0f18
 #define M_EXCHANGE_FEATURES	0x0f19
 #define M_SENDFILESINFO	0x0f20
-#define M_CMD_EXEC	0x0f21
+#define M_EXEC		0x0f21
+#define M_EXECNOWAIT 0x0f22
 
 #define	M_UNKNOWN	0xe000		/* unknown command */
 

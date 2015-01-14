@@ -587,6 +587,49 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			puts( g_last_status ? "CAN\'T RENAME FILE" : "OK" );
 		}
 
+		else if (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC")) {
+			MYBOOL wait = TRUE;
+
+			if (p2 == NULL)	{				/* local file name */
+				puts("ERROR: no program name");
+				continue;
+			}
+
+			if (*p2 == '-') {
+				char *p3 = strtok(p2, " \n");
+				p2 = strtok(NULL, "\n");
+				if (p2 == NULL) {
+					puts("ERROR: no program name");
+					continue;
+				}
+				/* additional parameters */
+				if (p3[1] == 'n')
+					wait = FALSE;
+			}
+
+			if (is_pattern(p2)) {
+				puts("ERROR: wildcards not allowed");
+				continue;
+			}
+
+			if (toupper(*p1) != 'L') {	/* EXEC */
+				if (wait) {
+					write_word(M_EXEC);
+					send_string(p2);
+					g_last_status = read_word() ? FILE_NOTFOUND : 0;
+				}
+				else {
+					write_word(M_EXECNOWAIT);
+					send_string(p2);
+					g_last_status = 0;
+				}
+			}
+			else						/* LEXEC */
+				g_last_status = system(p2) ? FILE_NOTFOUND : 0;
+
+			puts( g_last_status ? "CAN\'T EXEC FILE" : "OK" );
+		}
+
 		else if (!strcasecmp(p1, "GETTIME")) {
 			write_word(M_GETTIME);
 			g_last_status = ReceiveDataAndSetLocalTime();
@@ -764,6 +807,8 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				"LDEL    template     delete local files (AKA lrm)\n"
 				"REN     filename     rename file on Server\n"
 				"LREN    filename     rename local file\n"
+				"EXEC    filename     run program on Server\n"
+				"LEXEC   filename     run program locally\n"
 				"GETTIME              get Server's date/time and set it on Client\n"
 				"PUTTIME              send Client's local date/time and set it on Server\n"
 				"SHOWTTIME            show current date and time on both Client and Server\n"
