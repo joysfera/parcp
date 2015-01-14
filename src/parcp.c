@@ -943,36 +943,39 @@ static int statfs (const char *path, struct statfs *buf)
 	realpath(path, resolved_path);
 
 	/* check whether GetDiskFreeSpaceExA is supported */
-	h = LoadLibraryA ("kernel32.dll");
-	f = h ? GetProcAddress (h, "GetDiskFreeSpaceExA") : NULL;
+	h = LoadLibraryA("kernel32.dll");
+	f = h ? GetProcAddress(h, "GetDiskFreeSpaceExA") : NULL;
 	if (f) {
 		ULARGE_INTEGER bytes_free, bytes_total, bytes_free2;
-            if (!f (resolved_path, &bytes_free2, &bytes_total, &bytes_free)) {
-                errno = ENOENT;
-                retval = - 1;
-              }
-            else {
-                buf -> f_bsize = FAKED_BLOCK_SIZE;
-                buf -> f_bfree = (bytes_free.QuadPart) / FAKED_BLOCK_SIZE;
-                buf -> f_files = buf -> f_blocks = (bytes_total.QuadPart) / FAKED_BLOCK_SIZE;
-                buf -> f_ffree = buf -> f_bavail = (bytes_free2.QuadPart) / FAKED_BLOCK_SIZE;
-              }
-          }
+		if (!f(resolved_path, &bytes_free2, &bytes_total, &bytes_free)) {
+			errno = ENOENT;
+			retval = - 1;
+		}
+		else {
+			buf -> f_bsize = FAKED_BLOCK_SIZE;
+			buf -> f_bfree = (bytes_free.QuadPart) / FAKED_BLOCK_SIZE;
+			buf -> f_files = buf -> f_blocks = (bytes_total.QuadPart) / FAKED_BLOCK_SIZE;
+			buf -> f_ffree = buf -> f_bavail = (bytes_free2.QuadPart) / FAKED_BLOCK_SIZE;
+		}
+	}
 	else {
-            DWORD sectors_per_cluster, bytes_per_sector;
-            if (h) FreeLibrary (h);
-            if (!GetDiskFreeSpaceA (resolved_path, &sectors_per_cluster, &bytes_per_sector, &buf -> f_bavail, &buf -> f_blocks)) {
-                errno = ENOENT;
-                retval = -1;
-              }
-            else {
-                buf -> f_bsize = sectors_per_cluster * bytes_per_sector;
-                buf -> f_files = buf -> f_blocks;
-                buf -> f_ffree = buf -> f_bavail;
-                buf -> f_bfree = buf -> f_bavail;
-              }
-          }
-	if (h) FreeLibrary (h);
+		DWORD sectors_per_cluster, bytes_per_sector;
+		if (h) {
+			FreeLibrary(h);
+			h = NULL;
+		}
+		if (!GetDiskFreeSpaceA(resolved_path, &sectors_per_cluster, &bytes_per_sector, &buf -> f_bavail, &buf -> f_blocks)) {
+			errno = ENOENT;
+			retval = -1;
+		}
+		else {
+			buf -> f_bsize = sectors_per_cluster * bytes_per_sector;
+			buf -> f_files = buf -> f_blocks;
+			buf -> f_ffree = buf -> f_bavail;
+			buf -> f_bfree = buf -> f_bavail;
+		}
+	}
+	if (h) FreeLibrary(h);
 
 	/* get the FS volume information */
 	if (strspn (":", resolved_path) > 0) resolved_path [3] = '\0'; /* we want only the root */
@@ -1016,7 +1019,6 @@ int uname(struct utsname *uts)
 
 int settimeofday(const struct timeval * tp, const struct timezone * tzp)
 {
-	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
 	static const ULONG64 EPOCH = ((ULONG64) 116444736000000000ULL);
 	ULONG64 time = EPOCH + tp->tv_sec * 10000000L + tp->tv_usec;
 	FILETIME file_time;
@@ -1166,10 +1168,12 @@ int list_drives(char *p)
 			char tmpline[]="a:/";
 			tmpline[0] += i;
 
+#ifndef _WIN32
 			/* check removable medias */
 			if ((dir = opendir(tmpline)) == NULL)
 				continue;	/* there's no media, skip it */
 			closedir(dir);
+#endif
 
 			p += sprintf(p, PRINTF_TEMPLATE, tmpline);
 			p += sprintf(p, "     <DIR>");
