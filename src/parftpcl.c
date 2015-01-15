@@ -587,7 +587,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 			puts( g_last_status ? "CAN'T RENAME FILE" : "OK" );
 		}
 
-		else if (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC")) {
+		else if (HAS_CMD_EXEC && (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC"))) {
 			MYBOOL wait = TRUE;
 
 			if (p2 == NULL)	{				/* local file name */
