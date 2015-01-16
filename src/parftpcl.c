@@ -629,7 +629,7 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				g_last_status = system(p2) ? FILE_NOTFOUND : 0;
 			}
 
-			puts( g_last_status ? "CAN'T EXEC FILE" : "OK" );
+			puts( g_last_status ? "CAN'T EXEC FILE OR RETURN CODE IS NONZERO" : "OK" );
 		}
 
 		else if (!strcasecmp(p1, "GETTIME")) {
