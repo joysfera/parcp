@@ -214,19 +214,21 @@ void prekresli_stranku(OKNO *okno)
 void vypis_podpis(OKNO *okno)
 {
 	int oznacenych=0, i;
-	size_t celkdelka=0;
+	ULONG64 celkdelka=0;
 	char podpis[MAXSTRING];
 
 	/* count the number of selected files */
 	for(i=0; i<okno->lines; i++)
 		if (oznaceny(okno, i)) {
 			oznacenych++;
-			celkdelka += atoi(RADEK(okno, i)+MAXFNAME);
+			celkdelka += atoll(RADEK(okno, i)+MAXFNAME);
 		}
 
 	/* display bottom info line */
 	if (oznacenych) {
-		sprintf(podpis, "%6ld kB in %4d selected files\n", (celkdelka+KILO-1)/KILO, oznacenych);
+		char buf_bytes[MAXSTRING];
+		show_size64(buf_bytes, celkdelka);
+		sprintf(podpis, "%s in %4d selected files\n", buf_bytes, oznacenych);
 		if (use_colors)
 			attron( COLOR_PAIR(2) );
 		else
