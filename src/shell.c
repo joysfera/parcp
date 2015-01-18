@@ -211,6 +211,16 @@ void prekresli_stranku(OKNO *okno)
 	update_panels();
 }
 
+#ifndef atoll
+long long atoll(const char *c)
+{
+	long long result = 0;
+	while(isdigit(*c))
+		result = result * 10 + (*c - '0');
+	return result;
+}
+#endif
+
 void vypis_podpis(OKNO *okno)
 {
 	int oznacenych=0, i;
