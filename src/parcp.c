@@ -382,10 +382,10 @@ void debug_print(const char *format, ... )
 /*******************************************************************************/
 static MYBOOL copyinfo_sending;
 static long copyinfo_size_in_blocks;
-static long copyinfo_pos;
+static ULONG64 copyinfo_pos;
 static clock_t copyinfo_time;
 
-void open_copyinfo(MYBOOL sending, const char *name, long size)
+void open_copyinfo(MYBOOL sending, const char *name, ULONG64 size)
 {
 	char title_txt[10];
 	strcpy(title_txt, sending?"Sending":"Receiving");
@@ -420,7 +420,7 @@ void open_copyinfo(MYBOOL sending, const char *name, long size)
 
 		if (size > 0) {
 			if (hash_mark)
-				printf("%s %s (%ld bytes = %ld blocks)", title_txt, name, size, copyinfo_size_in_blocks);
+				printf("%s %s (%lld bytes = %ld blocks)", title_txt, name, size, copyinfo_size_in_blocks);
 			else
 				printf("%s %s    ", title_txt, name);
 		}
@@ -430,17 +430,17 @@ void open_copyinfo(MYBOOL sending, const char *name, long size)
 	}
 }
 
-void open_sendinfo(const char *name, long size)
+void open_sendinfo(const char *name, ULONG64 size)
 {
 	open_copyinfo(TRUE, name, size);
 }
 
-void open_recvinfo(const char *name, long size)
+void open_recvinfo(const char *name, ULONG64 size)
 {
 	open_copyinfo(FALSE, name, size);
 }
 
-void update_copyinfo(unsigned long x)
+void update_copyinfo(ULONG64 x)
 {
 	unsigned long pos_block = (x + buffer_len-1) / buffer_len;
 
@@ -551,13 +551,14 @@ void close_copyinfo(int ret_flag)
 
 #include "crc32.c"
 
-int send_file(FILE *handle, long lfile)
+int send_file(FILE *handle, ULONG64 lfile)
 {
-	long remaining_length, lblock;
+	ULONG64 remaining_length;
+	long lblock;
 	UWORD receiver_status, ret_flag = 0;
 	int repeat_transfer;
 
-	DPRINT1("s Sending file %ld bytes long\n", lfile);
+	DPRINT1("s Sending file %lld bytes long\n", lfile);
 
 	remaining_length = lfile;
 	do {
@@ -625,9 +626,10 @@ int send_file(FILE *handle, long lfile)
 	return ret_flag;
 }
 
-int receive_file(FILE *handle, long lfile)
+int receive_file(FILE *handle, ULONG64 lfile)
 {
-	long lblock, zal_lfile = lfile;
+	ULONG64 zal_lfile = lfile;
+	long lblock;
 	int repeat_transfer;
 	int ret_flag = 0;
 
@@ -1495,7 +1497,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 	FILE *stream;
 	UWORD report_val = M_OK, ret_flag = 0;
 	unsigned long file_mode;
-	long long size = stb->st_size;	/* make it 64bit enhanced */
+	ULONG64 size = stb->st_size;	/* make it 64bit enhanced */
 
 	file_mode = file_attrib << 16;
 	file_mode = stb->st_mode & 0x0000ffff;
@@ -1592,7 +1594,7 @@ int receive_1_file(void)
 	FILE *stream;
 	struct stat stb;
 	static char name[MAXPATH], *p;
-	long long size;
+	ULONG64 size;
 	long timestamp;
 	unsigned file_attr;
 	unsigned long file_mode;
