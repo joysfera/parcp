@@ -467,7 +467,7 @@ void update_copyinfo(ULONG64 x)
 				unsigned long elapsed_time = current_time - g_start_time;
 				unsigned long avg_speed = current_pos / (elapsed_time+1);	/* +1 to not divide by zero */
 				ULONG64 remaining_length = g_bytes - current_pos;
-				unsigned long remaining_time = remaining_length / avg_speed;
+				unsigned long remaining_time = remaining_length / (avg_speed+1);
 				int rem_days = remaining_time / (3600 * 24);
 				int rem_hours = remaining_time / 3600;
 				int rem_mins = (remaining_time % 3600) / 60;
@@ -1497,7 +1497,7 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 	FILE *stream;
 	UWORD report_val = M_OK, ret_flag = 0;
 	unsigned long file_mode;
-	ULONG64 size = stb->st_size;	/* make it 64bit enhanced */
+	ULONG64 size = stb->st_size;
 
 	file_mode = file_attrib << 16;
 	file_mode = stb->st_mode & 0x0000ffff;
