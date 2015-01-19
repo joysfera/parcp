@@ -315,12 +315,12 @@ void port_reset(void)
 	SET_INPUT;
 	STROBE_HIGH;
 #ifdef IBM
-#ifdef USB
+#  ifdef USB
 	usb_exit();
-#else
+#  else
 	if (port_type == 2 && !PCunidirect)
 		EPP2ECP;
-#endif
+#  endif
 #endif
 }
 /*******************************************************************************/
@@ -2776,13 +2776,15 @@ int main(int argc, char *argv[])
 		}
 
 		if (go_interactive) {
-#ifdef SHELL
+#  ifdef SHELL
 			if (shell)
 				do_shell();		/* 'curses_initialized' will be set there */
 			else
-#endif
+#  endif
 				do_client(0, stdin);
 		}
+#else
+		i = i; // UNUSED
 #endif	/* PARCP_SERVER */
 	}
 	else
