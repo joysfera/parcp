@@ -1166,16 +1166,15 @@ int list_drives(char *p)
 # endif
 	for (i = 0; i < max_drives; i++) {
 		if (drvmap & (1L << i)) {
-			DIR *dir;
 			char tmpline[]="a:/";
 			tmpline[0] += i;
 
-#ifndef _WIN32
-			/* check removable medias */
-			if ((dir = opendir(tmpline)) == NULL)
-				continue;	/* there's no media, skip it */
-			closedir(dir);
-#endif
+			if (false /* check removable medias */) { // WinXP alerts("No Disk!") as reported by Daniel Hedberg
+				DIR *dir;
+				if ((dir = opendir(tmpline)) == NULL)
+					continue;	/* there's no media, skip it */
+				closedir(dir);
+			}
 
 			p += sprintf(p, PRINTF_TEMPLATE, tmpline);
 			p += sprintf(p, "     <DIR>");
