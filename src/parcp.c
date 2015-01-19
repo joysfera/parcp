@@ -1169,7 +1169,7 @@ int list_drives(char *p)
 			char tmpline[]="a:/";
 			tmpline[0] += i;
 
-			if (false /* check removable medias */) { // WinXP alerts("No Disk!") as reported by Daniel Hedberg
+			if (FALSE /* check removable medias */) { // WinXP alerts("No Disk!") as reported by Daniel Hedberg
 				DIR *dir;
 				if ((dir = opendir(tmpline)) == NULL)
 					continue;	/* there's no media, skip it */

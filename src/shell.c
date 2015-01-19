@@ -215,7 +215,7 @@ void prekresli_stranku(OKNO *okno)
 ULONG64 atoll(const char *c)
 {
 	ULONG64 result = 0;
-	while(isblank(*c))
+	while(isspace(*c))
 		c++;
 	while(isdigit(*c)) {
 		result = (result << 3) + (result << 1);	// => result * 10
@@ -366,7 +366,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 
 	// replace UTF-8 and other accents
 	for(i = 0; i < WW; i++)
-		if (nadpis[i] < 32 || nadpis[i] >= 0x80)
+		if (nadpis[i] < 32)
 			nadpis[i] = '?';
 
 	nadpis[WW]=0;
