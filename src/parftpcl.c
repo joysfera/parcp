@@ -590,6 +590,10 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 		else if (HAS_CMD_EXEC && (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC"))) {
 			MYBOOL wait = TRUE;
 
+			if (!registered) {
+				puts("The external program execution is disabled in unregistered version, sorry.");
+			}
+
 			if (p2 == NULL)	{				/* local file name */
 				puts("ERROR: no program name");
 				continue;
@@ -607,21 +611,14 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 					wait = FALSE;
 			}
 
-			if (is_pattern(p2)) {
-				puts("ERROR: wildcards not allowed");
-				continue;
-			}
-
 			if (toupper(*p1) != 'L') {	/* EXEC */
+				write_word(wait ? M_EXEC : M_EXECNOWAIT);
+				send_string(p2);
 				if (wait) {
-					write_word(M_EXEC);
-					send_string(p2);
 					wait_before_read();
 					g_last_status = read_word() ? FILE_NOTFOUND : 0;
 				}
 				else {
-					write_word(M_EXECNOWAIT);
-					send_string(p2);
 					g_last_status = 0;
 				}
 			}
