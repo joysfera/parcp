@@ -37,6 +37,11 @@ TMENU *new_item(const char *title, const char *stat_text, int command, int paren
 	return pmenu;
 }
 
+void free_item(TMENU *item)
+{
+	free(item);
+}
+
 TMENU *new_menu(TMENU ** itemlist)
 {
 	TMENU *item, *next;
@@ -66,17 +71,6 @@ TMENU *new_menu(TMENU ** itemlist)
 	}
 
 	return itemlist[0];
-}
-
-void free_menu(TMENU * menu)
-{
-	TMENU *next;
-
-	while (menu) {
-		next = menu->next;
-		free(menu);
-		menu = next;
-	}
 }
 
 void show_items(WINDOW * win, TMENU * smenu, int poloha)

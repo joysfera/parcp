@@ -211,7 +211,7 @@ void prekresli_stranku(OKNO *okno)
 	update_panels();
 }
 
-#ifdef ATARI	// MiNTlib does not know atoll
+#if defined(ATARI) || defined(__MSDOS__)	// neither MiNTlib nor DJGPP know atoll
 ULONG64 atoll(const char *c)
 {
 	ULONG64 result = 0;
@@ -900,10 +900,10 @@ void zjistit_kompletni_info(OKNO *okno, MYBOOL arch_mode)
 
 TMENU *pmenu;
 #define MAX_MENU_ITEMS	87
+TMENU *pitem[MAX_MENU_ITEMS];
 
 void init_menu()
 {
-	TMENU *pitem[MAX_MENU_ITEMS];
 	int i=0, overpos;
 
 	pitem[i++] = new_item("Dir listing", NULL, CM_LIST, -1);	/* 0 */
@@ -1196,7 +1196,9 @@ MYBOOL interakce_menu()
 
 void konec_menu(void)
 {
-	free_menu(pmenu);
+	int i = 0;
+	while(pitem[i])
+		free_item(pitem[i++]);
 }
 
 void do_shell(void)
