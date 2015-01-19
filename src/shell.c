@@ -211,12 +211,16 @@ void prekresli_stranku(OKNO *okno)
 	update_panels();
 }
 
-#ifndef atoll
-long long atoll(const char *c)
+#ifdef ATARI	// MiNTlib does not know atoll
+ULONG64 atoll(const char *c)
 {
-	long long result = 0;
-	while(isdigit(*c))
-		result = result * 10 + (*c - '0');
+	ULONG64 result = 0;
+	while(isblank(*c))
+		c++;
+	while(isdigit(*c)) {
+		result = (result << 3) + (result << 1);	// => result * 10
+		result += (*c++ - '0');
+	}
 	return result;
 }
 #endif
