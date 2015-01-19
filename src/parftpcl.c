@@ -187,7 +187,7 @@ char *orez_jmeno(const char *jmeno, int delka_jmena)
 
 	// replace UTF-8 and other accents
 	for(i = 0; i < delka_jmena; i++)
-		if (radek[i] < 32 || radek[i] >= 0x80)
+		if (radek[i] < 32)
 			radek[i] = '?';
 
 	return radek;
