@@ -50,6 +50,12 @@ int g_last_status = 0;		/* CLI will record errors into this var */
 
 MYBOOL bInBatchMode = FALSE;
 
+#ifndef _WIN32
+#  define PRINTLL "ll"
+#else
+#  define PRINTLL "I64"
+#endif
+
 /******************************************************************************/
 
 char *show_size64(char *buf, ULONG64 size)
@@ -173,7 +179,7 @@ long long read_longlong(void)
 	x = (x<<8) | a[6];
 	x = (x<<8) | a[7];
 
-	DPRINT2("l Read_long_long() -> %lld=$%llx\n", x, x);
+	DPRINT2("l Read_long_long() -> %" PRINTLL "d=$%" PRINTLL "x\n", x, x);
 
 	return x;
 }
@@ -216,7 +222,7 @@ void write_longlong(long long x)
 	a[6] = x>>8;
 	a[7] = x;
 
-	DPRINT2("l Write_long_long(%lld=$%llx)\n", x, x);
+	DPRINT2("l Write_long_long(%" PRINTLL "d=$%" PRINTLL "x)\n", x, x);
 
 	write_block(a,8);
 }
@@ -420,7 +426,7 @@ void open_copyinfo(MYBOOL sending, const char *name, ULONG64 size)
 
 		if (size > 0) {
 			if (hash_mark)
-				printf("%s %s (%lld bytes = %ld blocks)", title_txt, name, size, copyinfo_size_in_blocks);
+				printf("%s %s (%" PRINTLL "d bytes = %ld blocks)", title_txt, name, size, copyinfo_size_in_blocks);
 			else
 				printf("%s %s    ", title_txt, name);
 		}
@@ -558,7 +564,7 @@ int send_file(FILE *handle, ULONG64 lfile)
 	UWORD receiver_status, ret_flag = 0;
 	int repeat_transfer;
 
-	DPRINT1("s Sending file %lld bytes long\n", lfile);
+	DPRINT1("s Sending file %" PRINTLL "d bytes long\n", lfile);
 
 	remaining_length = lfile;
 	do {
@@ -1109,7 +1115,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 				sprintf(p, "     <DIR>");
 			}
 			else {
-				sprintf(p, "%10lld", (long long)stb.st_size);
+				sprintf(p, "%10" PRINTLL "d", (long long)stb.st_size);
 				total += stb.st_size;
 			}
 			p += 10;
