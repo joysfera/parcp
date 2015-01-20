@@ -1259,7 +1259,7 @@ void do_shell(void)
 
 	/* header */
 #ifdef STANDALONE
-		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2014");
+		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2015");
 #else
 #ifdef BETA
 #define PAVERZE "beta"
@@ -1267,9 +1267,9 @@ void do_shell(void)
 #define PAVERZE ""
 #endif
 	if (registered)
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2014. Registered to %s", username);
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2015. Registered to %s", username);
 	else
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2014. Shareware - unregistered copy");
+		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2015. Shareware - unregistered copy");
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 

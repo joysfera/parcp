@@ -270,7 +270,7 @@ int	Repeat;
 void Help()
 {
 	werase(okno);
-	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994-2014\n\n");
+	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994-2015\n\n");
 	waddstr(okno, "Navigation:\n");
 	waddstr(okno, "-----------\n");
 	waddstr(okno, "Cursor keys, PageUp/Down, Home/End\n");
