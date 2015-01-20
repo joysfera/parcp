@@ -265,6 +265,17 @@ void vypis_podpis(OKNO *okno)
 	}
 }
 
+char * convert_backslash_to_slash(char *cesta)
+{
+	int i = 0;
+	while(cesta[i]) {
+		if (cesta[i] == '\\')
+			cesta[i] = '/';
+		i++;
+	}
+	return cesta;
+}
+
 void nacti_obsah(OKNO *okno, const char *new_path)
 {
 	char adresar[MAXPATH] = "";
@@ -330,6 +341,8 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 			else {
 				get_cwd(adresar, MAXPATH);
 			}
+
+			convert_backslash_to_slash(adresar);
 		}
 
 		/* get list of files into dirbufer */
@@ -395,16 +408,7 @@ void nacti_obsah_s_cestou(OKNO *okno)
 	else
 		get_cwd(cesta, sizeof(cesta));
 
-#ifdef _WIN32
-	{	// change backslash to forward slash in path
-		int i = 0;
-		while(cesta[i]) {
-			if (cesta[i] == '\\')
-				cesta[i] = '/';
-			i++;
-		}
-	}
-#endif
+	convert_backslash_to_slash(cesta);
 
 	nacti_obsah(okno, cesta);
 }
