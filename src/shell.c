@@ -398,7 +398,7 @@ void nacti_obsah_s_cestou(OKNO *okno)
 #ifdef _WIN32
 	{	// change backslash to forward slash in path
 		int i = 0;
-		while(*cesta[i]) {
+		while(cesta[i]) {
 			if (cesta[i] == '\\')
 				cesta[i] = '/';
 			i++;
