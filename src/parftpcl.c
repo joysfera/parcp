@@ -101,6 +101,8 @@ char *str_err(int status)
 			return "Error while writing file - disk read-only or full?";
 		case ERROR_DELETING_FILE:
 			return "Error deleting file - check if it's not read-only";
+		case ERROR_CREATING_DIRECTORY:
+			return "Error creating directory";
 		default:
 			{
 				static char tmptxt[16];

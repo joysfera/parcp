@@ -1595,6 +1595,16 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 
 /*******************************************************************************/
 
+/* function returns with one of the following values:
+	0 = OK
+	FILE_SKIPPED
+	INTERRUPT_TRANSFER
+	QUIT_TRANSFER
+	ERROR_READING_FILE
+	ERROR_WRITING_FILE
+	ERROR_CREATING_DIRECTORY
+	ERROR_CRC_FAILED
+*/
 int receive_1_file(void)
 {
 	DIR *dir_p;
@@ -1674,16 +1684,10 @@ int receive_1_file(void)
 		*p=0;
 		if (! (dir_p = opendir(name))) {	/* can you open this folder? */
 			int ret = mkdir(name);		/* no, so create it */
-/* pokud ma kopirovat adresar a v cili uz existuje soubor stejneho jmena
-   hodi chybu "Error while writing file - disk read-only or full?"
-   Pravdepodobne je to proto, ze nekontroluju, jestli vytvoreni adresare dopadlo dobre.
-   Takze jsem tu a mel bych s tim 'ret' neco provest, vratit uzitecnou chybovou hlasku. */
-#if 0
 			if (ret) {
 				write_word(M_ERR);
 				return ERROR_CREATING_DIRECTORY;
 			}
-#endif
 		}
 
 		else
@@ -1722,15 +1726,6 @@ int receive_1_file(void)
 		set_fileattr(name, file_attr & 0x000f);		/* READONLY, HIDDEN, SYSTEM, VOLUME */
 	}
 
-	/* ret_flag got one of the following values:
-		0 = OK
-		FILE_SKIPPED
-		INTERRUPT_TRANSFER
-		QUIT_TRANSFER
-		ERROR_READING_FILE
-		ERROR_WRITING_FILE
-		ERROR_CRC_FAILED
-	*/
 	return ret_flag;
 }
 
@@ -1969,20 +1964,18 @@ int process_files_on_receiver_side()
 		if (Process == M_PEND)
 			break;
 		else if (Process == M_PUT) {
-			receive_1_file();
+			receive_1_file();				// WTF ignoring return value??
 		}
 		else if (Process == ERROR_READING_FILE) {	// send_1_file couldn't open the file at all
 		}
 		else if (Process == M_MD) {
-			int status;
+			int ret;
 			receive_string(fname);
 			check_and_convert_filename(fname);
 			remove_last_slash(fname);
-			DPRINT1("p vytvarim adresar '%s' ... ", fname);
-			status = mkdir(fname);
-			DPRINT1("p status = %d\n", status);
+			ret = mkdir(fname);
 			if (HAS_MKDIR_STATUS)
-				write_word(status);
+				write_word(ret ? M_ERR : M_OK);
 			continue;
 		}
 		else if (Process == M_DELINFO) {
