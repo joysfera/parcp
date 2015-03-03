@@ -9,7 +9,7 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-HAVE_USB = -DUSB -I/home/joy/Qt
+HAVE_USB = -DUSB -I/home/joy/Qt -pthread
 LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
 
 ifeq ($(HAVE_USB),)
@@ -21,7 +21,7 @@ endif
 #STATIC = -static
 
 ifeq ($(STATIC), -static)
-	LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
+	LDSTATIC = -ltinfo -lrt -ludev
 endif
 
 #EXT_FLAGS = -DSTANDALONE
