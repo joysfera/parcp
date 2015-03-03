@@ -349,8 +349,10 @@ void errexit(const char *a, int error_code)
 	chdir(original_path);
 #endif
 
-	puts("Press Enter to exit.");
-	getchar();
+	if (!_quiet_mode) {
+		puts("Press Enter to exit.");
+		getchar();
+	}
 
 	exit(error_code);
 }
@@ -1670,8 +1672,20 @@ int receive_1_file(void)
 	p = name;
 	while((p=strchr(p, SLASH))) {	/* file comes with file path - need to create parent folders */
 		*p=0;
-		if (! (dir_p = opendir(name)))	/* can you open this folder? */
-			mkdir(name);				/* no, so create it */
+		if (! (dir_p = opendir(name))) {	/* can you open this folder? */
+			int ret = mkdir(name);		/* no, so create it */
+/* pokud ma kopirovat adresar a v cili uz existuje soubor stejneho jmena
+   hodi chybu "Error while writing file - disk read-only or full?"
+   Pravdepodobne je to proto, ze nekontroluju, jestli vytvoreni adresare dopadlo dobre.
+   Takze jsem tu a mel bych s tim 'ret' neco provest, vratit uzitecnou chybovou hlasku. */
+#if 0
+			if (ret) {
+				write_word(M_ERR);
+				return ERROR_CREATING_DIRECTORY;
+			}
+#endif
+		}
+
 		else
 			closedir(dir_p);			/* it can be opened, so it exists - so let's close it :-) */
 		*p++ = SLASH;
@@ -1776,7 +1790,7 @@ int process_files(int Process, const char *src_mask)
 	return status;
 }
 
-/* the following function is called recursivelly so please minimize stack variables! */
+/* the following function is called recursively so please minimize stack variables! */
 int process_files_rec(const char *src_mask)
 {
 	DIR *dir_p;
@@ -1820,7 +1834,7 @@ int process_files_rec(const char *src_mask)
 			int status;
 			wait_before_read();	// wait for the other side to create the folder
 			status = read_word();
-			status = status; // UNUSED
+			status = status; // UNUSED - FIXME should report eventual error!
 		}
 	}
 
