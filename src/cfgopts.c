@@ -97,7 +97,7 @@ char	*trim(char *buffer)
 
 		if (i > 0 && i < linelen) {
 			linelen -= i;
-			memcpy(buffer, buffer + i, linelen);	/* mezery zleva pryc */
+			memmove(buffer, buffer + i, linelen);	/* mezery zleva pryc */
 		}
 
 		for (i = linelen; i > 0; i--) {
