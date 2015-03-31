@@ -83,14 +83,11 @@ tgz : all
 	mv parserve parserve.tos
 	mv parser30 parser30.tos
 	mv par_in par_in.prg
-	tar czvf parcpbin.tgz parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg
+	tar czvf parcp.tgz parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg
 	rm parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg
 
 clean :
-	rm -f *.o
-
-realclean :
-	rm -f parcp parcp030 parserve parser30 par_in par_out parcpkey par_io
+	rm -f *.o parshell parshell030 parserve parserve030 par_in parcp.ttp parcp030.ttp parserve.tos parser30.tos par_in.prg parcp.tgz
 
 ###############################
 
