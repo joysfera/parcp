@@ -30,38 +30,12 @@ under international Copyright law.
 
 2. How to register
 ~~~~~~~~~~~~~~~~~~
-You can register PARCP either at BMT Micro (read and fill the ORDER.FRM) or
-directly with me. You can even register online by clicking on the following
-secure link: https://secure.falcon-net.net/BMT/order1083.html
+You can register PARCP either at BMT Micro www.bmtmicro.com or better yet
+directly with me.
 
-The shareware fee is 20 USD or 20 EUR only. I accept money sent in cash,
-by Postal Money Order (you simply send money from your local post office)
-or by cheque. If you want to send me cash please register the mail,
-return receipt requested. I cannot be liable for lost cash sent through the
-mail.
-
-!Warning!
----------
-Please do not use CyberSTrider shareware service. He (Denesh Bhabuta)
-refuses to send me all money he collected for PARCP. Also, if you live in
-Sweden, don't try to use service of J.Kock - he also didn't send me any
-money yet. The only reliable (and fast!) registration place is BMT Micro in
-USA.
-
-
-Jak se zaregistrovat v Ceske ci Slovenske republice
----------------------------------------------------
-Poslete mi alespon 200 Kc postovni slozenkou typu C na adresu
-
-Petr Stehlik
-Lamanisko 5340
-76001 Zlin
-
-a razem se stanete registrovanymi uzivateli PARCP. Prosim vsimnete si, ze
-vy jakozto Cesi nebo Slovaci mate tretinovy registracni poplatek nez zbytek
-sveta. To je fajn, ne? Pokud radeji posilate penize prevodem na bankovni
-ucet, dejte mi vedet treba na mobil 0603-909191 a ja vam reknu svoje
-bankovni tajemstvi.
+The shareware fee is 20 USD (PayPal) or 16 EUR (SEPA direct wire transfer).
+My PayPal e-mail address and IBAN plus BIC/SWIFT is online at
+http://joy.sophics.cz/parcp/register.htm
 
 
 3. Why to register?
@@ -102,18 +76,17 @@ remove bugs.
    Lamanisko 5340
    CZ-76001 Zlin
    Czech Republic
-   Europe (in case you're wondering where Czech Republic is on the Earth :)
+   Europe (in case you're wondering where the Czech Republic is on the Earth :)
 
 
-   Internet e-mail addresses:
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~
-   pstehlik@sophics.cz    (my work address)
-   joy@sophics.cz         (my home address)
+   E-mail address:
+   ~~~~~~~~~~~~~~~
+   petr@pstehlik.cz
 
 
 The latest PARCP version is maintained for download at:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   URL: http://joy.sophics.cz/
+   URL: http://joy.sophics.cz/parcp/
 
 --------------------------------------------------------------------------
 
@@ -324,4 +297,5 @@ ideas and hints I got from them. Thank you all again!
   02.02.2003         Harold Melton (US)
   02.02.2003         SPHP Gregor (CZ)
   21.02.2003         Oliver Jaksch (DE)
+  .. and few more that I haven't listed here yet
 =========================================================================

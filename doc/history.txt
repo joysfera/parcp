@@ -1,6 +1,47 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+4.0.0 - 2015/03/31
+==================
+
+- in Quiet mode PARCP does not wait for Enter key press after
+  it exits with an error (say communication timeout).
+  This is to allow truly unattended PARCP usage.
+
+- fatal programming error in parsing configuration file, hidden there
+  for at least 18 years got fixed.
+
+- DOS/Windows now show forward slash as path separator, just like
+  Atari/Linux.
+
+- crucial bug fix in my own curses "pull down menu" implementation.
+  Previously it was freeing memory incorrectly and that often resulted
+  in a crash on exiting PARCP.
+
+- logical drives with medias inserted are no longer hidden by PARCP.
+  So now you can see A: and other previously invisible drives even
+  if no floppy/SD card/CD/DVD is inserted. This allows you to insert
+  the media later and access it in PARCP easily.
+
+- fixed an old bug where computing of remaining time could result
+  in a crash due to dividing by zero.
+
+- worked around error "Windows - No Disk" (apparently regarding floppy).
+
+- five absolutely critical bug fixes to 64bit file lengths support.
+  Previously files longer than 2 GB caused mess in the ParShell
+  and total files length was cut under 2 GB as well.
+
+- EXEC/LEXEC commands implemented. Allows for running arbitrary
+  programs on either end.
+
+- crucial fix for Windows where PDCurses freezed when entering CLI
+  mode from ParShell.
+
+- crucial fix for DOS and Windows where paging in CLI invoked from
+  ParShell didn't work because getch() was overriden by PDCurses.
+
+
 3.97 - 2015/01/12
 =================
 - time sync routines now cope with timezones. GETTIME/SETTIME/SHOWTIME

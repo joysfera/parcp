@@ -7,7 +7,7 @@
 
 <CENTER>
 <H1><BR>
-                                 PARCP v3.97
+                                 PARCP v4.0
 </H1>
 <H2><BR>
                           written by Petr Stehlik
@@ -16,7 +16,7 @@
                               &copy; 1996-2015
 </H3>
 </CENTER>
-Last Update: January 12, 2015
+Last Update: March 31, 2015
 <HR>
 <STRONG>
                             TABLE OF CONTENTS
@@ -105,10 +105,11 @@ Last Update: January 12, 2015
 </H1>
 <UL>
   <LI>Added explicit new <a href="#IntroductionUSB">paragraphs about PARCP-USB</a>.
-  <LI>PARCP.CFG is searched for in user's home folder now as well
-  <LI>USBSerial option slightly documented
-  <LI>-c command line option documented
+  <LI><i>PARCP.CFG</i> is searched for in user's home folder now as well
+  <LI><i>USBSerial</i> option slightly documented
+  <LI><i>-c</i> command line option documented
   <LI>udev rule for PARCP-USB on Linux added
+  <LI>the new <strong>EXEC</strong>/<strong>LEXEC</strong> commands documented
 </UL>
 
 
@@ -199,12 +200,12 @@ PARCP is no longer tied with parallel ports only.
 With the invention of PARCP-USB adapter the PARCP got zero setup on a PC and it's also generally simpler
 to use on Atari. You just plug the PARCP-USB adapter into your Atari or old PC and start PARCP software. No need to configure
 anything. No need to bother with PAR_IN. You don't care about PC parallel port number, its type, BIOS setup, current input/output state etc.
-Nothing of that since USB devices are plug&amp;play and PARCP software detects everything automatically.
+ Luckily USB devices are plug&amp;play and PARCP software detects everything automatically.
 <P>
 Best of all, with PARCP-USB it's much safer to interconnect two computers. Actually the connection can be permanent and you can turn
-on/off any of the two computers freely. There's no danger like there is with the PARCP cable.
+on/off any of the two computers freely. There's no danger compared to using the special PARCP cable that requires some caution.
 <P>
-<STRONG>The point is that with PARCP-USB you just plug&amp;play and ignore all sections of this document that talk about PARCP cable, parallel port setup or issues with it.</STRONG>
+<STRONG>The great thing is that with PARCP-USB you just plug&amp;play - and ignore all sections of this document that talk about PARCP cable, parallel port setup or issues with it.</STRONG>
 
 <H2><BR><A NAME="Introduction3"></A> 1.4 Features
 </H2>
@@ -396,6 +397,7 @@ to previously released PARCP v3.90:
 <LI> PARCP-USB support
 <LI> bugfixes, bugfixes and once again, more bugfixes!
 <LI> ParShell allows to use numbers 1-9 next to function keys F1-F9
+<LI> the new powerful EXEC command for running programs remotely!
 </UL>
 <P>
 For more detailed informations please read the file <A HREF="history.txt">HISTORY.TXT</A>.
@@ -433,8 +435,8 @@ Write me if you want another feature...
 Other neat features would be:
 <P>
 <UL>
-<LI> a port of PARCP to Amiga computers or Mac OS X
-<LI> a native GUI for Atari GEM, 32-bit Windows and X-Windows
+<LI> a port of PARCP to Amiga or Apple computers and mobile platforms
+<LI> a native GUI for Atari GEM, Windows and Linux
 </UL>
 <P>
 
@@ -448,8 +450,6 @@ distribution archive remains unchanged and is distributed free of charge.
 If you find the program useful and intend to continue using it you have to
 pay the Shareware fee to the author. Please refer to the
 <A HREF="register.txt">REGISTER.TXT</A> file for informations how to register PARCP.
-For direct and secure on-line ordering <A HREF="https://secure.falcon-net.net/BMT/order1083.html">please click here</A> and
-you'll get to BMT Micro (Registration point of PARCP in U.S.A).
 <P>
 Since I have to earn my living and there is so much other things to do, you
 should contribute if you would like to see newer and better versions of PARCP.
@@ -631,8 +631,8 @@ explain it better.
 </H2>
 <P>
 PARCP-USB is in detail described at <A HREF="http://joy.sophics.cz/parcp/parcp-usb.html">its own page</A>.
-Generally speaking it's an adapter that is able to convert the parallel port of Atari or a PC into USB port for PARCP needs. Then you simply grab
-a USB cable and connect it to your PC's USB port. There's no PARCP cable anymore.
+Generally speaking it's an adapter that is able to convert the parallel port of Atari (or a legacy PC) into a full speed USB port that can be
+simply connected to other PC's USB port with a plain USB cable. There's no need for a special PARCP cable anymore. And PARCP auto configures everything automatically.
 
 
 <H1><BR><A NAME="Installation"></A>3. Installation
@@ -1022,6 +1022,11 @@ parameter. There are three types of parameters:
       <td>             delete files matching template on Client. See the
                        DEL command above for SUBD description. Alias is
                        lrm.
+  <tr><td><STRONG>EXEC <td>[-n] program [parameters] <td>
+      <td>             executes any program on the PARCP Server and pass in the optional parameters (on its command line).
+                       The optional -n parameter disables Client waiting for finishing of the program execution on Server.
+  <tr><td><STRONG>LEXEC <td>program [parameters] <td>
+      <td>             executes any program on the Client and pass in the optional parameters.
 
   <tr><td><STRONG>SHOWTIME <td>
       <td>             display current date and time on both Client and Server
@@ -1702,7 +1707,7 @@ You need to have a "debug" distribution of PARCP for this.
 </H3>
 <P>
 <PRE GRAPHIC>
-# configuration file for PARCP 3.97
+# configuration file for PARCP 4.0
 [PARCP]
 FastRoutines = Yes      # Yes => use fast assembler routines
 ProcessSubDir = Yes     # Yes => send also files in directories
@@ -2009,7 +2014,7 @@ probably get fixed.
 </H2>
 <P>
  You can easily get the PARCP cable directly from <A HREF="#Resources5">me</A>. Just send me
- 8 EUR or 10 USD via PayPal and I'll send you back the 2 metres (6 feets) long PARCP cable.
+ 8 EUR or 9 USD via PayPal and I'll send you back the 2 metres (6 feets) long PARCP cable.
  Let me know if you need a longer one.
 <P>
 <P>
@@ -2061,7 +2066,7 @@ Feel free to send any bugreports, suggestions, remarks, registrations...
 <table border=0 cellpadding="4">
   <tr><td nowrap>E-mail:
     <td valign="top">
-      <A HREF="mailto:pstehlik@sophics.cz"><EM>pstehlik@sophics.cz</EM></A> <BR>
+      <A HREF="mailto:petr@pstehlik.cz"><EM>petr@pstehlik.cz</EM></A> <BR>
   <tr><td valign="top" nowrap>Snail mail:
       <td>
       Petr Stehlik               <BR>
