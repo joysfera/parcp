@@ -1,0 +1,19 @@
+How to compile PARCP for various platforms:
+===========================================
+
+1) on MiNT (requires patched MiNTlib and ncurses):
+  $ make clean tgz
+
+2) on Linux (requires ncurses, libusb and HIDAPI):
+  $ make clean tgz
+
+3) on DOS (requires DJGPP and PDCurses):
+  $ dosbox
+  > set PATH=C:\DJGPP\BIN;%PATH%
+  > set DJGPP=C:\DJGPP\DJGPP.ENV
+  > make clean all
+
+4) on Windows (requires MingGW, PDCurses and HIDAPI)
+  Alt+F2 cmd.exe
+  > set PATH=C:\Qt\Tools\mingw48_32\bin;%PATH%
+  > mingw32-make clean all
