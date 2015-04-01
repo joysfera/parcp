@@ -1,36 +1,18 @@
-+ az client pozbira velikost souboru (hlavne teda shell, ktery to dela
-  nanekolikrat, pro kazdy oznaceny soubor zvlast), tak by mel tu celkovou
-  velikost poslat nejakym prikazem serveru (g_bytes/files/folders), at i
-  server muze vypisovat nejake pekne hodnoty pri prenosu.
-
-  resetuje i nastavuje se to v get_files_info(bool local)
-  to je volane z return_server_files_info(void) <- M_GETINFO <- get_files_info()
-             a z zjistit_info<-process_entries<-zjistit_kompletni_info<-F[568]
-             a z parftpcl (GET/PUT/DEL)
-
-+ vyresit to M_EXCHANGE: pokud client umi 64bit, tak to posle serveru a ten
-  mu budto odpovi ze taky umi 64bit, nebo ze ne a pak to pada. Druha moznost
-  je natvrdo zvysit verzi protokolu, ale to delat nechci, kdyz uz mam M_EXCH.
-
-- zaridit, aby drag&dropnute disky ("C:\") byly poslany do adresare ("c/")
-
 - vyresit [Yes to All] a [No to All] (v ramci jednoho process_files())
-
-- mit prepinac mezi unixovym a dosovym zpusobem rekurzivniho zpracovani souboru. Puvodne
-      jsme meli dosovy zpusob (maska platila i v podadresarich), nyni mame unixovy.
-
-- pouzit access() misto file_exists()
-
-- REName do q_overwrite() 
-
-- pri timeoutu neodchazet z programu, ale pockat na timeout druhe strany a vratit se do shellu
-
-- [Yes to All] a [No to All] dodelat do Alertu!! Bude to jednoduche a velmi podobne
-      sbirani g_files/g_folders/g_bytes pro jednotlive oznacene polozky - tady si misto
-      toho budu pamatovat stav posledniho Neco to All pro urcity dotaz (kazdy dotaz musi
-      mit vlastni priznak Neco to All !!)
+- [Yes to All] a [No to All] (v ramci jednoho process_files()) dodelat do Alertu
+      Bude to jednoduche a velmi podobne sbirani g_files/g_folders/g_bytes pro
+      jednotlive oznacene polozky - tady si misto toho budu pamatovat stav
+      posledniho Neco to All pro urcity dotaz (kazdy dotaz musi mit vlastni
+      priznak Neco to All !!)
 
 - zvazit moznost pouziti tmpnam() pri prohlizeni a editaci, at nepomazu omylem
       dulezite soubory v TMP. Aby bylo zachovano filename, tak doporucuji vytvaret
       v $TMP podadresar dany nahodnym jmenem (anebo treba $parcp po vzoru WC)
       a teprve do nej kopirovat soubor.
+
+- pouzit access() misto file_exists() - uz ale nevim proc?
+
+- pridat moznost REName do q_overwrite() ?
+
+- pri timeoutu neodchazet z programu, ale pockat na timeout druhe strany
+  a vratit se do shellu - PROC?
