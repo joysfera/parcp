@@ -16,7 +16,7 @@
 int get_key()
 {
 	BYTE key=0;
-#ifdef TCGETA	/* Linux uses POSIX */
+#ifdef TCSANOW	/* Linux uses POSIX */
 	struct termios oldt, newt;
 
 	tcgetattr(0, &oldt);
