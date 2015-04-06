@@ -459,13 +459,13 @@ void update_copyinfo(ULONG64 x)
 		unsigned int p = (pos_block * progress_width) / copyinfo_size_in_blocks;
 
 		/* update single file progress indicator */
-		wmove(pwincent, 2, 1);whline(pwincent, ACS_BLOCK, p);
+		wmove(pwincent, 2, 1);whline(pwincent, ACS_CKBOARD, p);
 
 		if (_check_info && g_bytes) {
 			p = ((g_bytes_pos + x) * progress_width) / g_bytes;
 
 			/* update total size progress indicator */
-			wmove(pwincent, 4, 1);whline(pwincent, ACS_BLOCK, p);
+			wmove(pwincent, 4, 1);whline(pwincent, ACS_CKBOARD, p);
 
 			{
 				static long last_display_time = -1;
