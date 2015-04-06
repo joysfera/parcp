@@ -1,0 +1,140 @@
+# examples of running make:
+# for static binaries: make -e STATIC=-static
+# for standalone demo: make -e EXT_FLAGS=-DSTANDALONE
+
+CC = i686-apple-darwin10-gcc
+STRIP = i686-apple-darwin10-strip
+
+DEBUG =
+#DEBUG = -DUSBDEBUG
+#DEBUG = -DIODEBUG
+#DEBUG = -DDEBUG
+#DEBUG = -DDEBUG -DLOWDEBUG
+#DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
+
+HAVE_USB = -DUSB -I/home/joy/Qt
+#LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+
+ifeq ($(HAVE_USB),)
+	ALL_BIN = parcp parserve par_in
+else
+	ALL_BIN = parcp parserve
+endif
+
+#STATIC = -static
+
+ifeq ($(STATIC), -static)
+	LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
+endif
+
+EXT_FLAGS = -DSTANDALONE -I/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/include -I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib/system
+EXT_FLAGS += -I/home/joy/parcp/osx/ncurses-5.9/include -L/home/joy/parcp/osx/ncurses-5.9/lib
+#EXT_FLAGS = -DSTANDALONE
+
+LIB_NCURSES=-lncurses
+# for UTF support in ncurses use ncursesw:
+#LIB_NCURSES=-lncursesw
+
+FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
+
+PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+
+#ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
+ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o
+
+OBJS = parcp.o $(ZAKL_OBJS)
+SEROBJS = server_parcp.o $(ZAKL_OBJS)
+
+SHELL_FLAGS = -DSHELL $(FLAGS)
+SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
+
+parcp : $(SHELL_OBJS)
+	$(CC) $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel $(LIB_NCURSES) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) $@
+
+parcpftp : $(OBJS)
+	$(CC) $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) parcp
+
+pt : parcp-usb.o
+	$(CC) $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
+
+parserve : $(SEROBJS)
+	$(CC) $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) $@
+
+par_io : par_io.c global.c cfgopts.c
+	$(CC) $(FLAGS) par_io.c global.c cfgopts.c -o par_io $(LIB_USB)
+	$(STRIP) $@
+
+par_in.o : parinout.c
+	$(CC) $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
+
+par_out.o : parinout.c
+	$(CC) $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
+
+par_in : par_in.o global.o cfgopts.o
+	$(CC) $(STATIC) $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
+	$(STRIP) $@
+
+par_out : par_out.o global.o cfgopts.o
+	$(CC) $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
+	$(STRIP) $@
+
+parcpcfg.o : parcpcfg.c
+	$(CC) $(FLAGS) -c parcpcfg.c
+
+parcpcfg : parcpcfg.o cfgopts.o global.o
+	$(CC) $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
+	$(STRIP) $@
+
+parcpkey : parcpkey.c parcpkey.h
+	$(CC) $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
+	$(STRIP) $@
+
+all : $(ALL_BIN)
+
+tgz:	$(ALL_BIN)
+	rm -f parcp.tgz
+	tar czvf parcp.tgz $(ALL_BIN)
+
+clean :
+	rm -f *.o $(ALL_BIN) parcpkey parcp.tgz
+
+###############################
+
+parcp.o : $(PARCLIENT)
+	$(CC) $(FLAGS) -c parcp.c
+
+shell_parcp.o : $(PARCLIENT)
+	$(CC) $(SHELL_FLAGS) -c parcp.c -o shell_parcp.o
+
+server_parcp.o : $(PARCLIENT)
+	$(CC) -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
+
+shell.o : shell.c shell.h
+	$(CC) $(SHELL_FLAGS) -c shell.c
+
+box.o : box.c box.h
+	$(CC) $(SHELL_FLAGS) -c box.c
+
+menu.o : menu.c menu.h
+	$(CC) $(SHELL_FLAGS) -c menu.c
+
+viewer.o : viewer.c viewer.h
+	$(CC) $(SHELL_FLAGS) -c viewer.c
+
+global.o : global.c global.h
+	$(CC) $(SHELL_FLAGS) -c global.c
+
+match.o : match.c match.h
+	$(CC) $(FLAGS) -c match.c
+
+parcp-usb.o : parcp-usb.c parcp-usb.h
+	$(CC) $(FLAGS) -c parcp-usb.c
+
+cfgopts.o : cfgopts.c cfgopts.h
+	$(CC) $(FLAGS) -c cfgopts.c
+
+parcpkey.o : parcpkey.c parcpkey.h
+	$(CC) $(FLAGS) -c parcpkey.c

@@ -23,7 +23,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #ifndef _WIN32
-# include <sys/vfs.h>
+# ifndef __APPLE__
+#  include <sys/vfs.h>
+# endif
 # include <sys/utsname.h>
 # include <termios.h>
 #endif

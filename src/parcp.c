@@ -11,6 +11,10 @@
 #include "global.h"			/* list of global variables */
 #include "parstruc.h"		/* config struct */
 #include "match.h"
+#ifdef __APPLE__
+# include <sys/param.h>
+# include <sys/mount.h>
+#endif
 
 #ifdef SHELL
 #include <curses.h>
@@ -1163,7 +1167,7 @@ int list_drives(char *p)
 	struct tm *cas;
 	int drives = 0, max_drives = 32 < dirbuf_lines ? 32 : dirbuf_lines;
 
-#if defined(ATARI) || defined(_WIN32)
+#if defined(ATARI) || defined(_WIN32) || defined(__APPLE__)
 	long drvmap = 0;
 # ifdef ATARI
 	long ssp = Super(0L);
@@ -1171,8 +1175,10 @@ int list_drives(char *p)
 	if ((*(short *)0x4a6) != 2)
 		drvmap &= ~2;             /* drive B: isn't really there */
 	Super(ssp);
-# else
+# elif defined(_WIN32)
 	drvmap = GetLogicalDrives();
+# else
+	drvmap = 0; // hacked for now
 # endif
 	for (i = 0; i < max_drives; i++) {
 		if (drvmap & (1L << i)) {

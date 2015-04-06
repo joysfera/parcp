@@ -46,7 +46,7 @@ MYBOOL _is_ready(void)
 /******************************************************************************/
 
 #ifdef IBM
-#  ifndef _WIN32
+#  if !defined(_WIN32) && !defined(__APPLE__)
 #    include <mntent.h>
 #  endif
 
