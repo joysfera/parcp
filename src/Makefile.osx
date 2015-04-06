@@ -12,8 +12,8 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-HAVE_USB = -DUSB -I/home/joy/Qt
-#LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+HAVE_USB = -DUSB -I/home/joy/Qt -pthread
+LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
 
 ifeq ($(HAVE_USB),)
 	ALL_BIN = parcp parserve par_in
@@ -24,12 +24,12 @@ endif
 #STATIC = -static
 
 ifeq ($(STATIC), -static)
-	LDSTATIC = -ltinfo -lpthread -lusb-1.0 -lrt
+	LDSTATIC = -ltinfo -lrt
 endif
 
-EXT_FLAGS = -DSTANDALONE -I/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/include -I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib/system
-EXT_FLAGS += -I/home/joy/parcp/osx/ncurses-5.9/include -L/home/joy/parcp/osx/ncurses-5.9/lib
 #EXT_FLAGS = -DSTANDALONE
+EXT_FLAGS += -I/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/include -I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib -L/usr/lib/apple/SDKs/MacOSX10.6.sdk/usr/lib/system
+EXT_FLAGS += -I/home/joy/parcp/osx/ncurses-5.9/include -L/home/joy/parcp/osx/ncurses-5.9/lib
 
 LIB_NCURSES=-lncurses
 # for UTF support in ncurses use ncursesw:
@@ -39,8 +39,7 @@ FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -
 
 PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
-#ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
-ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o
+ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
 
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)

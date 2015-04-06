@@ -2,6 +2,9 @@
 # for static binaries: make -e STATIC=-static
 # for standalone demo: make -e EXT_FLAGS=-DSTANDALONE
 
+CC = gcc
+STRIP = strip
+
 DEBUG =
 #DEBUG = -DUSBDEBUG
 #DEBUG = -DIODEBUG
@@ -43,48 +46,48 @@ SHELL_FLAGS = -DSHELL $(FLAGS)
 SHELL_OBJS = shell_parcp.o shell.o box.o menu.o viewer.o $(ZAKL_OBJS)
 
 parcp : $(SHELL_OBJS)
-	gcc $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel $(LIB_NCURSES) $(LIB_USB) $(LDSTATIC)
-	strip $@
+	$(CC) $(STATIC) $(SHELL_FLAGS) -o parcp $(SHELL_OBJS) -lpanel $(LIB_NCURSES) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) $@
 
 parcpftp : $(OBJS)
-	gcc $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
-	strip parcp
+	$(CC) $(STATIC) $(FLAGS) -o parcp $(OBJS) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) parcp
 
 pt : parcp-usb.o
-	gcc $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
+	$(CC) $(STATIC) $(FLAGS) -o pt parcp-usb.o $(LIB_USB)
 
 parserve : $(SEROBJS)
-	gcc $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB) $(LDSTATIC)
-	strip $@
+	$(CC) $(STATIC) $(FLAGS) -o parserve $(SEROBJS) $(LIB_USB) $(LDSTATIC)
+	$(STRIP) $@
 
 par_io : par_io.c global.c cfgopts.c
-	gcc $(FLAGS) par_io.c global.c cfgopts.c -o par_io $(LIB_USB)
-	strip $@
+	$(CC) $(FLAGS) par_io.c global.c cfgopts.c -o par_io $(LIB_USB)
+	$(STRIP) $@
 
 par_in.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
+	$(CC) $(SHELL_FLAGS) -c -DIN parinout.c -o par_in.o
 
 par_out.o : parinout.c
-	gcc $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
+	$(CC) $(SHELL_FLAGS) -c -DOUT parinout.c -o par_out.o
 
 par_in : par_in.o global.o cfgopts.o
-	gcc $(STATIC) $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
-	strip $@
+	$(CC) $(STATIC) $(SHELL_FLAGS) par_in.o global.o cfgopts.o -o par_in
+	$(STRIP) $@
 
 par_out : par_out.o global.o cfgopts.o
-	gcc $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
-	strip $@
+	$(CC) $(SHELL_FLAGS) par_out.o global.o cfgopts.o -o par_out
+	$(STRIP) $@
 
 parcpcfg.o : parcpcfg.c
-	gcc $(FLAGS) -c parcpcfg.c
+	$(CC) $(FLAGS) -c parcpcfg.c
 
 parcpcfg : parcpcfg.o cfgopts.o global.o
-	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
-	strip $@
+	$(CC) $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
+	$(STRIP) $@
 
 parcpkey : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
-	strip $@
+	$(CC) $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
+	$(STRIP) $@
 
 all : $(ALL_BIN)
 
@@ -98,37 +101,37 @@ clean :
 ###############################
 
 parcp.o : $(PARCLIENT)
-	gcc $(FLAGS) -c parcp.c
+	$(CC) $(FLAGS) -c parcp.c
 
 shell_parcp.o : $(PARCLIENT)
-	gcc $(SHELL_FLAGS) -c parcp.c -o shell_parcp.o
+	$(CC) $(SHELL_FLAGS) -c parcp.c -o shell_parcp.o
 
 server_parcp.o : $(PARCLIENT)
-	gcc -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
+	$(CC) -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
 
 shell.o : shell.c shell.h
-	gcc $(SHELL_FLAGS) -c shell.c
+	$(CC) $(SHELL_FLAGS) -c shell.c
 
 box.o : box.c box.h
-	gcc $(SHELL_FLAGS) -c box.c
+	$(CC) $(SHELL_FLAGS) -c box.c
 
 menu.o : menu.c menu.h
-	gcc $(SHELL_FLAGS) -c menu.c
+	$(CC) $(SHELL_FLAGS) -c menu.c
 
 viewer.o : viewer.c viewer.h
-	gcc $(SHELL_FLAGS) -c viewer.c
+	$(CC) $(SHELL_FLAGS) -c viewer.c
 
 global.o : global.c global.h
-	gcc $(SHELL_FLAGS) -c global.c
+	$(CC) $(SHELL_FLAGS) -c global.c
 
 match.o : match.c match.h
-	gcc $(FLAGS) -c match.c
+	$(CC) $(FLAGS) -c match.c
 
 parcp-usb.o : parcp-usb.c parcp-usb.h
-	gcc $(FLAGS) -c parcp-usb.c
+	$(CC) $(FLAGS) -c parcp-usb.c
 
 cfgopts.o : cfgopts.c cfgopts.h
-	gcc $(FLAGS) -c cfgopts.c
+	$(CC) $(FLAGS) -c cfgopts.c
 
 parcpkey.o : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -c parcpkey.c
+	$(CC) $(FLAGS) -c parcpkey.c
