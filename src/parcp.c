@@ -318,6 +318,7 @@ MYBOOL zastavit_prenos_souboru(void)
 /*******************************************************************************/
 void port_reset(void)
 {
+#ifndef STANDALONE
 	SET_INPUT;
 	STROBE_HIGH;
 #ifdef IBM
@@ -327,6 +328,7 @@ void port_reset(void)
 	if (port_type == 2 && !PCunidirect)
 		EPP2ECP;
 #  endif
+#endif
 #endif
 }
 /*******************************************************************************/
@@ -2641,7 +2643,7 @@ int zpracovani_parametru(int argc, char *argv[])
 				strcpy(autoexec, optarg);
 				break;
 
-#ifdef USB
+#if defined(USB) && !defined(STANDALONE)
 			case 'u':
 				if (!usb_init(usb_serial)) exit(1);
 				int cmd = atoi(optarg);
