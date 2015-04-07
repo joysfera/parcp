@@ -13,7 +13,7 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
 HAVE_USB = -DUSB -I/home/joy/Qt -pthread
-LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+LIB_USB = -L/home/joy/Qt/HIDAPI/mac -lHIDAPI -lIOKit -F/usr/lib/apple/SDKs/MacOSX10.6.sdk/System/Library/Frameworks -framework CoreFoundation
 
 ifeq ($(HAVE_USB),)
 	ALL_BIN = parcp parserve par_in

@@ -17,3 +17,8 @@ How to compile PARCP for various platforms:
   Alt+F2 cmd.exe
   > set PATH=C:\Qt\Tools\mingw48_32\bin;%PATH%
   > mingw32-make clean all
+
+5) for Mac OS X on Linux (requires i686 gcc cross compiler)
+  $ make -f Makefile.osx clean tgz
+
+  https://developer.apple.com/library/mac/documentation/Porting/Conceptual/PortingUnix
