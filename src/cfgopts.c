@@ -11,11 +11,10 @@
 /                                                                      /
 /  Ouput         : updated configuration file or updated structure.    /
 /                                                                      /
-/  Programmer    : Jeffry J. Brickley                                  /
+/  Programmer    : Jeffry J. Brickley, Petr Stehlik                    /
 /                                                                      /
 /                                                                      /
 /---------------------------------------------------------------------*/
-#define       Assigned_Revision 950802
 /*-------------------------[ Revision History ]------------------------/
 / Revision 1.0.0  :  Original Code by Jeffry J. Brickley               /
 /          1.1.0  : added header capability, JJB, 950802
@@ -31,9 +30,10 @@
 /                   increased max cfg line length up to 32767 chars Joy/
 /          1.7.1  : fcopy error values propagated to update_conf()     /
 /                   fcopy checks for incomplete write (disk full)   Joy/
+/          1.7.2    fatal bug in trim() fixed                       Joy/
+/          1.7.3    fcopy with static buffer, less used memory      Joy/
+/                   OctWord/OctLong dropped, missing Int added      Joy/
 /------------------------------------------------------------------->>*/
-/*  Please keep revision number current.                              */
-#define       REVISION_NO "1.7.0"
 
 #ifndef Boolean_T_defined
 #define Boolean_T_defined
@@ -133,13 +133,13 @@ char	*strip_comment(char *line)
 }
 
 
+static char line[1024];
+
 /*
  * FCOPY.C - copy one file to another.  Returns the (positive)
  *           number of bytes copied, or -1 if an error occurred.
  * by: Bob Jarvis
  */
-
-#define BUFFER_SIZE 1024
 
 /*---------------------------------------------------------------------/
 /   copy one file to another.
@@ -154,7 +154,6 @@ char	*strip_comment(char *line)
 long fcopy(const char *dest, const char *source)
 {
 	FILE * d, *s;
-	char	*buffer;
 	size_t incount, outcount;
 	long	totcount = 0L;
 
@@ -168,26 +167,18 @@ long fcopy(const char *dest, const char *source)
 		return - 1L;
 	}
 
-	buffer = (char *)malloc(BUFFER_SIZE);
-	if (buffer == NULL) {
-		fclose(s);
-		fclose(d);
-		return - 1L;
-	}
-
-	incount = fread(buffer, sizeof(char), BUFFER_SIZE, s);
+	incount = fread(line, sizeof(char), sizeof(line), s);
 	outcount = 0;
 
 	while (!feof(s)) {
 		totcount += (long)incount;
-		outcount += fwrite(buffer, sizeof(char), incount, d);
-		incount = fread(buffer, sizeof(char), BUFFER_SIZE, s);
+		outcount += fwrite(line, sizeof(char), incount, d);
+		incount = fread(line, sizeof(char), sizeof(line), s);
 	}
 
 	totcount += (long)incount;
-	outcount += fwrite(buffer, sizeof(char), incount, d);
+	outcount += fwrite(line, sizeof(char), incount, d);
 
-	free(buffer);
 	fclose(s);
 	fclose(d);
 
@@ -197,8 +188,6 @@ long fcopy(const char *dest, const char *source)
 	return totcount;
 }
 
-
-static char	line[32768];
 
 /*---------------------------------------------------------------------/
 /   reads from an input configuration (INI) file.
@@ -213,20 +202,18 @@ static char	line[32768];
 /-------------------------------------------------------------------<<*/
 int	input_config(const char *filename, struct Config_Tag configs[], char *header)
 {
-	struct Config_Tag *ptr;
-	int	count = 0, lineno = 0, temp;
-	FILE * file;
-	char	*fptr, *tok, *next;
+	int	count = 0, lineno = 0;
 
-	file = fopen(filename, "rt");
+	FILE *file = fopen(filename, "rt");
 	if ( file == NULL ) 
 		return ERROR;   /* return error designation. */
 	if ( header != NULL )
 		do {
-			fptr = trim(fgets(line, sizeof(line), file));  /* get input line */
+			trim(fgets(line, sizeof(line), file));  /* get input line */
 		} while ( memcmp(line, header, strlen(header)) && !feof(file));
 
-	if ( !feof(file) ) 
+	if ( !feof(file) ) {
+		char	*fptr, *tok;
 		do {
 			fptr = trim(fgets(line, sizeof(line), file));  /* get input line */
 			if ( fptr == NULL ) 
@@ -239,9 +226,11 @@ int	input_config(const char *filename, struct Config_Tag configs[], char *header
 
 			tok = trim(strtok(line, "=\n\r"));   /* get first token */
 			if ( tok != NULL ) {
-				next = trim(strtok(NULL, "=\n\r")); /* get actual config information */
+				struct Config_Tag *ptr;
+				char *next = trim(strtok(NULL, "=\n\r")); /* get actual config information */
 				for ( ptr = configs; ptr->buf; ++ptr )   /* scan for token */ {
 					if ( !strcasecmp( tok , ptr->code ) )  /* got a match? */ {
+						int temp;
 						if (next == NULL) {
 							if ( ptr->type == String_Tag ) {/* string may be empty */
 								*(char *)ptr->buf = 0;
@@ -269,23 +258,23 @@ int	input_config(const char *filename, struct Config_Tag configs[], char *header
 							++count;
 							break;
 
+						case Int_Tag:
+							sscanf(next, "%d", (int *)(ptr->buf));
+							++count;
+							break;
+
 						case Long_Tag:
 							sscanf(next, "%ld", (long *)(ptr->buf));
 							++count;
 							break;
 
-						case OctWord_Tag:
-							sscanf(next, "%ho", (short *)(ptr->buf));
-							++count;
-							break;
-
-						case OctLong_Tag:
-							sscanf(next, "%lo", (long *)(ptr->buf));
-							++count;
-							break;
-
 						case HexWord_Tag:
 							sscanf(next, "%hx", (short *)(ptr->buf));
+							++count;
+							break;
+
+						case HexInt_Tag:
+							sscanf(next, "%x", (int *)(ptr->buf));
 							++count;
 							break;
 
@@ -331,6 +320,7 @@ int	input_config(const char *filename, struct Config_Tag configs[], char *header
 				}
 			}
 		} while ( fptr != NULL && line[0] != '[');
+	}
 	fclose(file);
 	return count;
 }
@@ -357,20 +347,20 @@ Boolean_T write_token(FILE *outfile, struct Config_Tag *ptr)
 		fprintf(outfile, "%hd\n", *((short *)(ptr->buf)));
 		break;
 
+	case Int_Tag:
+		fprintf(outfile, "%d\n", *((int *)(ptr->buf)));
+		break;
+
 	case Long_Tag:
 		fprintf(outfile, "%ld\n", *((long *)(ptr->buf)));
 		break;
 
-	case OctWord_Tag:
-		fprintf(outfile, "%ho\n", *((short *)(ptr->buf)));
-		break;
-
-	case OctLong_Tag:
-		fprintf(outfile, "%lo\n", *((long *)(ptr->buf)));
-		break;
-
 	case HexWord_Tag:
 		fprintf(outfile, "%hx\n", *((short *)(ptr->buf)));
+		break;
+
+	case HexInt_Tag:
+		fprintf(outfile, "%x\n", *((int *)(ptr->buf)));
 		break;
 
 	case HexLong_Tag:
