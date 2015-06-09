@@ -1,14 +1,14 @@
-struct Config_Tag configs[] = {
+struct Config_Tag mconfigs[] = {
 	{ "UserName", String_Tag, username, sizeof(username) },
 	{ "KeyCode", String_Tag, keycode, sizeof(keycode) },
 #ifdef IBM
 #  ifdef USB
 	{ "UsbSerial", String_Tag, usb_serial, sizeof(usb_serial) },
 #  else
-	{ CFG_PORT, HexLong_Tag, &print_port },
+	{ CFG_PORT, HexInt_Tag, &print_port },
 	{ CFG_UNIBI, Boolean_Tag, &PCunidirect },
-	{ "PortType", Long_Tag, &port_type },
-	{ "CableType", Long_Tag, &cable_type },
+	{ "PortType", Int_Tag, &port_type },
+	{ "CableType", Int_Tag, &cable_type },
 #  endif
 #endif
 	{ "FastRoutines", Boolean_Tag, &_assembler },
@@ -26,7 +26,7 @@ struct Config_Tag configs[] = {
 	{ "BlockSize", Long_Tag, &buffer_lenkb },
 	{ "DirectoryLines", Word_Tag, &dirbuf_lines },
 	{ "FileBuffers", Byte_Tag, &filebuffers },
-	{ "Timeout", Long_Tag, &time_out },
+	{ "Timeout", Int_Tag, &time_out },
 	{ "DirSort", Char_Tag, &_sort_jak },
 	{ "SortCase", Boolean_Tag, &_sort_case },
 	{ "Autoexec", String_Tag, autoexec, sizeof(autoexec) },
