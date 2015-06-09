@@ -650,7 +650,7 @@ int shell_config_file(char *soubor, MYBOOL vytvorit)
 {
 	int vysledek;
 
-	struct Config_Tag configs[] = {
+	struct Config_Tag sconfigs[] = {
 #ifdef ATARI
 		{"ANSIfont", Boolean_Tag, &_ncurses_ANSI_graphics },
 #endif
@@ -670,10 +670,10 @@ int shell_config_file(char *soubor, MYBOOL vytvorit)
 	};
 
 	if (vytvorit) {
-		vysledek = update_config(soubor,configs,SHELLCFGHEAD);
+		vysledek = update_config(soubor, sconfigs, SHELLCFGHEAD);
 	}
 	else {
-		vysledek = input_config(soubor,configs,SHELLCFGHEAD);
+		vysledek = input_config(soubor, sconfigs, SHELLCFGHEAD);
 
 		/* parameters should be tested for correctness */
 	}

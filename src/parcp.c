@@ -2197,10 +2197,10 @@ int config_file(const char *soubor, MYBOOL vytvorit)
 
 	if (vytvorit) {
 		buffer_lenkb = buffer_len / KILO;
-		vysledek = update_config(soubor,configs,CFGHEAD);
+		vysledek = update_config(soubor, mconfigs, CFGHEAD);
 	}
 	else {
-		vysledek = input_config(soubor,configs,CFGHEAD);
+		vysledek = input_config(soubor, mconfigs, CFGHEAD);
 
 #ifdef STANDALONE
 		registered = TRUE;
