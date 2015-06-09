@@ -592,10 +592,6 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 		else if (HAS_CMD_EXEC && (!strcasecmp(p1, "EXEC") || !strcasecmp(p1, "LEXEC"))) {
 			MYBOOL wait = TRUE;
 
-			if (!registered) {
-				puts("The external program execution is disabled in unregistered version, sorry.");
-			}
-
 			if (p2 == NULL)	{				/* local file name */
 				puts("ERROR: no program name");
 				continue;
@@ -741,11 +737,6 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 				_archive_mode = IS_ON(p2) ? TRUE : FALSE;
 			else
 				_archive_mode = !_archive_mode;
-
-			if (!registered) {
-				_archive_mode = FALSE;
-				puts("The archive mode is disabled in unregistered version, sorry.");
-			}
 
 			send_parameters();
 			print_status(12);

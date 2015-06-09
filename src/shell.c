@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2000
+ * Petr Stehlik (c) 1996-2015
  *
  */
 
@@ -1009,11 +1009,6 @@ MYBOOL interakce_menu()
 	MYBOOL old_show_hidden = _show_hidden;
 /*	MYBOOL old_case_sensitive = _case_sensitive; */
 	MYBOOL old_preserve_case = _preserve_case;
-
-	/* disable things in unregistered version */
-	toggle_command(pmenu, CM_OPT_DIRBUF_LINES, registered);
-	toggle_command(pmenu, CM_OPT_ARCH, registered);
-	toggle_command(pmenu, CM_OPTS_REG, !registered);
 
 	switch(toupper(_sort_jak)) {
 		case 'N': click_radio(pmenu, CM_SORTNAME); break;
