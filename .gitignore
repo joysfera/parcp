@@ -1,6 +1,10 @@
 src/*.o
 src/parcp
 src/parcpkey
-src/parcp.cfg
+src/parcp*.cfg
 src/auto.txt
 src/parcp.log
+dosbox
+osx
+release
+reg
