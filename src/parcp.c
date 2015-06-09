@@ -1107,6 +1107,9 @@ void list_dir(const char *p2, int maska, char *zacatek)
 			if (stb.st_attr & 0x08) // entry is VolumeID
 				continue;			// this should also remove VFAT ghost entries that have all VolumeID set
 #endif
+			if (!strcmp(fname, ".DS_Store"))
+				continue;	// skip the internal Mac Finder file
+
 			is_dir = S_ISDIR(stb.st_mode);
 			if (is_dir && (maska & LS_FILES_ONLY))
 				continue;
