@@ -2241,13 +2241,6 @@ int config_file(const char *soubor, MYBOOL vytvorit)
 #endif
 	}
 
- 	/* set up unregistered version limitations */
-	if (!registered) {
-		if (dirbuf_lines > UNREG_DIRBUF_LIN)
-			dirbuf_lines = UNREG_DIRBUF_LIN;
-		_archive_mode = FALSE;
-	}
-
 	return vysledek;
 }
 /*******************************************************************************/
@@ -2678,7 +2671,7 @@ int zpracovani_parametru(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-#if defined(DEBUG) || defined(WILL_EXPIRE)
+#if defined(DEBUG)
 	time_t start_time = time(NULL);
 #endif
 	int i;
@@ -2704,27 +2697,9 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
 		puts("DEBUG version "VERZE" (compiled on "__DATE__")\n");
 #else
-#ifdef BETA
-		puts("Test version "VERZE"beta (compiled on "__DATE__")\n");
-#else
 		puts("Version "VERZE" (compiled on "__DATE__")\n");
 #endif
-#endif
 	}
-
-#ifdef WILL_EXPIRE
-/* vaid till the end of October 1998 */
-#define ROK		1998
-#define MESIC	10
-{
-	struct tm *cas = localtime(&start_time);
-	if ( (cas->tm_year > ROK) || (cas->tm_year == ROK && cas->tm_mon >= MESIC) ) {
-		puts("\nSorry, this beta version expired. It's been destined for testing only,\n"\
-			"so please go and obtain new, full release of PARCP.");
-		return 0;
-	}
-}
-#endif	/* WILL_EXPIRE */
 
 #ifdef SHELL
 	if (! shell)
@@ -2732,12 +2707,6 @@ int main(int argc, char *argv[])
 	{
 		if (registered && !_quiet_mode) {
 			printf("This copy of PARCP is registered to %s\n\n", username);
-		}
-		else if (client) {	/* server will not complain about being unregistered */
-			puts("Unregistered version can be used for evaluation for 30-days period.\n"
-				"If you continue using PARCP after that period you should either\n"
-				"register yourself or be ashamed for breaking Shareware principle.\n");
-			sleep(5);
 		}
 	}
 
@@ -2761,22 +2730,16 @@ int main(int argc, char *argv[])
 
 		/* execute commands from auto exec file first */
 		if (*autoexec) {
-			if (registered) {
-				FILE *fp = fopen(autoexec, "rt");
+			FILE *fp = fopen(autoexec, "rt");
 
-				if (fp != NULL) {
-					printf("Using script file '%s'\n", autoexec);
-					go_interactive = do_client(0, fp);
-					fclose(fp);
-				}
-				else {
-					printf("Script file '%s' not found.\n", autoexec);
-					sleep(2);
-				}
+			if (fp != NULL) {
+				printf("Using script file '%s'\n", autoexec);
+				go_interactive = do_client(0, fp);
+				fclose(fp);
 			}
 			else {
-				printf("Scripting is supported in registered version only.\n");
-				sleep(5);
+				printf("Script file '%s' not found.\n", autoexec);
+				sleep(2);
 			}
 		}
 

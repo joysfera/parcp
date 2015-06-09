@@ -1265,15 +1265,9 @@ void do_shell(void)
 #ifdef STANDALONE
 		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2015");
 #else
-#ifdef BETA
-#define PAVERZE "beta"
-#else
-#define PAVERZE ""
-#endif
+	sprintf(tmpstr, " PARCP "VERZE" by Petr Stehlik (c) 1996-2015.");
 	if (registered)
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2015. Registered to %s", username);
-	else
-		sprintf(tmpstr, " PARCP "VERZE""PAVERZE" by Petr Stehlik (c) 1996-2015. Shareware - unregistered copy");
+		sprintf(tmpstr + strlen(tmpstr), " Registered to %s", username);
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 
@@ -1325,17 +1319,6 @@ void do_shell(void)
 
 	/* make the left window the active one */
 	okno = aktivizuj(FALSE);
-
-	if (! registered) {
-		InfoBox("PARCP is shareware.\n\nThis copy of PARCP is not registered.\n\nPlease feel free to test PARCP for up to four weeks. If you like it, please register (details in REGISTER.TXT file or at http://joy.sophics.cz/).\nIf you don't want to register, you must delete PARCP (you are not software pirate, are you?)", 5, TRUE);
-
-		InfoBox("Unregistered PARCP has the following limits:\n\n"\
-				"o Number of items in file list is limited to 10\n"\
-				"o Scripting (batch mode) is not allowed\n"\
-				"o Archive mode (for easy back-ups) is not available\n"\
-				"\nOnce you register your copy of PARCP the limits will go away."\
-				, 4, TRUE);
-	}
 
 	init_menu();
 

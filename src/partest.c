@@ -319,13 +319,6 @@ int config_file(const char *soubor, MYBOOL vytvorit)
 #endif
 	}
 
- 	/* nastav omezeni neregistrovane verze */
-	if (!registered) {
-		if (dirbuf_lines > UNREG_DIRBUF_LIN)
-			dirbuf_lines = UNREG_DIRBUF_LIN;
-		_archive_mode = FALSE;
-	}
-
 	return vysledek;
 }
 /*******************************************************************************/
@@ -520,7 +513,7 @@ MYBOOL test(UWORD x)
 
 int main(int argc, char *argv[])
 {
-#if defined(DEBUG) || defined(BETA)
+#if defined(DEBUG)
 	time_t start_time = time(NULL);
 #endif
 	int i;

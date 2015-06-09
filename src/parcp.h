@@ -9,9 +9,7 @@
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"4.0.0"		/* displays on the screen when PARCP starts */
-#undef BETA				/* beta version for testing */
-#undef WILL_EXPIRE			/* defines expiration */
+#define VERZE	"4.1.0"		/* displays on the screen when PARCP starts */
 
 #define PROTOKOL		0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
 
@@ -99,7 +97,6 @@ struct utsname {
 #define PRINTF_TEMPLATE	"%-100s"
 #define DIRLINELEN	(MAXFNAME+10+1+16+1)
 #define DIRBUF_LIN	256
-#define UNREG_DIRBUF_LIN	10
 #define BUFFER_LENKB	16
 #define	KILO	1024UL
 #define	MAX_DEPTH	8
