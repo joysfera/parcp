@@ -15,7 +15,7 @@
 #include "parstruc.h"
 int io_config_file(char *soubor)
 {
-	return input_config(soubor,configs,CFGHEAD);
+	return input_config(soubor, mconfigs, CFGHEAD);
 }
 
 #include "parcommo.c"
@@ -38,7 +38,7 @@ void zpracovani_parametru(int argc, char *argv[])
 	if (konfigOK) {
 		printf("Configuration file used: %s\n", cesta);
 		print_port = port_type = -1;
-		if (input_config(cesta,configs,CFGHEAD) <= 0) {
+		if (input_config(cesta, mconfigs, CFGHEAD) <= 0) {
 			printf("Error while reading/processing the config file.\n\n");
 			exit(-1);
 		}
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 #define TXT "OUT"
 #endif
 
-	puts("\nPARCP "TXT" - written by Petr Stehlik (c) 1996,1997.\n"\
+	puts("\nPARCP "TXT" - written by Petr Stehlik (c) 1996-2015.\n"\
 		 "Version "VERZE" (compiled on "__DATE__")\n");
 
 #ifdef IBM

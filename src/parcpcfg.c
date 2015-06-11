@@ -26,7 +26,7 @@ void zpracovani_parametru(int argc, char *argv[], char *cesta)
 
 	if (konfigOK) {
 		printf("Reading configuration file: %s\n", cesta);
-		input_config(cesta,configs,CFGHEAD);
+		input_config(cesta, mconfigs, CFGHEAD);
 	}
 	else {	/* pokud nebyl nalezen konfiguracni soubor, tak ho zkusim vytvorit */
 		printf("Configuration file not found.\nIt will be created at: %s\n", cesta);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	clrscr();
 	setvbuf(stdout,NULL,_IONBF,0);
 
-	puts("PARallel CoPy ConFiGuration - written by Petr Stehlik (c) 1996-2000.\n"\
+	puts("PARallel CoPy ConFiGuration - written by Petr Stehlik (c) 1996-2015.\n"\
 		 "Version "VERZE" (compiled on "__DATE__")\n");
 
 	zpracovani_parametru(argc, argv, cfg_file);
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 	printf("\nUpdate %s with these settings? (y/N): ", cfg_file);
 	if (tolower(getch()) == 'y') {
 		printf("\nUpdating PARCP configuration file...");
-		if (update_config(cfg_file,configs,CFGHEAD) < 0) {
+		if (update_config(cfg_file, mconfigs, CFGHEAD) < 0) {
 			printf(" ERROR! PARCP.CFG not updated correctly!\nCheck if the file isn't write-protected and if there's enough free disk space.\n");
 			return 1;
 		}
