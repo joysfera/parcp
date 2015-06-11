@@ -4,7 +4,7 @@
 
 CC = i686-apple-darwin10-gcc
 STRIP = i686-apple-darwin10-strip
-
+CFLAGS += -arch i386 -arch x86_64
 DEBUG =
 #DEBUG = -DUSBDEBUG
 #DEBUG = -DIODEBUG
@@ -35,7 +35,7 @@ LIB_NCURSES=-lncurses
 # for UTF support in ncurses use ncursesw:
 #LIB_NCURSES=-lncursesw
 
-FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
+FLAGS = $(CFLAGS) $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
 
 PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
