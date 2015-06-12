@@ -11,8 +11,8 @@ A) Atari users (TOS/MiNT/MagiC):
 2) connect PARCP cable or the PARCP-USB adapter to parallel port
 3) start PARCP.TTP (or PARSERVE.TOS if Atari is to be the Server)
 
-B) PC users (DOS/Windows/Linux/Raspbian):
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+B) Apple or PC users (DOS/Windows/Linux/Raspbian):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1) start PAR_IN (not required when using PARCP-USB adapter)
 2) connect PARCP or USB cable (from the PARCP-USB adapter) to your PC
 3) start PARCP (or PARSERVE if PC is to be the Server)

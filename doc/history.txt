@@ -1,6 +1,17 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+4.1.0 - 2015/06/12
+==================
+- use checker board instead of full block for the progress bar
+
+- little changes for Mac OS X support (".DS_Store" files ignored quietly)
+
+- crucial bugfix in PARCP.CFG parsing (gcc crosscompiler for OS X revealed it)
+
+- removed all unregistered version restrictions
+
+
 4.0.0 - 2015/03/31
 ==================
 

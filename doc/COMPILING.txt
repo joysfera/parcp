@@ -20,5 +20,3 @@ How to compile PARCP for various platforms:
 
 5) for Mac OS X on Linux (requires i686 gcc cross compiler)
   $ make -f Makefile.osx clean tgz
-
-  https://developer.apple.com/library/mac/documentation/Porting/Conceptual/PortingUnix

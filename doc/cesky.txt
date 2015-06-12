@@ -4,8 +4,7 @@ kompletni dokumentace PARCP (dnes jiz pres 100 kB textu) je napsana v
 anglictine. Nemam silu tolik textu napsat jeste jednou cesky a pak navic
 jeste udrzovat obe verze aktualni. Nastesti se PARCP ovlada tak jednoduse,
 ze i kdyz anglictinou nevladnete, PARCP zvladnete. Pokud mate jakekoliv
-pochybnosti, ihned mi napiste elektronicky nebo postovni dopis na adresy
-uvedene v souborech PARCP.HTML (na konci) ci REGISTER.TXT.
+pochybnosti, ihned mi napiste elektronicky uvedene v souboru PARCP.HTML (na konci).
 
 Samotny princip cinnosti je jasny: PARCP propoji dva pocitace (je jedno
 jestli jsou to pececka nebo nejake Atari pocitace ci klony od obojiho) pres
@@ -43,7 +42,7 @@ klaves). Ovsem to neni vsechno! PARCP umi take prenaset soubory pouhym
 prenesenim ikon souboru a upustenim nad PARCP ikonou ci dokonce pracovat
 naprosto automaticky jen podle prikazu ve scenari.
 
-Vsechny dalsi informace jsou v PARCPDOC.HTM. Je treba si to (nechat) prelouskat.
+Vsechny dalsi informace jsou v PARCP.HTM. Je treba si to (nechat) prelouskat.
 Nerucim za zadne skody, zpusobene at uz primo ci neprimo behem PARCP ci
 pripojovanim kabelu nebo UNI-BI rozhrani k vasim paralelnim portum. Vsechny
 podstatne informace jak se problemum vyhnout jsem napsal v PARCP.HTML.
@@ -51,23 +50,7 @@ Zakladem je spolecna zem obou pocitacu (nejlepe napajet ze stejne zasuvky)
 a kabely pripojovat jen pokud jsou porty ve vstupnim stavu (po spusteni
 PARCP_IN nebo samotneho PARCP).
 
-Jeste jedna dost dulezita vec: PARCP je shareware. Shareware je
-nejcestnejsi zpusob sireni komercniho software pod heslem "Vyzkousej nez
-zaplatis". Z toho plyne, ze PARCP muzete cely mesic (30 dni) zkouset,
-jestli je to to co jste vzdycky potrebovali. Kdyz jo, tak za nej zaplatite
-(poslete 200 korun postovni slozenkou nebo v dopise - dve stovky je snad
-dost malo na to, abyste to skutecne udelali). Kdyz ne, tak to smazete
-(musite to smazat - prece byste nepouzivali program nelegalne a nesidili
-tak jeho autora?). No a protoze znam ceske uzivatele (ono 40 let komunismu
-nas vsecky radne zdeformovalo), je PARCP navic Keyware - tedy siri se
-verze, ktera ma nektere drobnosti omezene (napr. pocet polozek ve vypisu je
-jen 10 a neda se zvysit). Jakmile se stanete registrovanym uzivatelem (tedy
-po zaplaceni tech 200 Kc), dostanete tzv. klic, ktery odemkne ty drobnosti
-a mate razem plne funkcni verzi PARCP. Dalsi podrobnosti k registraci jsou
-v souboru REGISTER.TXT...
-
 V pripade nejasnosti piste na adresy:
 
-petr@pstehlik.cz                                           Petr Stehlik
-http://joy.sophics.cz/parcp/                               Lamanisko 5340
-                                                           76001 Zlin
+mail: petr@pstehlik.cz
+http://joy.sophics.cz/parcp/
