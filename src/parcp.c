@@ -2195,7 +2195,6 @@ int ReceiveDataAndSetLocalTime(void)
 
 int config_file(const char *soubor, MYBOOL vytvorit)
 {
-	BYTE crypta[MAXSTRING];
 	int vysledek;
 
 	if (vytvorit) {
@@ -2204,13 +2203,6 @@ int config_file(const char *soubor, MYBOOL vytvorit)
 	}
 	else {
 		vysledek = input_config(soubor, mconfigs, CFGHEAD);
-
-#ifdef STANDALONE
-		registered = TRUE;
-#else
-		parcpkey((const BYTE*)username, crypta);
-		registered = check(crypta, (const BYTE*)keycode);
-#endif
 
 		if (dirbuf_lines < 1)
 			dirbuf_lines = 1;
@@ -2702,15 +2694,6 @@ int main(int argc, char *argv[])
 #else
 		puts("Version "VERZE" (compiled on "__DATE__")\n");
 #endif
-	}
-
-#ifdef SHELL
-	if (! shell)
-#endif
-	{
-		if (registered && !_quiet_mode) {
-			printf("This copy of PARCP is registered to %s\n\n", username);
-		}
 	}
 
 	inicializace();

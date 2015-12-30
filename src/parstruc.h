@@ -1,6 +1,4 @@
 struct Config_Tag mconfigs[] = {
-	{ "UserName", String_Tag, username, sizeof(username) },
-	{ "KeyCode", String_Tag, keycode, sizeof(keycode) },
 #ifdef IBM
 #  ifdef USB
 	{ "UsbSerial", String_Tag, usb_serial, sizeof(usb_serial) },

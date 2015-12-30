@@ -880,7 +880,6 @@ void zjistit_kompletni_info(OKNO *okno, MYBOOL arch_mode)
 #define CM_SHELLPATHVIEW	302
 #define CM_SHELLPATHEDIT	303
 #define CM_SHELLPATHTMP	304
-#define CM_OPTS_REG	305
 #define CM_OPT_CRC	306
 #define CM_OPT_OWO	307
 #define CM_OWO_SKIP 3071
@@ -980,7 +979,6 @@ void init_menu()
 	pitem[i++] = new_item("Path to viewer", NULL, CM_SHELLPATHVIEW, 5);
 	pitem[i++] = new_item("Path to editor", NULL, CM_SHELLPATHEDIT, 5);
 	pitem[i++] = new_item("Path to TMP", NULL, CM_SHELLPATHTMP, 5);
-	pitem[i++] = new_item("Register PARCP", NULL, CM_OPTS_REG, 5);
 
 	/* podvolby pro Overwrite */
 	pitem[i++] = new_item("Skip", NULL, CM_OWO_SKIP, overpos);
@@ -1093,36 +1091,6 @@ MYBOOL interakce_menu()
 			
 		case CM_SHELLPATHTMP:
 			EditBox("Temporary place","Enter path to folder for temporary files",path_to_temp,sizeof(path_to_temp));
-			break;
-			
-		case CM_OPTS_REG:
-			if (! EditBox("Registration dialog","Enter your whole name",username,MAXSTRING))
-				break;
-			if (! EditBox("Registration dialog","Enter your personal keycode",keycode,MAXSTRING))
-				break;
-			if (*keycode) {
-				BYTE crypta[MAXSTRING];
-				parcpkey((const BYTE *)username, crypta);
-				registered = check(crypta, (const BYTE *)keycode);
-				if (registered) {
-					char sprtmp[512];
-					myMessageBox("Congratulations to successful registration!", myMB_OK);
-					if (dirbuf_lines < DIRBUF_LIN) {
-						/* first of all, increase the number of lines in the dir buffer */
-						dirbuf_lines = DIRBUF_LIN;
-						send_parameters();			/* tell server about the dirbuf_lines change */
-						REALOKUJ_BUF_OKEN;
-						obnovit_okna = TRUE;
-						sprintf(sprtmp, "Number of directory lines has just been increased to %d automatically. Feel free to edit other parameters.", dirbuf_lines);
-						myMessageBox(sprtmp, myMB_OK);
-					}
-					config_file(cfg_fname, TRUE);	/* now you can store the configuration with registration details */
-					sprintf(sprtmp, "PARCP configuration with your name and keycode has been saved to '%s'.", cfg_fname);
-					myMessageBox(sprtmp, myMB_OK);
-				}
-				else
-					myMessageBox("Registration was not successful. Please double check the entered name and keycode.", myMB_OK);
-			}
 			break;
 			
 		case CM_QUIT:
@@ -1258,11 +1226,9 @@ void do_shell(void)
 
 	/* header */
 #ifdef STANDALONE
-		sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2015");
+	sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2015");
 #else
 	sprintf(tmpstr, " PARCP "VERZE" by Petr Stehlik (c) 1996-2015.");
-	if (registered)
-		sprintf(tmpstr + strlen(tmpstr), " Registered to %s", username);
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 

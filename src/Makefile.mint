@@ -6,10 +6,10 @@ DEBUG =
 FLAGS = $(EXT_FLAGS) -O2 -DATARI $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
 FLAGS030 = -m68020-40 $(FLAGS)
 
-PARCLIENT =  parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+PARCLIENT =  parcp.c parcp.h cfgopts.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
-ZAKL_OBJS = match.o cfgopts.o parcpkey.o parcp68k.o global.o
-ZAKL_OBJS030 = match030.o cfgopts030.o parcpkey030.o parcp68k.o global.o
+ZAKL_OBJS = match.o cfgopts.o parcp68k.o global.o
+ZAKL_OBJS030 = match030.o cfgopts030.o parcp68k.o global.o
 
 OBJS = parcp.o $(ZAKL_OBJS)
 OBJS030 = parcp030.o $(ZAKL_OBJS030)
@@ -65,11 +65,6 @@ par_out : parinout.c parcp.h
 	strip par_out
 	fixstk 16384 par_out
 
-parcpkey : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
-	strip parcpkey
-	fixstk 16384 parcpkey
-
 partest : partest.o $(ZAKL_OBJS)
 	gcc $(FLAGS) -o partest partest.o $(ZAKL_OBJS)
 	strip partest
@@ -103,7 +98,7 @@ shell_parcp.o : $(PARCLIENT)
 server_parcp.o : $(PARCLIENT)
 	gcc -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
 
-shell.o : shell.c shell.h parcp.h cfgopts.h parcpkey.h
+shell.o : shell.c shell.h parcp.h cfgopts.h
 	gcc $(SHELL_FLAGS) -c shell.c
 
 box.o : box.c box.h shell.h
@@ -128,16 +123,13 @@ match.o : match.c match.h
 cfgopts.o : cfgopts.c cfgopts.h
 	gcc $(FLAGS) -c cfgopts.c
 
-parcpkey.o : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -c parcpkey.c
-
 parcp030.o : $(PARCLIENT)
 	gcc $(FLAGS030) -c parcp.c -o parcp030.o
 	
 shell_parcp030.o : $(PARCLIENT)
 	gcc $(SHELL_FLAGS030) -c parcp.c -o shell_parcp030.o
 
-shell030.o : shell.c parcp.h cfgopts.h parcpkey.h menu.c viewer.c box.c
+shell030.o : shell.c parcp.h cfgopts.h menu.c viewer.c box.c
 	gcc $(SHELL_FLAGS030) -c shell.c -o shell030.o
 
 box030.o : box.c box.h
@@ -158,5 +150,3 @@ match030.o : match.c match.h
 cfgopts030.o : cfgopts.c cfgopts.h
 	gcc $(FLAGS030) -c cfgopts.c -o cfgopts030.o
 
-parcpkey030.o : parcpkey.c
-	gcc $(FLAGS030) -c parcpkey.c -o parcpkey030.o

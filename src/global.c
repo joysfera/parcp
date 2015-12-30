@@ -1,7 +1,6 @@
 /* Global variables for PARCP */
 #include "parcp.h"
 
-MYBOOL registered = FALSE;			/* program behaves like registered / shareware */
 char cfg_fname[MAXPATH];			/* file path to actual config file */
 
 char local_machine[MAXSTRING];
@@ -27,8 +26,6 @@ UWORD dirbuf_lines = DIRBUF_LIN;	/* reserved number of lines of 'DIRLINELEN' len
 long buffer_lenkb = BUFFER_LENKB;		/* the size of transferred block in kilobytes */
 BYTE filebuffers = 1;					/* the number of blocks reserved for buffered file I/O */
 int time_out = TIME_OUT;				/* timeout in seconds */
-char username[MAXSTRING]="Unregistered User";
-char keycode[MAXSTRING]="ABCDEFGHIJKLMNOP";
 char autoexec[MAXPATH]="";
 #ifdef SHELL
 MYBOOL shell = TRUE;

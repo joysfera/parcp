@@ -15,9 +15,9 @@ STATIC =
 
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -I..\pdcurses -Wall -fomit-frame-pointer -fno-strength-reduce
 
-PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+PARCLIENT = parcp.c parcp.h cfgopts.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
-ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
+ZAKL_OBJS = match.o cfgopts.o global.o parcp-usb.o
 
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
@@ -81,5 +81,3 @@ parcp-usb.o : parcp-usb.c parcp-usb.h
 cfgopts.o : cfgopts.c cfgopts.h
 	gcc $(FLAGS) -c cfgopts.c
 
-parcpkey.o : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -c parcpkey.c

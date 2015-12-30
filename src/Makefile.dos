@@ -8,9 +8,9 @@ STATIC =
 
 FLAGS = $(EXT_FLAGS) -O2 -DIBM $(DEBUG) -Wall -fomit-frame-pointer -fno-strength-reduce
 
-PARCLIENT =  parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+PARCLIENT =  parcp.c parcp.h cfgopts.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
-ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o
+ZAKL_OBJS = match.o cfgopts.o global.o
 
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
@@ -45,10 +45,6 @@ par_out : par_out.o global.o cfgopts.o
 parcpcfg : parcpcfg.o cfgopts.o global.o
 	gcc $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg.exe
 	strip parcpcfg.exe
-
-parcpkey : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -DGENERATE parcpkey.c -o parcpkey.exe
-	strip parcpkey.exe
 
 partest : partest.o $(ZAKL_OBJS)
 	gcc $(FLAGS) -o partest.exe partest.o $(ZAKL_OBJS)
@@ -87,7 +83,7 @@ shell_parcp.o : $(PARCLIENT)
 server_parcp.o : $(PARCLIENT)
 	gcc -DPARCP_SERVER $(FLAGS) -c parcp.c -o server_parcp.o
 
-shell.o : shell.c parcp.h cfgopts.h parcpkey.h menu.c viewer.c box.c
+shell.o : shell.c parcp.h cfgopts.h menu.c viewer.c box.c
 	gcc $(SHELL_FLAGS) -c shell.c
 
 box.o : box.c box.h
@@ -108,5 +104,3 @@ match.o : match.c match.h
 cfgopts.o : cfgopts.c cfgopts.h
 	gcc $(FLAGS) -c cfgopts.c
 
-parcpkey.o : parcpkey.c parcpkey.h
-	gcc $(FLAGS) -c parcpkey.c

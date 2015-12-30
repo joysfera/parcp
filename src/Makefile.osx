@@ -37,9 +37,9 @@ LIB_NCURSES=-lncurses
 
 FLAGS = $(CFLAGS) $(EXT_FLAGS) -O2 -DIBM $(DEBUG) $(HAVE_USB) -Wall -fomit-frame-pointer -fno-strength-reduce
 
-PARCLIENT = parcp.c parcp.h cfgopts.h parcpkey.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
+PARCLIENT = parcp.c parcp.h cfgopts.h parcplow.h parcplow.c crc32.c parcommo.c parftpcl.c sort.c
 
-ZAKL_OBJS = match.o cfgopts.o parcpkey.o global.o parcp-usb.o
+ZAKL_OBJS = match.o cfgopts.o global.o parcp-usb.o
 
 OBJS = parcp.o $(ZAKL_OBJS)
 SEROBJS = server_parcp.o $(ZAKL_OBJS)
@@ -87,10 +87,6 @@ parcpcfg : parcpcfg.o cfgopts.o global.o
 	$(CC) $(FLAGS) parcpcfg.o cfgopts.o global.o -o parcpcfg
 	$(STRIP) $@
 
-parcpkey : parcpkey.c parcpkey.h
-	$(CC) $(FLAGS) -DGENERATE parcpkey.c -o parcpkey
-	$(STRIP) $@
-
 all : $(ALL_BIN)
 
 tgz:	$(ALL_BIN)
@@ -98,7 +94,7 @@ tgz:	$(ALL_BIN)
 	tar czvf parcp.tgz $(ALL_BIN)
 
 clean :
-	rm -f *.o $(ALL_BIN) parcpkey parcp.tgz
+	rm -f *.o $(ALL_BIN) parcp.tgz
 
 ###############################
 
@@ -135,5 +131,3 @@ parcp-usb.o : parcp-usb.c parcp-usb.h
 cfgopts.o : cfgopts.c cfgopts.h
 	$(CC) $(FLAGS) -c cfgopts.c
 
-parcpkey.o : parcpkey.c parcpkey.h
-	$(CC) $(FLAGS) -c parcpkey.c

@@ -1,6 +1,5 @@
 /* Extern definitions of global variables for PARCP */
 
-extern MYBOOL registered;
 extern char cfg_fname[MAXPATH];
 
 extern char local_machine[MAXSTRING];
@@ -26,8 +25,6 @@ extern short dirbuf_lines;
 extern long buffer_lenkb;
 extern BYTE filebuffers;
 extern int time_out;
-extern char username[MAXSTRING];
-extern char keycode[MAXSTRING];
 extern char autoexec[MAXPATH];
 #ifdef SHELL
 extern MYBOOL shell;

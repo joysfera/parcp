@@ -8,9 +8,9 @@ OPTIONS  = -DIBM -I../ncurses-4.1/include -DSTANDALONE
 CC = gcc
 FLAGS = -O2 -fomit-frame-pointer -Wall $(OPTIONS) -static
 
-CSRC := parcp.c parcplow.c parcommo.c match.c cfgopts.c parcpkey.c \
+CSRC := parcp.c parcplow.c parcommo.c match.c cfgopts.c \
 		global.c par_io.c parcpcfg.c crc32.c parinout.c
-OBJS := parcp.o match.o cfgopts.o parcpkey.o global.o
+OBJS := parcp.o match.o cfgopts.o global.o
 
 # SHELL support in PARCP?
 USE_SHELL = yes
