@@ -114,8 +114,7 @@ global.o : global.c global.h
 	gcc $(SHELL_FLAGS) -c global.c
 
 parcp68k.o : parcp68k.asm
-	xgen -L1 parcp68k.o parcp68k.asm
-	gst2gcc gcc parcp68k.o
+	vasm -quiet -Faout -o parcp68k.o -x parcp68k.asm
 
 match.o : match.c match.h
 	gcc $(FLAGS) -c match.c
