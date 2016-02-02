@@ -646,6 +646,7 @@ int receive_file(FILE *handle, ULONG64 lfile)
 	long lblock;
 	int repeat_transfer;
 	int ret_flag = 0;
+	MYBOOL closed = FALSE;
 
 	do {
 		/* here we must wait for other side that reads the block from (possibly) slow
@@ -685,6 +686,8 @@ int receive_file(FILE *handle, ULONG64 lfile)
 		}
 
 		if (fwrite(block_buffer, 1, lblock, handle) < lblock) {	/* write the data block to file */
+			fclose(handle);
+			closed = TRUE;
 			write_word(M_FULL);		/* send the error code "disk full" */
 			ret_flag = ERROR_WRITING_FILE;
 			break;					/* file transfer ends here due to full disk */
@@ -692,18 +695,25 @@ int receive_file(FILE *handle, ULONG64 lfile)
 
 #ifndef PARCP_SERVER
 		if (break_file_transfer()) {
+			fclose(handle);
+			closed = TRUE;
 			write_word(M_INT);		/* send the error code "transfer interrupted" */
 			ret_flag = INTERRUPT_TRANSFER;
 			break;					/* file transfer ends here due to user interruption */
 		}
 #endif
 
-		write_word(M_OK);		/* send confirmation of received block */
-
 		lfile -= lblock;
 		update_copyinfo(zal_lfile-lfile);
 
+		if (!lfile)
+			fclose(handle);		// close stream before sending confirmation as fclose takes ages on floppy
+
+		write_word(M_OK);		/* send confirmation of received block */
 	} while(lfile);
+
+	if (!closed)
+		fclose(handle);
 
 	/* ret_flag got one of the following values:
 		0 = OK
@@ -1540,6 +1550,8 @@ int send_1_file(const char *name, struct stat *stb, unsigned long file_attrib)
 
 	if (! client)
 		wait_for_client();	/* give client time to determine whether to overwrite existing file */
+	else
+		wait_before_read();	// wait for the other side to check the file (takes long time on a floppy)
 	report_val = read_word();	/* M_OK, M_ERR, M_OSKIP, M_OASK or M_OQUIT */
 
 #ifndef PARCP_SERVER
@@ -1718,12 +1730,15 @@ int receive_1_file(void)
 	if (file_buffer)
 		setvbuf(stream, file_buffer, _IOFBF, filebuffers*buffer_len);
 
-	write_word(M_OK);
 	open_recvinfo(name, size);
-	if (size > 0) {	/*receive just non-empty files */
-		ret_flag = receive_file(stream, size);
+
+	if (!size) {	// short cut for an empty file
+		fclose(stream);
 	}
-	fclose(stream);
+	write_word(M_OK);
+	if (size > 0) {	/*receive just non-empty files */
+		ret_flag = receive_file(stream, size);	// will close stream
+	}
 	close_copyinfo(ret_flag);
 
 	/* update original timestamp */
