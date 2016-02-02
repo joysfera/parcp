@@ -2,14 +2,14 @@
  * PARallel CoPy - written for transferring large files between any two machines
  * with parallel ports.
  *
- * Petr Stehlik (c) 1996-2015
+ * Petr Stehlik (c) 1996-2016
  *
  */
 
 #ifndef _PARCP_H
 #define _PARCP_H
 
-#define VERZE	"4.1.0"		/* displays on the screen when PARCP starts */
+#define VERZE	"4.2.0"		/* displays on the screen when PARCP starts */
 
 #define PROTOKOL		0x0380	/* UWORD that ensures compatibility of communication protocol between different versions of PARCP */
 
