@@ -1,7 +1,7 @@
 /*
- * PARallel TEST - written for testing PC parallel port bidirectional capability
+ * PARCP configuration file
  *
- * (c) Petr Stehlik, 1996-2000
+ * (c) Petr Stehlik, 1996-2016
  */
 
 #include "parcp.h"
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	clrscr();
 	setvbuf(stdout,NULL,_IONBF,0);
 
-	puts("PARallel CoPy ConFiGuration - written by Petr Stehlik (c) 1996-2015.\n"\
+	puts("PARallel CoPy ConFiGuration - written by Petr Stehlik (c) 1996-2016.\n"\
 		 "Version "VERZE" (compiled on "__DATE__")\n");
 
 	zpracovani_parametru(argc, argv, cfg_file);

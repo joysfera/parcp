@@ -1,3 +1,7 @@
+/* PARCP File Viewer
+ * written by Petr Stehlik
+ * (c) 1994 - 2016
+ */
 #include "element.h"
 #include <string.h>
 #include <curses.h>
@@ -270,7 +274,7 @@ int	Repeat;
 void Help()
 {
 	werase(okno);
-	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994-2015\n\n");
+	waddstr(okno, "ParShell Internal Viewer (c) Petr Stehlik 1994-2016\n\n");
 	waddstr(okno, "Navigation:\n");
 	waddstr(okno, "-----------\n");
 	waddstr(okno, "Cursor keys, PageUp/Down, Home/End\n");

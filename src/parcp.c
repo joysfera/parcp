@@ -2697,7 +2697,7 @@ int main(int argc, char *argv[])
 	DPRINT1("  PARCP "VERZE" started on %s", ctime(&start_time));
 
 	if (! _quiet_mode) {
-		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2015.");
+		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2016.");
 #ifdef DEBUG
 		puts("DEBUG version "VERZE" (compiled on "__DATE__")\n");
 #else
