@@ -1,6 +1,23 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+4.2.0 - 2016/02/03
+==================
+- fixed serious issues when client is on PC, server is on Atari and client
+  copies data to Atari floppy (which is dog slow, like any floppy disk).
+
+- fixed reading of last batch file line if it doesn't end with CR/LF
+  (thanks for reporting to Doug Little)
+
+- configuration file is no longer created if it is not found
+
+- shareware registration code removed altogether
+
+- compiling: proprietary xgen + gst2gcc were replaced by free "vasm"
+
+- documentation got updated to reflect the new freeware status of PARCP
+
+
 4.1.0 - 2015/06/12
 ==================
 - use checker board instead of full block for the progress bar
