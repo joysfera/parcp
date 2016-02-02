@@ -359,15 +359,15 @@ MYBOOL do_client(int coming_from_shell, FILE *input_commands)
 		static char b[MAXSTRING];
 		char *p1, *p2, *ret;
 
-		if (! bInBatchMode)
-			printf(">>");
-		ret = fgets(b, sizeof(b), input_commands);
-		ret = ret; // UNUSED
-
 		if (bInBatchMode && feof(input_commands)) {	/* end of AUTOEXEC script */
 			bInBatchMode = FALSE;
 			return TRUE;
 		}
+
+		if (! bInBatchMode)
+			printf(">>");
+		ret = fgets(b, sizeof(b), input_commands);
+		ret = ret; // UNUSED
 
 		p1 = strtok(b, " \n");
 		if (p1 == NULL) continue;
