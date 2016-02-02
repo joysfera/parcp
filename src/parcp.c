@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2015
+ * Petr Stehlik (c) 1996-2016
  *
  */
 
@@ -2629,12 +2629,6 @@ int zpracovani_parametru(int argc, char *argv[])
 	else {
 		/* config file not found! */
 #if defined(ATARI) || defined(USB)
-		/* on Atari or with USB simply create it with the default values */
-		if (! _quiet_mode)
-			printf("Configuration file not found.\nIt's being created: %s\n\n", cfg_fname);
-		DPRINT1("! Creating configuration file: %s\n", cfg_fname);
-		if (config_file(cfg_fname, TRUE) < 0)
-			printf("ERROR: PARCP.CFG creation failed.\n");
 #else
 		/* on the other machines (where parallel port type/number is important) we must quit now */
 # ifndef STANDALONE

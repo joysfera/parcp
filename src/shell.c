@@ -1189,15 +1189,7 @@ void do_shell(void)
 	MYBOOL ukoncit_vse = FALSE;
 
 	/* read the config file - section [PARSHELL] */
-	if (shell_config_file(cfg_fname, FALSE) <= 0) {
-		/* section or config file not found -> create it! */
-		for(;;) {
-			if (shell_config_file(cfg_fname, TRUE) < 0)
-				if (myMessageBox("Automatic creation of PARCP.CFG failed.", myMB_ABORTRETRYIGNORE) == myIDRETRY)
-					continue;
-			break;
-		}
-	}
+	shell_config_file(cfg_fname, FALSE);
 
 #ifdef __LINUX__
 	setlocale(LC_ALL, "");
