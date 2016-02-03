@@ -688,6 +688,7 @@ int receive_file(FILE *handle, ULONG64 lfile)
 		if (fwrite(block_buffer, 1, lblock, handle) < lblock) {	/* write the data block to file */
 			fclose(handle);
 			closed = TRUE;
+
 			write_word(M_FULL);		/* send the error code "disk full" */
 			ret_flag = ERROR_WRITING_FILE;
 			break;					/* file transfer ends here due to full disk */
@@ -697,6 +698,7 @@ int receive_file(FILE *handle, ULONG64 lfile)
 		if (break_file_transfer()) {
 			fclose(handle);
 			closed = TRUE;
+
 			write_word(M_INT);		/* send the error code "transfer interrupted" */
 			ret_flag = INTERRUPT_TRANSFER;
 			break;					/* file transfer ends here due to user interruption */
@@ -706,8 +708,10 @@ int receive_file(FILE *handle, ULONG64 lfile)
 		lfile -= lblock;
 		update_copyinfo(zal_lfile-lfile);
 
-		if (!lfile)
+		if (!lfile) {			// is it end of file?
 			fclose(handle);		// close stream before sending confirmation as fclose takes ages on floppy
+			closed = TRUE;
+		}
 
 		write_word(M_OK);		/* send confirmation of received block */
 	} while(lfile);
