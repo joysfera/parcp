@@ -569,23 +569,20 @@ void shell_open_progress_window(char *title, MYBOOL progress)
 	nodelay(pwincent, TRUE);	/* do not wait for wgetch */
 	ppancent = new_panel(pwincent);
 	box(pwincent, ACS_VLINE, ACS_HLINE);
+	wattron(pwincent, A_REVERSE);
+	mvwaddstr(pwincent, 0, 1, space_title);
+	wattroff(pwincent, A_REVERSE);
 	if (progress && _check_info) {
-		wattron(pwincent, A_REVERSE);
-		mvwaddstr(pwincent, 0, 1, space_title);
-		wattroff(pwincent, A_REVERSE);
 		mvwaddstr(pwincent, 3, 1, "Total progress:");
 #define REMAINING_TEXT "Remaining time "
 		mvwaddstr(pwincent, 3, progress_width-8-sizeof(REMAINING_TEXT), REMAINING_TEXT);
+	}
 #ifdef ATARI
 #define CANCEL_TEXT	" Press Esc or both Shifts to Cancel "
 #else
 #define CANCEL_TEXT	" Press Esc to Cancel "
 #endif
-		mvwaddstr(pwincent, wh-1, ww-1-strlen(CANCEL_TEXT), CANCEL_TEXT);
-	}
-	else {
-		mvwaddstr(pwincent, 1, 1, space_title);
-	}
+	mvwaddstr(pwincent, wh-1, ww-1-strlen(CANCEL_TEXT), CANCEL_TEXT);
 	update_panels();
 	doupdate();
 }
