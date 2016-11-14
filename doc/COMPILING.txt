@@ -7,7 +7,7 @@ How to compile PARCP for various platforms:
 2) on Linux (requires ncurses, libusb and HIDAPI):
   $ make clean tgz
 
-3) on DOS (requires DJGPP and PDCurses):
+3) for DOS on Linux (requires dosbox, DJGPP and PDCurses):
   $ dosbox
   > set PATH=C:\DJGPP\BIN;%PATH%
   > set DJGPP=C:\DJGPP\DJGPP.ENV
@@ -16,7 +16,10 @@ How to compile PARCP for various platforms:
 4) on Windows (requires MingGW, PDCurses and HIDAPI)
   Alt+F2 cmd.exe
   > set PATH=C:\Qt\Tools\mingw48_32\bin;%PATH%
+  > cd \parcp\src
+  > copy \pdcurses\curses.h
   > mingw32-make clean all
 
 5) for Mac OS X on Linux (requires i686 gcc cross compiler)
   $ make -f Makefile.osx clean tgz
+
