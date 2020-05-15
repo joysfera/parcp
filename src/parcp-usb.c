@@ -13,7 +13,7 @@ static const int PRODUCT_ID = 0x204f;
 
 #define MIN(a, b) ( ((a) < (b)) ? (a) : (b) )
 
-#include <HIDAPI/hidapi.h>
+#include <hidapi/hidapi.h>
 hid_device *devh = NULL;
 
 int usb_init(const char *serial)

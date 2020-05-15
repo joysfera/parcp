@@ -12,8 +12,8 @@ DEBUG =
 #DEBUG = -DDEBUG -DLOWDEBUG
 #DEBUG = -DDEBUG -DLOWDEBUG -DIODEBUG
 
-HAVE_USB = -DUSB -I/home/joy/Qt -pthread
-LIB_USB = -L/home/joy/Qt/HIDAPI/libusb -lHIDAPI -lusb-1.0
+HAVE_USB = -DUSB -pthread
+LIB_USB = -lhidapi-libusb
 
 ifeq ($(HAVE_USB),)
 	ALL_BIN = parcp parserve par_in
