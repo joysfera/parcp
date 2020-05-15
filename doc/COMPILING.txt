@@ -4,7 +4,8 @@ How to compile PARCP for various platforms:
 1) on MiNT (requires patched MiNTlib and ncurses):
   $ make clean tgz
 
-2) on Linux (requires ncurses, libusb and HIDAPI):
+2) on Linux (requires libncurses, libusb and libhidapi):
+  $ sudo apt install libncurses-dev libusb-1.0-0-dev libhidapi-dev
   $ make clean tgz
 
 3) for DOS on Linux (requires dosbox, DJGPP and PDCurses):
