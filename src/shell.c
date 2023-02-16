@@ -22,6 +22,8 @@
 
 #include "shell.h"		/* vyska, sirka */
 
+int sirka, vyska;		/* originally COLS, LINES-1 */
+
 #define stred	(sirka/2)
 #define posazeni	4
 #define WW		(stred-2)
@@ -56,8 +58,8 @@ struct _okno {
 typedef struct _okno OKNO;
 
 OKNO left, right;
-WINDOW *pwinl, *pwinr, *pwincent;
-PANEL *ppanl, *ppanr, *ppancent;
+WINDOW *pwinl = NULL, *pwinr = NULL, *pwincent = NULL;
+PANEL *ppanl = NULL, *ppanr = NULL, *ppancent = NULL;
 MYBOOL aktivni;
 
 int original_cursor;	/* remember cursor state */
@@ -1176,44 +1178,12 @@ void konec_menu(void)
 		free_item(pitem[i++]);
 }
 
-void do_shell(void)
+void initial_draw(void)
 {
-	OKNO *okno;
-	char tmpstr[MAXSTRING];
-	char tmpfnam[MAXFNAME];
-	char selectmask[MAXFNAME]="";
-	int i;
-	MYBOOL ukoncit_vse = FALSE;
-
-	/* read the config file - section [PARSHELL] */
-	shell_config_file(cfg_fname, FALSE);
-
-#ifdef __LINUX__
-	setlocale(LC_ALL, "");
-#endif
-	initscr();
-	curses_initialized = TRUE;
-	noecho();
-	original_cursor = curs_set(0);
-	cbreak();
-	keypad(stdscr,TRUE);
-	meta(stdscr, TRUE);		/* allow 8-bit */
-
-	/* figure out whether to use colors or not */
-	use_colors &= has_colors();
-
-#ifdef NCURSES_VERSION	/* because PDCurses doesn't know tigetstr */
-	/* if neither colors not bold is available then the marks are simply a must */
-	if (tigetstr("bold") <= 0)
-		has_bold = FALSE;
-	if (tigetstr("dim") <= 0)
-		has_dim = FALSE;
-#else
-	has_dim = FALSE;	/* seems like PDCurses doesn't support DIM attrib */
-#endif
-	use_marks |= !use_colors && !has_bold;
+	if (use_colors) standend();
 
 	/* header */
+	char tmpstr[MAXSTRING];
 #ifdef STANDALONE
 	sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2016");
 #else
@@ -1223,17 +1193,12 @@ void do_shell(void)
 
 	/* button bar */
 	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F20=Quit");
-	i = strlen(tmpstr);
+	int i = strlen(tmpstr);
 	memset(tmpstr+i, ' ', sizeof(tmpstr)-i);
 	tmpstr[sirka-1] = 0;
 	mvaddstr(vyska,0,tmpstr);
 
-	if (use_colors) {
-		start_color();
-		init_pair(1,COLOR_WHITE,COLOR_BLUE);	/* define standard output - white on blue */
-		init_pair(2,COLOR_YELLOW,COLOR_BLUE);	/* define selected files - yellow on blue */
-		attron(COLOR_PAIR(1));
-	}
+	if (use_colors) attron(COLOR_PAIR(1));
 
 	/* borders */
 	mvaddch(posazeni-3,0,ACS_ULCORNER);hline(ACS_HLINE,sirka-2);mvaddch(posazeni-3,sirka-1,ACS_URCORNER);
@@ -1266,6 +1231,102 @@ void do_shell(void)
 #else
 	inicializace_okna(&right, TRUE, TRUE);
 #endif
+}
+
+void final_cleanup(void)
+{
+	if (ppanl) {
+		del_panel(ppanl);
+		ppanl = NULL;
+	}
+	if (ppanr) {
+		del_panel(ppanr);
+		ppanr = NULL;
+	}
+	if (pwinl) {
+		delwin(pwinl);
+		pwinl = NULL;
+	}
+	if (pwinr) {
+		delwin(pwinr);
+		pwinr = NULL;
+	}
+}
+
+void fetch_term_size(void)
+{
+	int x, y;
+	getmaxyx(stdscr, y, x);
+	sirka = x;
+	vyska = y - 1;
+}
+
+void handle_resize(int sig)
+{
+	endwin();
+	refresh();
+	final_cleanup();
+
+	initscr();
+	curs_set(0);
+	noecho();
+
+	fetch_term_size();
+
+	clear();
+	initial_draw();
+	update_panels();
+	doupdate();
+}
+
+void do_shell(void)
+{
+	OKNO *okno;
+	char tmpstr[MAXSTRING];
+	char tmpfnam[MAXFNAME];
+	char selectmask[MAXFNAME]="";
+	MYBOOL ukoncit_vse = FALSE;
+	int i;
+
+	/* read the config file - section [PARSHELL] */
+	shell_config_file(cfg_fname, FALSE);
+
+#ifdef __LINUX__
+	setlocale(LC_ALL, "");
+#endif
+	initscr();
+	curses_initialized = TRUE;
+	noecho();
+	original_cursor = curs_set(0);
+	cbreak();
+	keypad(stdscr,TRUE);
+	meta(stdscr, TRUE);		/* allow 8-bit */
+
+	if (use_colors) {
+		use_default_colors();
+		start_color();
+		init_pair(1,COLOR_WHITE,COLOR_BLUE);	/* define standard output - white on blue */
+		init_pair(2,COLOR_YELLOW,COLOR_BLUE);	/* define selected files - yellow on blue */
+	}
+
+	fetch_term_size();
+	signal(SIGWINCH, handle_resize);
+
+	/* figure out whether to use colors or not */
+	use_colors &= has_colors();
+
+#ifdef NCURSES_VERSION	/* because PDCurses doesn't know tigetstr */
+	/* if neither colors not bold is available then the marks are simply a must */
+	if (tigetstr("bold") <= 0)
+		has_bold = FALSE;
+	if (tigetstr("dim") <= 0)
+		has_dim = FALSE;
+#else
+	has_dim = FALSE;	/* seems like PDCurses doesn't support DIM attrib */
+#endif
+	use_marks |= !use_colors && !has_bold;
+
+	initial_draw();
 
 	/* make the left window the active one */
 	okno = aktivizuj(FALSE);
