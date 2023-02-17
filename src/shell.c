@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2016
+ * Petr Stehlik (c) 1996-2023
  *
  */
 
@@ -1185,9 +1185,9 @@ void initial_draw(void)
 	/* header */
 	char tmpstr[MAXSTRING];
 #ifdef STANDALONE
-	sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2016");
+	sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2023");
 #else
-	sprintf(tmpstr, " PARCP "VERZE" by Petr Stehlik (c) 1996-2016.");
+	sprintf(tmpstr, " PARCP "VERZE" by Petr Stehlik (c) 1996-2023.");
 #endif	/* STANDALONE */
 	mvaddstr(0,0,tmpstr);
 
