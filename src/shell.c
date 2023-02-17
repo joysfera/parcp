@@ -242,7 +242,7 @@ void vypis_podpis(OKNO *okno)
 
 	/* display bottom info line */
 	if (oznacenych) {
-		char buf_bytes[MAXSTRING];
+		char buf_bytes[32];
 		show_size64(buf_bytes, celkdelka);
 		sprintf(podpis, "%s in %4d selected files\n", buf_bytes, oznacenych);
 		if (use_colors)
@@ -331,7 +331,7 @@ void nacti_obsah(OKNO *okno, const char *new_path)
 
 		/* check if change dir was successful and if not go back to original directory */
 		if (! chdir_flag) {
-			char errmsg[MAXSTRING];
+			char errmsg[MAXSTRING+26];
 			sprintf(errmsg, "Can't go to '%s' directory.", adresar);
 			myMessageBox(errmsg, myMB_OK);
 
@@ -425,7 +425,7 @@ void realokuj_buf_okna(OKNO *okno)
 
 void inicializace_okna(OKNO *okno, MYBOOL pozice, MYBOOL remote)
 {
-	char tmpbuf[MAXSTRING];
+	char tmpbuf[MAXSTRING+14];
 
 	okno->buf = NULL;
 	realokuj_buf_okna(okno);
@@ -1684,7 +1684,7 @@ void do_shell(void)
 			case '5':
 #endif
 				if (_check_info) {
-					char buf_total[MAXSTRING];
+					char buf_total[32];
 					zjistit_kompletni_info(okno, TRUE);
 					show_size64(buf_total, shell_total_bytes);
 					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, buf_total);
@@ -1706,7 +1706,7 @@ void do_shell(void)
 			case '6':
 #endif
 				if (_check_info) {
-					char buf_total[MAXSTRING];
+					char buf_total[32];
 					zjistit_kompletni_info(okno, TRUE);
 					show_size64(buf_total, shell_total_bytes);
 					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, buf_total);

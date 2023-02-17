@@ -99,7 +99,7 @@ void show_items(WINDOW * win, TMENU * smenu, int poloha)
 					memset(tmpspc, '-', WINWIDTH);
 			}
 
-			strncpy(tmpspc + 1, act->title, strlen(act->title));
+			memcpy(tmpspc + 1, act->title, strlen(act->title));
 
 			if (act->flag & MENU_SUBTREE)
 				tmpspc[TITWIDTH + 1] = '>';

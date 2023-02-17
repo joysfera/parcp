@@ -265,7 +265,7 @@ void display_N_spaces(WINDOW *w, int row, int col, int N)
 	char *curptr = kopie_string + pozice_zacatku + x;							\
 	int maxlen = sirka_pole - x;												\
 	int curlen = min(strlen(curptr), maxlen);									\
-	strncpy(tmp, curptr, curlen);												\
+	memcpy(tmp, curptr, curlen);												\
 	memset(tmp + curlen, ' ', maxlen - curlen);	/* right pad with spaces */		\
 	tmp[maxlen] = 0;															\
 	mvwaddstr(w, xrow, xcol + x, tmp);											\

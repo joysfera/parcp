@@ -542,10 +542,9 @@ void close_copyinfo(int ret_flag)
 #endif
 
 	if (hash_mark) {
-		char title_txt[MAXSTRING], buf_bytes[MAXSTRING];
+		char buf_bytes[MAXSTRING];
 		show_size64(buf_bytes, copyinfo_pos);
-		sprintf(title_txt, "\n%s %s", copyinfo_sending?"Sent":"Received", buf_bytes);
-		printf("%s", title_txt);
+		printf("\n%s %s", copyinfo_sending?"Sent":"Received", buf_bytes);
 	}
 	else
 		printf("\b\b\b\b");
