@@ -1259,6 +1259,8 @@ void fetch_term_size(void)
 	getmaxyx(stdscr, y, x);
 	sirka = x;
 	vyska = y - 1;
+	// until the string handling is improved this is necessary:
+	if (sirka > MAXSTRING) sirka = MAXSTRING;
 }
 
 void handle_resize(int sig)
