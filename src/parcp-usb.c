@@ -84,7 +84,7 @@ int usb_receive(BYTE *block, int len)
 	int ret = hid_get_feature_report(devh, buf, sizeof(buf));
 	if (ret > 0) {
 		ret--; // correct returned number for HIDAPI
-		memcpy(block, buf+1, len);
+		memcpy(block, buf+1, MIN(ret, len));
 	}
 	return ret;
 }
