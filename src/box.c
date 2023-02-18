@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  * with parallel ports.
  *
- * Petr Stehlik (c) 1996-1999
+ * Petr Stehlik (c) 1996-2023
  *
  */
 
@@ -274,7 +274,7 @@ void display_N_spaces(WINDOW *w, int row, int col, int N)
 #define REDRAWROW	display_row(0)	/* redraw whole row */
 MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen)
 {
-    WINDOW	*w;
+	WINDOW	*w;
 	PANEL	*p;
 	int erows, ecols, xrow, xcol, key, cursor_pos, radku, i;
 	char *kopie_text, *kopie_string, *txtptr;
@@ -317,13 +317,13 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 
 	xrow = erows - 2;
 	xcol = 2;
-    wattron(w, A_REVERSE);
-    pozice_zacatku = 0;
-    if (*kopie_string) {
-    	int kopie_len = strlen(kopie_string);
-    	if (kopie_len > sirka_pole)
-    		pozice_zacatku = kopie_len - sirka_pole + 1;
-    }
+	wattron(w, A_REVERSE);
+	pozice_zacatku = 0;
+	if (*kopie_string) {
+		int kopie_len = strlen(kopie_string);
+		if (kopie_len > sirka_pole)
+			pozice_zacatku = kopie_len - sirka_pole + 1;
+	}
 	REDRAWROW;
 
 	/* point cursor right after the end of text */
@@ -332,7 +332,7 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 	update_panels();
 	doupdate();
 
-    curs_set(original_cursor);
+	curs_set(original_cursor);
 	while(cursor_pos >= 0 && cursor_pos < maxlen) {
 		/* scroll with the text in horizontal direction */
 		if (RELCURPOS >= sirka_pole) {
@@ -426,16 +426,16 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 		}
 	}
 
-    curs_set(0);
+	curs_set(0);
 
-    del_panel(p);
-    delwin(w);
-    update_panels();
+	del_panel(p);
+	delwin(w);
+	update_panels();
 
 	if (cursor_pos >= 0)
 		strcpy(return_str, kopie_string);	/* copy the resulting string to the 'return_str' */
 	free(kopie_string);
-    return (cursor_pos >= 0);
+	return (cursor_pos >= 0);
 }
 
 int EditNumber(const char *title, const char *text, TAG_TYPE tag, void *storage)
