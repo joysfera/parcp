@@ -1192,7 +1192,7 @@ void initial_draw(void)
 	mvaddstr(0,0,tmpstr);
 
 	/* button bar */
-	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F20=Quit");
+	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F12=Quit");
 	i = strlen(tmpstr);
 	memset(tmpstr+i, ' ', sizeof(tmpstr)-i);
 	tmpstr[sirka-1] = 0;
@@ -1584,7 +1584,8 @@ MYBOOL menubar_action(OKNO *okno, int x)
 			ukoncit_vse = TRUE;
 			break;
 
-		case 11:
+		case 11: /* fall through */
+		case 12:
 			write_word(M_QUIT);
 			ukoncit_vse = TRUE;
 			break;
@@ -1658,7 +1659,6 @@ void do_shell(void)
 		switch(key = wgetch(okno->pwin)) {
 			case KEY_MOUSE:
 				if (getmouse(&mevent) == OK) {
-fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 					if (mevent.bstate & (BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED | BUTTON3_CLICKED)) {
 						if (mevent.y >= 4 && mevent.y < vyska-1) {
 							MYBOOL right_panel = (mevent.x >= stred);
@@ -1912,7 +1912,7 @@ fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 				ukoncit_vse = menubar_action(okno, 10);
 				break;
 
-			case KEY_F(20):
+			case KEY_F(12):
 				ukoncit_vse = menubar_action(okno, 11);
 				break;
 

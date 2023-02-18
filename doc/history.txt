@@ -5,6 +5,8 @@ This is the history of PARCP development
 ==================
 - mouse support added
 
+- the hotkey for QUIT is F12 now (on Atari still Shift+F10)
+
 
 4.2.2 - 2023/02/18
 ==================
