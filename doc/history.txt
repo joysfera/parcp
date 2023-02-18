@@ -1,6 +1,20 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+4.3.0 - 2023/02/18
+==================
+- mouse support added
+
+
+4.2.2 - 2023/02/18
+==================
+- terminal window size can be changed on-the-fly
+
+- fixed crash when terminal window got wider than 260 characters
+
+- transfer speed on Server reported in more natural kB/s (instead of cps)
+
+
 4.2.1 - 2016/02/03
 ==================
 - better default config values: sorting by Name, not collecting directory info
