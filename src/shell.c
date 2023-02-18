@@ -1352,11 +1352,249 @@ void activate_item(OKNO *okno)
 		/* define activate action for regular files */ ;
 }
 
+MYBOOL menubar_action(OKNO *okno, int x)
+{
+	char tmpstr[MAXSTRING];
+	char tmpfnam[MAXFNAME];
+	MYBOOL ukoncit_vse = FALSE;
+
+	switch(x) {
+		case 1:
+#ifdef ATARI
+# define TRANSFER_STOP_KEY	"Both Shifts"
+# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down move cursor, hold Shift for paging.\n"
+# define FKEYS_BLOCKED		""
+#else
+# define TRANSFER_STOP_KEY	"Esc key"
+# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down and PageUp/Down/Home/End move cursor.\n"
+# define FKEYS_BLOCKED		"Use numeric keys instead if function keys are not available.\n"
+#endif
+# define IMMEDIATE_BREAK	"Ctrl+C breaks file transfer immediately (sometimes).\n"
+				myMessageBox("PARCP's home at http://joy.sophics.cz/parcp/\n\n"\
+		"Help for ParShell user interface:\n\n"\
+		"Tab key switches between Client (left) and Server (right) window.\n"\
+		"Arrow keys Left/Right and '/' change directory.\n"\
+		KEYS_FOR_MOVING_CURSOR\
+		"Insert and SpaceBar keys select/unselect files.\n"\
+		"Keys '+','-' and '*' on numeric keypad select files, too.\n"\
+		"Typing lowercase moves cursor.\n"\
+		"Typing uppercase selects files.\n"\
+		"Del key deletes selected (if any) or current (under cursor) file.\n"\
+		"Function key actions (F5=Copy) are listed at bottom of window.\n"FKEYS_BLOCKED\
+		"Ctrl+R (or Esc key) refreshes contents.\n"\
+		TRANSFER_STOP_KEY" stops file copying/moving/deleting.\n"IMMEDIATE_BREAK\
+		"F20 = Shift+F10 quits both Client and Server.", myMB_OK);
+		break;
+
+		case 2:
+			execute_command(CLI, NULL);
+			OBNOV_OBE_OKNA_S_CESTOU
+			break;
+
+		case 3:
+			if (! JE_ADR(okno,okno->kurzor)) {
+				int ret;
+				char cesta[MAXPATH], fname[MAXFNAME];
+				MYBOOL kopie = FALSE;
+
+				get_cwd(cesta, sizeof(cesta));
+				strcpy(fname, pure_filename(okno));
+
+				if (okno->remote) {
+					/* copy to TMP and then delete it */
+					if (*path_to_temp) {
+						DPRINT1("v going to change current dir to %s\n", path_to_temp);
+						ret = chdir(path_to_temp);
+						ret = ret; // UNUSED
+
+						DPRINT("v going to copy file under cursor\n");
+
+						shell_open_progress_window("Copying", TRUE);
+						copy_files(FALSE, fname, FALSE);
+						shell_close_progress_window();
+						kopie = TRUE;
+					}
+					else
+						myMessageBox("Path to TMP is not set!", myMB_OK);
+				}
+				else {
+					int ret = chdir(okno->adresar);
+					ret = ret; // UNUSED
+				}
+
+				if (*path_to_viewer)
+					execute_command(path_to_viewer, fname);
+				else
+					viewer(fname);	/* internal viewer */
+
+				if (kopie)
+					remove(fname);
+
+				ret = chdir(cesta);
+				ret = ret; // UNUSED
+			}
+			break;
+
+		case 4:
+			if (! JE_ADR(okno,okno->kurzor)) {
+				char cesta[MAXPATH], fname[MAXFNAME];
+				MYBOOL kopie = FALSE;
+				int ret;
+
+				get_cwd(cesta, sizeof(cesta));
+				strcpy(fname, pure_filename(okno));
+
+				if (okno->remote) {
+					/* copy to TMP and move it back after editing */
+					if (*path_to_temp) {
+						DPRINT1("v going to change current dir to %s\n", path_to_temp);
+						ret = chdir(path_to_temp);
+						ret = ret; // UNUSED
+
+						DPRINT("v going to copy file under cursor\n");
+
+						shell_open_progress_window("Reading", TRUE);
+						copy_files(FALSE, fname, FALSE);
+						shell_close_progress_window();
+
+						kopie = TRUE;
+					}
+					else
+						myMessageBox("Path to TMP is not set!", myMB_OK);
+				}
+				else {
+					int ret = chdir(okno->adresar);
+					ret = ret; // UNUSED;
+				}
+
+				if (*path_to_editor)
+					execute_command(path_to_editor, fname);
+				else
+					myMessageBox("External editor is not set!", myMB_OK);
+
+				if (kopie) {
+					shell_open_progress_window("Writting", TRUE);
+					copy_files(TRUE, fname, TRUE);
+					shell_close_progress_window();
+				}
+
+				ret = chdir(cesta);
+				ret = ret; // UNUSED
+
+				obnov_soucasne(okno);
+			}
+			break;
+
+		case 5:
+			if (_check_info) {
+				char buf_total[32];
+				zjistit_kompletni_info(okno, TRUE);
+				show_size64(buf_total, shell_total_bytes);
+				sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, buf_total);
+				send_collected_info();
+			}
+			else
+				strcpy(tmpstr, "Copy file(s)?");
+
+			if (_confirm_copy) {
+				if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
+					break;
+			}
+			process_entries(okno, kopirovat);
+			obnov_opacne(okno);
+			break;
+
+		case 6:
+			if (_check_info) {
+				char buf_total[32];
+				zjistit_kompletni_info(okno, TRUE);
+				show_size64(buf_total, shell_total_bytes);
+				sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, buf_total);
+				send_collected_info();
+			}
+			else
+				strcpy(tmpstr, "Move file(s)?");
+
+			if (_confirm_move) {
+				if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
+					break;
+			}
+			process_entries(okno, presouvat);
+			OBNOV_OBE_OKNA
+			break;
+
+		case 7:
+			*tmpfnam = 0;
+			if (! EditBox("MkDir", "Enter name of new directory", tmpfnam, sizeof(tmpfnam)))
+				break;
+			if (*tmpfnam) {				/* if something was entered */
+				int i;
+				if (okno->remote) {
+					write_word(M_MD);
+					send_string(tmpfnam);
+					read_word();
+				}
+				else
+					mkdir(tmpfnam);
+
+				obnov_soucasne(okno);
+
+				/* position cursor on the just created folder */
+				for(i=1; i<okno->lines; i++) {
+					if (! strcmp(vyjisti_jmeno(okno,i), tmpfnam)) {
+						okno->kurzor = i;
+						okno->radek = okno->kurzor-WH+1;
+						if (okno->radek < 0)
+							okno->radek = 0;
+						break;
+					}
+				}
+				prekresli_stranku(okno);
+			}
+			break;
+
+		case 8:
+			if (_check_info) {
+				zjistit_kompletni_info(okno, FALSE);	/* ignore _archive_mode */
+				sprintf(tmpstr, "Delete %lu files in %lu folders?", shell_total_files, shell_total_folders);
+			}
+			else
+				strcpy(tmpstr, "Delete file(s)?");
+
+			if (_confirm_delete) {
+				if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON2) == myIDNO)
+					break;
+			}
+			process_entries(okno, mazat);
+			obnov_soucasne(okno);
+			break;
+
+		case 9:
+			if (interakce_menu()) {
+				int retval = myMessageBox("Quit also the PARCP Server?", myMB_YESNOCANCEL);
+				if (retval != myIDCANCEL) {
+					write_word(retval == myIDYES ? M_QUIT : M_LQUIT);
+					ukoncit_vse = TRUE;
+				}
+			}
+			break;
+
+		case 10:
+			write_word(M_LQUIT);
+			ukoncit_vse = TRUE;
+			break;
+
+		case 11:
+			write_word(M_QUIT);
+			ukoncit_vse = TRUE;
+			break;
+	}
+	return ukoncit_vse;
+}
+
 void do_shell(void)
 {
 	OKNO *okno;
-	char tmpstr[MAXSTRING];
-	char tmpfnam[MAXFNAME];
 	char selectmask[MAXFNAME]="";
 	MYBOOL ukoncit_vse = FALSE;
 	int i;
@@ -1442,6 +1680,9 @@ fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 							else if (mevent.bstate & BUTTON1_DOUBLE_CLICKED) {
 								activate_item(okno);
 							}
+						}
+						else if (mevent.y == vyska) {
+							ukoncit_vse = menubar_action(okno, (mevent.x / 8) + 1);
 						}
 					}
 					else if (mevent.bstate & BUTTON4_PRESSED) {
@@ -1604,214 +1845,49 @@ fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 #ifndef ATARI
 			case '1':
 #endif
-#ifdef ATARI
-# define TRANSFER_STOP_KEY	"Both Shifts"
-# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down move cursor, hold Shift for paging.\n"
-# define FKEYS_BLOCKED		""
-#else
-# define TRANSFER_STOP_KEY	"Esc key"
-# define KEYS_FOR_MOVING_CURSOR	"Arrow keys Up/Down and PageUp/Down/Home/End move cursor.\n"
-# define FKEYS_BLOCKED		"Use numeric keys instead if function keys are not available.\n"
-#endif
-# define IMMEDIATE_BREAK	"Ctrl+C breaks file transfer immediately (sometimes).\n"
-				myMessageBox("PARCP's home at http://joy.sophics.cz/parcp/\n\n"\
-		"Help for ParShell user interface:\n\n"\
-		"Tab key switches between Client (left) and Server (right) window.\n"\
-		"Arrow keys Left/Right and '/' change directory.\n"\
-		KEYS_FOR_MOVING_CURSOR\
-		"Insert and SpaceBar keys select/unselect files.\n"\
-		"Keys '+','-' and '*' on numeric keypad select files, too.\n"\
-		"Typing lowercase moves cursor.\n"\
-		"Typing uppercase selects files.\n"\
-		"Del key deletes selected (if any) or current (under cursor) file.\n"\
-		"Function key actions (F5=Copy) are listed at bottom of window.\n"FKEYS_BLOCKED\
-		"Ctrl+R (or Esc key) refreshes contents.\n"\
-		TRANSFER_STOP_KEY" stops file copying/moving/deleting.\n"IMMEDIATE_BREAK\
-		"F20 = Shift+F10 quits both Client and Server.", myMB_OK);
+				menubar_action(okno, 1);
 				break;
 
 			case KEY_F(2):
 #ifndef ATARI
 			case '2':
 #endif
-				execute_command(CLI, NULL);
-				OBNOV_OBE_OKNA_S_CESTOU
+				menubar_action(okno, 2);
 				break;
 
 			case KEY_F(3):
 #ifndef ATARI
 			case '3':
 #endif
-				if (! JE_ADR(okno,okno->kurzor)) {
-					int ret;
-					char cesta[MAXPATH], fname[MAXFNAME];
-					MYBOOL kopie = FALSE;
-
-					get_cwd(cesta, sizeof(cesta));
-					strcpy(fname, pure_filename(okno));
-
-					if (okno->remote) {
-						/* copy to TMP and then delete it */
-						if (*path_to_temp) {
-							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							ret = chdir(path_to_temp);
-							ret = ret; // UNUSED
-
-							DPRINT("v going to copy file under cursor\n");
-
-							shell_open_progress_window("Copying", TRUE);
-							copy_files(FALSE, fname, FALSE);
-							shell_close_progress_window();
-							kopie = TRUE;
-						}
-						else
-							myMessageBox("Path to TMP is not set!", myMB_OK);
-					}
-					else {
-						int ret = chdir(okno->adresar);
-						ret = ret; // UNUSED
-					}
-
-					if (*path_to_viewer)
-						execute_command(path_to_viewer, fname);
-					else
-						viewer(fname);	/* internal viewer */
-
-					if (kopie)
-						remove(fname);
-
-					ret = chdir(cesta);
-					ret = ret; // UNUSED
-				}
+				menubar_action(okno, 3);
 				break;
 
 			case KEY_F(4):
 #ifndef ATARI
 			case '4':
 #endif
-				if (! JE_ADR(okno,okno->kurzor)) {
-					char cesta[MAXPATH], fname[MAXFNAME];
-					MYBOOL kopie = FALSE;
-					int ret;
-
-					get_cwd(cesta, sizeof(cesta));
-					strcpy(fname, pure_filename(okno));
-
-					if (okno->remote) {
-						/* copy to TMP and move it back after editing */
-						if (*path_to_temp) {
-							DPRINT1("v going to change current dir to %s\n", path_to_temp);
-							ret = chdir(path_to_temp);
-							ret = ret; // UNUSED
-
-							DPRINT("v going to copy file under cursor\n");
-
-							shell_open_progress_window("Reading", TRUE);
-							copy_files(FALSE, fname, FALSE);
-							shell_close_progress_window();
-
-							kopie = TRUE;
-						}
-						else
-							myMessageBox("Path to TMP is not set!", myMB_OK);
-					}
-					else {
-						int ret = chdir(okno->adresar);
-						ret = ret; // UNUSED;
-					}
-
-					if (*path_to_editor)
-						execute_command(path_to_editor, fname);
-					else
-						myMessageBox("External editor is not set!", myMB_OK);
-
-					if (kopie) {
-						shell_open_progress_window("Writting", TRUE);
-						copy_files(TRUE, fname, TRUE);
-						shell_close_progress_window();
-					}
-
-					ret = chdir(cesta);
-					ret = ret; // UNUSED
-
-					obnov_soucasne(okno);
-				}
+				menubar_action(okno, 4);
 				break;
 
 			case KEY_F(5):
 #ifndef ATARI
 			case '5':
 #endif
-				if (_check_info) {
-					char buf_total[32];
-					zjistit_kompletni_info(okno, TRUE);
-					show_size64(buf_total, shell_total_bytes);
-					sprintf(tmpstr, "Copy %lu files? (total size %s)", shell_total_files, buf_total);
-					send_collected_info();
-				}
-				else
-					sprintf(tmpstr, "Copy file(s)?");
-
-				if (_confirm_copy) {
-					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
-						break;
-				}
-				process_entries(okno, kopirovat);
-				obnov_opacne(okno);
+				menubar_action(okno, 5);
 				break;
 
 			case KEY_F(6):
 #ifndef ATARI
 			case '6':
 #endif
-				if (_check_info) {
-					char buf_total[32];
-					zjistit_kompletni_info(okno, TRUE);
-					show_size64(buf_total, shell_total_bytes);
-					sprintf(tmpstr, "Move %lu files? (total size %s)", shell_total_files, buf_total);
-					send_collected_info();
-				}
-				else
-					sprintf(tmpstr, "Move file(s)?");
-
-				if (_confirm_move) {
-					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON1) == myIDNO)
-						break;
-				}
-				process_entries(okno, presouvat);
-				OBNOV_OBE_OKNA
+				menubar_action(okno, 6);
 				break;
 
 			case KEY_F(7):
 #ifndef ATARI
 			case '7':
 #endif
-				*tmpfnam = 0;
-				if (! EditBox("MkDir", "Enter name of new directory", tmpfnam, sizeof(tmpfnam)))
-					break;
-				if (*tmpfnam) {				/* if something was entered */
-					if (okno->remote) {
-						write_word(M_MD);
-						send_string(tmpfnam);
-						read_word();
-					}
-					else
-						mkdir(tmpfnam);
-
-					obnov_soucasne(okno);
-
-					/* position cursor on the just created folder */
-					for(i=1; i<okno->lines; i++) {
-						if (! strcmp(vyjisti_jmeno(okno,i), tmpfnam)) {
-							okno->kurzor = i;
-							okno->radek = okno->kurzor-WH+1;
-							if (okno->radek < 0)
-								okno->radek = 0;
-							break;
-						}
-					}
-					prekresli_stranku(okno);
-				}
+				menubar_action(okno, 7);
 				break;
 
 			case KEY_DC:		/* Thing, Windows compatible */
@@ -1819,45 +1895,25 @@ fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 #ifndef ATARI
 			case '8':
 #endif
-				if (_check_info) {
-					zjistit_kompletni_info(okno, FALSE);	/* ignore _archive_mode */
-					sprintf(tmpstr, "Delete %lu files in %lu folders?", shell_total_files, shell_total_folders);
-				}
-				else
-					sprintf(tmpstr, "Delete file(s)?");
-
-				if (_confirm_delete) {
-					if (myMessageBox(tmpstr, myMB_YESNO | myMB_DEFBUTTON2) == myIDNO)
-						break;
-				}
-				process_entries(okno, mazat);
-				obnov_soucasne(okno);
+				menubar_action(okno, 8);
 				break;
 
 			case KEY_F(9):
 #ifndef ATARI
 			case '9':
 #endif
-				if (interakce_menu()) {
-					int retval = myMessageBox("Quit also the PARCP Server?", myMB_YESNOCANCEL);
-					if (retval != myIDCANCEL) {
-						write_word(retval == myIDYES ? M_QUIT : M_LQUIT);
-						ukoncit_vse = TRUE;
-					}
-				}
+				ukoncit_vse = menubar_action(okno, 9);
 				break;
 
 			case KEY_F(10):
 #ifndef ATARI
 			case '0':
 #endif
-				write_word(M_LQUIT);
-				ukoncit_vse = TRUE;
+				ukoncit_vse = menubar_action(okno, 10);
 				break;
 
 			case KEY_F(20):
-				write_word(M_QUIT);
-				ukoncit_vse = TRUE;
+				ukoncit_vse = menubar_action(okno, 11);
 				break;
 
 			case KEY_BACKSPACE:
