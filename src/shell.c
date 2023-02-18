@@ -1180,20 +1180,20 @@ void konec_menu(void)
 
 void initial_draw(void)
 {
-	standend();
-
 	/* header */
 	char tmpstr[MAXSTRING];
+	int i;
 #ifdef STANDALONE
 	sprintf(tmpstr, " PARCP "VERZE"demo by Petr Stehlik (c) 1996-2023");
 #else
 	sprintf(tmpstr, " PARCP "VERZE" by Petr Stehlik (c) 1996-2023.");
 #endif	/* STANDALONE */
+	standend();
 	mvaddstr(0,0,tmpstr);
 
 	/* button bar */
 	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F20=Quit");
-	int i = strlen(tmpstr);
+	i = strlen(tmpstr);
 	memset(tmpstr+i, ' ', sizeof(tmpstr)-i);
 	tmpstr[sirka-1] = 0;
 	mvaddstr(vyska,0,tmpstr);
