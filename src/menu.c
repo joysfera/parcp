@@ -258,6 +258,30 @@ MYBOOL is_checked(TMENU * first, int cm)
 	return vysledek;
 }
 
+void set_radio(TMENU * imenu, TMENU *act)
+{
+	if (!(act->flag & MENU_CHECKED)) {
+		TMENU *item = act;
+		/* unselect all previous items */
+		while((item = find_prev_item(imenu, item))) {
+			if (item->flag & MENU_RADIO)
+				item->flag &= ~MENU_CHECKED;
+			else
+				break;
+		}
+		/* unselect all following items */
+		item = act;
+		while((item = item->next)) {
+			if (item->flag & MENU_RADIO)
+				item->flag &= ~MENU_CHECKED;
+			else
+				break;
+		}
+		/* select the current one */
+		act->flag |= MENU_CHECKED;
+	}
+}
+
 int show_menu(TMENU * imenu, int cx, int cy)
 {
 	int i, sy, j;
@@ -308,6 +332,7 @@ int show_menu(TMENU * imenu, int cx, int cy)
 	i = find_menu_next(imenu, sy, sy);
 
 	while ((klavesa != KEY_LEFT) && (end_menu == 0)) {
+		MEVENT mevent;
 		act = imenu;
 		for (j = 0; j < i; j++)
 			act = act->next;
@@ -316,31 +341,34 @@ int show_menu(TMENU * imenu, int cx, int cy)
 		doupdate();
 		klavesa = wgetch(wwmenu);
 		switch (klavesa) {
+		case KEY_MOUSE:
+			if (getmouse(&mevent) != OK) break;
+			if (! (mevent.bstate & BUTTON1_CLICKED)) break;
+			if (mevent.x < cx || mevent.x > cx + WINWIDTH) {
+				klavesa = KEY_LEFT;
+				break;
+			}
+			if (mevent.y <= cy || mevent.y > cy + sy) break;
+			{
+				int i_ = mevent.y - cy - 1; /* this is the selected item */
+				/* find menu item */
+				TMENU *act_ = imenu;
+				for(j = 0; j < i_; j++)
+					act_ = act_->next;
+				if (act_->title == NULL) break; // menu separator
+				/* select an item */
+				i = i_;
+				act = act_;
+				show_items(wwmenu, imenu, i);
+				wrefresh(wwmenu);
+			}
+			/* fall through = mouse click simulates the Enter key */
 		case '\r':
 		case '\n':
 			if (act->flag & MENU_SUBTREE)
 				comm = show_menu(act->wnew, cx + BORWIDTH, cy + i);
 			else if (act->flag & MENU_RADIO) {
-				if (!(act->flag & MENU_CHECKED)) {
-					TMENU *item = act;
-					/* unselect all previous items */
-					while((item = find_prev_item(imenu, item))) {
-						if (item->flag & MENU_RADIO)
-							item->flag &= ~MENU_CHECKED;
-						else
-							break;
-					}
-					/* unselect all following items */
-					item = act;
-					while((item = item->next)) {
-						if (item->flag & MENU_RADIO)
-							item->flag &= ~MENU_CHECKED;
-						else
-							break;
-					}
-					/* select the current one */
-					act->flag |= MENU_CHECKED;
-				}
+				set_radio(imenu, act);
 			}
 			else if (act->flag & MENU_CHECKABLE)
 				act->flag ^= MENU_CHECKED;
@@ -352,26 +380,7 @@ int show_menu(TMENU * imenu, int cx, int cy)
 
 		case 32:
 			if (act->flag & MENU_RADIO) {
-				if (!(act->flag & MENU_CHECKED)) {
-					TMENU *item = act;
-					/* unselect all previous items */
-					while((item = find_prev_item(imenu, item))) {
-						if (item->flag & MENU_RADIO)
-							item->flag &= ~MENU_CHECKED;
-						else
-							break;
-					}
-					/* unselect all following items */
-					item = act;
-					while((item = item->next)) {
-						if (item->flag & MENU_RADIO)
-							item->flag &= ~MENU_CHECKED;
-						else
-							break;
-					}
-					/* select the current one */
-					act->flag |= MENU_CHECKED;
-				}
+				set_radio(imenu, act);
 			}
 			else if (act->flag & MENU_CHECKABLE)
 				act->flag ^= MENU_CHECKED;
