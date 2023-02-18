@@ -522,6 +522,7 @@ void update_copyinfo(ULONG64 x)
 void close_copyinfo(int ret_flag)
 {
 	unsigned long speed;
+	unsigned int speed_kB;
 	copyinfo_time = TIMER-copyinfo_time;		/* find out the transfer time */
 	if (copyinfo_time == 0)
 		copyinfo_time = 1;
@@ -542,7 +543,7 @@ void close_copyinfo(int ret_flag)
 #endif
 
 	if (hash_mark) {
-		char buf_bytes[MAXSTRING];
+		char buf_bytes[32];
 		show_size64(buf_bytes, copyinfo_pos);
 		printf("\n%s %s", copyinfo_sending?"Sent":"Received", buf_bytes);
 	}
@@ -550,14 +551,17 @@ void close_copyinfo(int ret_flag)
 		printf("\b\b\b\b");
 
 	speed = (copyinfo_pos / copyinfo_time);
+	speed_kB = (speed + 512) / 1024;
+	if (speed_kB == 0) speed_kB = 1;
+
 	if (_check_info && g_bytes) {
 		unsigned int position = (g_bytes_pos * 100ULL) / g_bytes;
-		char bytes_buf[MAXSTRING];
+		char bytes_buf[32];
 		show_size64(bytes_buf, g_bytes);
-		printf(" OK (%lu cps) (%02u%% of total size %s)\n", speed, position, bytes_buf);
+		printf(" OK (%u kB/s) (%02u%% of total size %s)\n", speed_kB, position, bytes_buf);
 	}
 	else
-		printf(" OK (%lu cps)\n", speed);
+		printf(" OK (%u kB/s)\n", speed_kB);
 }
 
 /*******************************************************************************/
@@ -1165,7 +1169,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 		statfs(dname, &stfs);			/* zjistit volne misto v aktualnim adresari */
 		DPRINT2("d %ld free clusters of %ld bytes each.\n", stfs.f_bfree, stfs.f_bsize);
 		{
-			char buf_total[MAXSTRING], buf_free[MAXSTRING];
+			char buf_total[32], buf_free[32];
 			show_size64(buf_total, total);
 			show_size64(buf_free, (ULONG64)(stfs.f_bfree*stfs.f_bsize));
 			sprintf(p, "%s in %4d files, %s free\n", buf_total, pocet, buf_free);
