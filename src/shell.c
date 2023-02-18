@@ -1180,7 +1180,7 @@ void konec_menu(void)
 
 void initial_draw(void)
 {
-	if (use_colors) standend();
+	standend();
 
 	/* header */
 	char tmpstr[MAXSTRING];
@@ -1281,6 +1281,77 @@ void handle_resize(int sig)
 	doupdate();
 }
 
+void scroll_up(OKNO *okno)
+{
+	if (okno->kurzor > 0) {
+		kurzor(okno, 0);
+		okno->kurzor--;
+
+		if (okno->kurzor < okno->radek) {
+			if (smoothscroll) {
+				scrollok(okno->pwin,TRUE);
+				wscrl(okno->pwin,-1);
+				scrollok(okno->pwin,FALSE);
+				okno->radek--;
+				prekresli_radek(okno,0);
+			}
+			else {
+				okno->radek -= WH/2;
+				if (okno->radek < 0)
+					okno->radek = 0;
+				prekresli_stranku(okno);
+			}
+			update_panels();
+		}
+		kurzor(okno, 1);
+		update_panels();
+	}
+}
+
+void scroll_down(OKNO *okno)
+{
+	if (okno->kurzor < okno->lines-1) {
+		kurzor(okno, 0);
+		okno->kurzor++;
+
+		if (okno->kurzor > okno->radek+WH-1) {
+			if (smoothscroll) {
+				scrollok(okno->pwin,TRUE);
+				scroll(okno->pwin);
+				scrollok(okno->pwin,FALSE);
+				okno->radek++;
+				prekresli_radek(okno,WH-1);
+			}
+			else {
+				okno->radek += WH/2;
+				if (okno->radek > okno->lines-WH)
+					okno->radek = okno->lines-WH;
+				prekresli_stranku(okno);
+			}
+			update_panels();
+		}
+		kurzor(okno, 1);
+		update_panels();
+	}
+}
+
+void select_item(OKNO *okno)
+{
+	if (strcmp(pure_filename(okno), "..")) {	/* ".." can't be selected! */
+		soznaceny(okno, okno->kurzor, !oznaceny(okno, okno->kurzor));
+		prekresli_radek(okno, okno->kurzor-okno->radek);
+		vypis_podpis(okno);
+	}
+}
+
+void activate_item(OKNO *okno)
+{
+	if (JE_ADR(okno,okno->kurzor))
+		zmenit_adresar(okno);
+	else
+		/* define activate action for regular files */ ;
+}
+
 void do_shell(void)
 {
 	OKNO *okno;
@@ -1303,6 +1374,7 @@ void do_shell(void)
 	cbreak();
 	keypad(stdscr,TRUE);
 	meta(stdscr, TRUE);		/* allow 8-bit */
+	mousemask(ALL_MOUSE_EVENTS, NULL);
 
 	if (use_colors) {
 		use_default_colors();
@@ -1338,6 +1410,9 @@ void do_shell(void)
 	while(!ukoncit_vse) {
 		int key;
 		MYBOOL smazat_masku = TRUE;
+#ifdef MOUSUP
+		MEVENT mevent;
+#endif
 
 #ifdef ATARI
 		while(Cconis()) Cnecin();
@@ -1345,6 +1420,39 @@ void do_shell(void)
 		update_panels();
 		doupdate();
 		switch(key = wgetch(okno->pwin)) {
+#ifdef MOUSUP
+			case KEY_MOUSE:
+				if (getmouse(&mevent) == OK) {
+fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
+					if (mevent.bstate & (BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED | BUTTON3_CLICKED)) {
+						if (mevent.y >= 4 && mevent.y < vyska-1) {
+							MYBOOL right_panel = (mevent.x >= stred);
+							if (aktivni != right_panel) {
+								// click on inactive window activates it
+								okno = aktivizuj(right_panel);
+							}
+							// click in active window moves file cursor
+							kurzor(okno, 0);
+							okno->kurzor = okno->radek + mevent.y - 4;
+							kurzor(okno, 1);
+							update_panels();
+							if (mevent.bstate & BUTTON3_CLICKED) {
+								select_item(okno);
+							}
+							else if (mevent.bstate & BUTTON1_DOUBLE_CLICKED) {
+								activate_item(okno);
+							}
+						}
+					}
+					else if (mevent.bstate & BUTTON4_PRESSED) {
+						scroll_up(okno);
+					}
+					else if (mevent.bstate & BUTTON5_PRESSED) {
+						scroll_down(okno);
+					}
+				}
+				break;
+#endif
 			case 9:
 				okno = aktivizuj(!aktivni);
 				break;
@@ -1354,10 +1462,7 @@ void do_shell(void)
 #ifdef __PDCURSES__
 			case PADENTER:
 #endif
-				if (JE_ADR(okno,okno->kurzor))
-					zmenit_adresar(okno);
-				else
-					/* define 'Enter' action for regular files */ ;
+				activate_item(okno);
 				break;
 
 			/* new keys for quick navigation in the dir tree */
@@ -1377,29 +1482,7 @@ void do_shell(void)
 
 			/* scrolling */
 			case KEY_UP:
-				if (okno->kurzor > 0) {
-					kurzor(okno, 0);
-					okno->kurzor--;
-
-					if (okno->kurzor < okno->radek) {
-						if (smoothscroll) {
-							scrollok(okno->pwin,TRUE);
-							wscrl(okno->pwin,-1);
-							scrollok(okno->pwin,FALSE);
-							okno->radek--;
-							prekresli_radek(okno,0);
-						}
-						else {
-							okno->radek -= WH/2;
-							if (okno->radek < 0)
-								okno->radek = 0;
-							prekresli_stranku(okno);
-						}
-						update_panels();
-					}
-					kurzor(okno, 1);
-					update_panels();
-				}
+				scroll_up(okno);
 				break;
 
 #ifdef ATARI
@@ -1426,37 +1509,11 @@ void do_shell(void)
 
 			case KEY_IC:	/* 'Insert' key */
 			case ' ':		/* SpaceBar key */
-				if (strcmp(pure_filename(okno), "..")) {	/* ".." can't be selected! */
-					soznaceny(okno, okno->kurzor, !oznaceny(okno, okno->kurzor));
-					prekresli_radek(okno, okno->kurzor-okno->radek);
-					vypis_podpis(okno);
-				}
+				select_item(okno);
 			/* fall thru KEY_DOWN */
 
 			case KEY_DOWN:
-				if (okno->kurzor < okno->lines-1) {
-					kurzor(okno, 0);
-					okno->kurzor++;
-
-					if (okno->kurzor > okno->radek+WH-1) {
-						if (smoothscroll) {
-							scrollok(okno->pwin,TRUE);
-							scroll(okno->pwin);
-							scrollok(okno->pwin,FALSE);
-							okno->radek++;
-							prekresli_radek(okno,WH-1);
-						}
-						else {
-							okno->radek += WH/2;
-							if (okno->radek > okno->lines-WH)
-								okno->radek = okno->lines-WH;
-							prekresli_stranku(okno);
-						}
-						update_panels();
-					}
-					kurzor(okno, 1);
-					update_panels();
-				}
+				scroll_down(okno);
 				break;
 
 #ifdef ATARI
