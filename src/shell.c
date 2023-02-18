@@ -1648,9 +1648,7 @@ void do_shell(void)
 	while(!ukoncit_vse) {
 		int key;
 		MYBOOL smazat_masku = TRUE;
-#ifdef MOUSUP
 		MEVENT mevent;
-#endif
 
 #ifdef ATARI
 		while(Cconis()) Cnecin();
@@ -1658,7 +1656,6 @@ void do_shell(void)
 		update_panels();
 		doupdate();
 		switch(key = wgetch(okno->pwin)) {
-#ifdef MOUSUP
 			case KEY_MOUSE:
 				if (getmouse(&mevent) == OK) {
 fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
@@ -1685,15 +1682,18 @@ fprintf(stderr, "mouse %d, %d\n", mevent.x, mevent.y);
 							ukoncit_vse = menubar_action(okno, (mevent.x / 8) + 1);
 						}
 					}
+#ifdef BUTTON4_PRESSED
 					else if (mevent.bstate & BUTTON4_PRESSED) {
 						scroll_up(okno);
 					}
+#endif
+#ifdef BUTTON5_PRESSED
 					else if (mevent.bstate & BUTTON5_PRESSED) {
 						scroll_down(okno);
 					}
+#endif
 				}
 				break;
-#endif
 			case 9:
 				okno = aktivizuj(!aktivni);
 				break;
