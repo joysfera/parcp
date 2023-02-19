@@ -1393,7 +1393,7 @@ MYBOOL menubar_action(OKNO *okno, int x)
 		"Function key actions (F5=Copy) are listed at bottom of window.\n"FKEYS_BLOCKED\
 		"Ctrl+R (or Esc key) refreshes contents.\n"\
 		TRANSFER_STOP_KEY" stops file copying/moving/deleting.\n"IMMEDIATE_BREAK\
-		"F20 = Shift+F10 quits both Client and Server.", myMB_OK);
+		"F12 (Shift+F10 on Atari) quits both Client and Server.", myMB_OK);
 		break;
 
 		case 2:
