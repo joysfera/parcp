@@ -81,7 +81,7 @@ int myMessageBox(const char *text, int type)
 {
 	WINDOW *pwinalert;
 	PANEL *ppanalert;
-	int ww, wh, radku, butposy, numbut, key, sumlen, spclen, active, i, chosen;
+	int wx, wy, ww, wh, radku, butposy, numbut, key, sumlen, spclen, active, i, chosen;
 	char *button[3];
 	int butlen[3], butpos[3], hotkey[3], ret[3];
 	char *kopie_text = strdup(text), *txtptr;
@@ -138,7 +138,9 @@ int myMessageBox(const char *text, int type)
 	for(i=1;i<numbut;i++)
 		butpos[i] = butpos[i-1] + butlen[i-1] + spclen;
 
-	pwinalert = newwin(wh, ww, (vyska-wh)/2, (sirka-ww)/2);
+	wx = (sirka-ww)/2;
+	wy = (vyska-wh)/2;
+	pwinalert = newwin(wh, ww, wy, wx);
 	keypad(pwinalert,TRUE);
 	ppanalert = new_panel(pwinalert);
 	box(pwinalert, ACS_VLINE, ACS_HLINE);
@@ -170,10 +172,26 @@ int myMessageBox(const char *text, int type)
 		key = wgetch(pwinalert);
 		if (key == KEY_RIGHT || key == 9)	/* TAB */
 			active = ++active > (numbut-1) ? 0 : active;
-		if (key == KEY_LEFT)
+		else if (key == KEY_LEFT)
 			active = --active < 0 ? (numbut-1) : active;
-		if (key == 27)	/* ESC */
+		else if (key == 27)	/* ESC */
 			key = 'C';	/* Cancel */
+		else if (key == KEY_MOUSE) {
+			MEVENT mevent;
+			if (getmouse(&mevent) == OK && (mevent.bstate & BUTTON1_CLICKED)) {
+				if (mevent.y == wy + butposy) {
+					for(i=0;i<numbut;i++) {
+						int rx = mevent.x - wx;
+						if (rx >= butpos[i] && rx <= butpos[i]+strlen(button[i])) {
+							chosen = i;
+							break;
+						}
+					}
+				}
+				else if (mevent.y < wy || mevent.y > wy+wh || mevent.x < wx || mevent.x > wx+ww)
+					key = 'C';	/* Cancel */
+			}
+		}
 		for(i=0;i<numbut;i++) {
 			if (toupper(key) == hotkey[i]) {
 				chosen = i;
