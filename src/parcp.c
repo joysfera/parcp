@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  *                 with parallel ports.
  *
- * Petr Stehlik (c) 1996-2016
+ * Petr Stehlik (c) 1996-2023
  *
  */
 
@@ -2704,7 +2704,7 @@ int main(int argc, char *argv[])
 	DPRINT1("  PARCP "VERZE" started on %s", ctime(&start_time));
 
 	if (! _quiet_mode) {
-		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2016.");
+		puts("PARallel CoPy - written by Petr Stehlik (c) 1996-2023.");
 #ifdef DEBUG
 		puts("DEBUG version "VERZE" (compiled on "__DATE__")\n");
 #else

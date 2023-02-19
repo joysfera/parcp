@@ -2,7 +2,7 @@
  * PARallel CoPy - written for transferring large files between any two machines
  * with parallel ports.
  *
- * Petr Stehlik (c) 1996-2016
+ * Petr Stehlik (c) 1996-2023
  *
  */
 
