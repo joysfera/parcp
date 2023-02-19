@@ -23,6 +23,7 @@
 #include "shell.h"		/* vyska, sirka */
 
 int sirka, vyska;		/* originally COLS, LINES-1 */
+MYBOOL is_resized;
 
 #define stred	(sirka/2)
 #define posazeni	4
@@ -1195,8 +1196,10 @@ void initial_draw(void)
 	strcpy(tmpstr," F1=Help F2=CLI F3=View F4=Edit F5=Copy F6=Move F7=MkDir F8=Del F9=Menu F10=LQuit F12=Quit");
 	i = strlen(tmpstr);
 	memset(tmpstr+i, ' ', sizeof(tmpstr)-i);
-	tmpstr[sirka-1] = 0;
-	mvaddstr(vyska,0,tmpstr);
+	tmpstr[sizeof(tmpstr)-1] = 0;
+	if (sirka < sizeof(tmpstr))
+		tmpstr[sirka-1] = 0;
+	mvaddstr(vyska, 0, tmpstr);
 
 	if (use_colors) attron(COLOR_PAIR(1));
 
@@ -1259,11 +1262,17 @@ void fetch_term_size(void)
 	getmaxyx(stdscr, y, x);
 	sirka = x;
 	vyska = y - 1;
-	// until the string handling is improved this is necessary:
-	if (sirka > MAXSTRING) sirka = MAXSTRING;
+	// safety boundaries
+	if (sirka < 64) sirka = 64; // crashes due to shortening file names below zero length?
+	if (sirka > 2*MAXSTRING) sirka = 2*MAXSTRING; // just in case...
 }
 
-void handle_resize(int sig)
+void set_resize(int sig)
+{
+	is_resized = TRUE;
+}
+
+void handle_resize()
 {
 	endwin();
 	refresh();
@@ -1274,10 +1283,11 @@ void handle_resize(int sig)
 	noecho();
 
 	fetch_term_size();
+	is_resized = FALSE;
 
 	clear();
 	initial_draw();
-	update_panels();
+	aktivizuj(aktivni);
 	doupdate();
 }
 
@@ -1623,7 +1633,8 @@ void do_shell(void)
 	}
 
 	fetch_term_size();
-	signal(SIGWINCH, handle_resize);
+	is_resized = FALSE;
+	signal(SIGWINCH, set_resize);
 
 	/* figure out whether to use colors or not */
 	use_colors &= has_colors();
@@ -1656,7 +1667,14 @@ void do_shell(void)
 #endif
 		update_panels();
 		doupdate();
-		switch(key = wgetch(okno->pwin)) {
+		// nodelay(okno->pwin, TRUE);
+		halfdelay(10);
+		do {
+			key = wgetch(okno->pwin);
+			if (is_resized) handle_resize();
+		} while(key == ERR);
+		cbreak();
+		switch(key) {
 			case KEY_MOUSE:
 				if (getmouse(&mevent) == OK) {
 					if (mevent.bstate & (BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED | BUTTON3_CLICKED)) {
