@@ -1,11 +1,15 @@
 This is the history of PARCP development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-4.3.0 - 2023/02/18
+4.3.0 - 2023/02/19
 ==================
-- mouse support added
+- mouse support added: left, right and also doubleclick handled as expected
 
 - the hotkey for QUIT is F12 now (on Atari still Shift+F10)
+
+- proper Debian package created with udev rule, desktop file and an icon
+
+- possible stack overflow issue in usb_receive() fixed
 
 
 4.2.2 - 2023/02/18
