@@ -1,4 +1,4 @@
 # PARCP (PARallel CoPy)
-Software for transferring files between Atari, Apple and PC computers over parallel (printer) ports, and USB (with PARCP-USB)
+Software for transferring files between Atari, Apple, PC and other computers over parallel (printer) ports, and USB (with [PARCP-USB interface](https://joy.sophics.cz/parcp/parcp-usb.html)).
 
-http://joy.sophics.cz/parcp/
+https://joy.sophics.cz/parcp/
