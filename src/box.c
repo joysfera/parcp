@@ -398,8 +398,10 @@ MYBOOL EditBox(const char *title, const char *text, char *return_str, int maxlen
 				/* fall through */
 
 			case KEY_DC:
-				memmove(kopie_string+cursor_pos, kopie_string+cursor_pos+1, maxlen-cursor_pos-1);
-				display_row(RELCURPOS);
+				if (strlen(kopie_string) > cursor_pos) {
+					memmove(kopie_string+cursor_pos, kopie_string+cursor_pos+1, maxlen-cursor_pos-1);
+					display_row(RELCURPOS);
+				}
 				break;
 
 			case 'X'-64:	/* Control-X */
