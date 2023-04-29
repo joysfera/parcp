@@ -1077,7 +1077,7 @@ void list_dir(const char *p2, int maska, char *zacatek)
 	time_t dneska = time(NULL);
 	struct tm *cas;
 	char dname[MAXPATH],tempo[MAXPATH],fname[MAXFNAME+1],pname[MAXFNAME+1],*p;
-	MYBOOL compare_sensitive = _case_sensitive & fs_sensitive(p2);
+	MYBOOL compare_sensitive = _case_sensitive && fs_sensitive(p2);
 
 	DPRINT1("d Entering list_dir(%s)\n", p2);
 
@@ -1785,7 +1785,7 @@ int process_files(int Process, const char *src_mask)
 	int status = 0;
 
 	/* setup global vars for recursion */
-	PF_compare_sensitive = _case_sensitive & fs_sensitive(src_mask);
+	PF_compare_sensitive = _case_sensitive && fs_sensitive(src_mask);
 	PF_Process = Process;
 
 	/* separate absolute path name */
